@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- UniLink Core Branding -->
+    <color name="bg_dark">#0F0F14</color>
+    <color name="bg_light">#1A1A24</color>
+    <color name="bg_dark_nav">#16161E</color>
+    <color name="bg_card">#1A1A24</color>
+    <color name="bg_card_glass">#261A1A24</color>
+
+    <color name="pink_brand">#EC4899</color>
+    <color name="cyan_brand">#22D3EE</color>
+    <color name="purple_brand">#8B5CF6</color>
+
+    <!-- Status Colors -->
+    <color name="status_online">#22C55E</color>
+    <color name="status_busy">#F59E0B</color>
+    <color name="status_studying">#22D3EE</color>
+    <color name="status_urgent">#EC4899</color>
+
+    <color name="text_main">#FFFFFF</color>
+    <color name="text_sub">#94A3B8</color>
+    <color name="text_white">#FFFFFF</color>
+    <color name="text_grey">#94A3B8</color>
+
+    <color name="glass_white">#1AFFFFFF</color>
+    <color name="glass_white_heavy">#33FFFFFF</color>
+    <color name="glass_border">#1AFFFFFF</color>
+
+    <!-- Legacy compatibility & System Aliases -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="error">#EF4444</color>
+    <color name="primary_blue">#22D3EE</color>
+
+    <color name="primary">@color/cyan_brand</color>
+    <color name="primary_variant">@color/bg_dark</color>
+    <color name="on_primary">@color/bg_dark</color>
+    <color name="secondary">@color/pink_brand</color>
+    <color name="secondary_variant">@color/pink_brand</color>
+    <color name="on_secondary">@color/white</color>
+    <color name="background">@color/bg_dark</color>
+    <color name="surface">@color/bg_card</color>
+    <color name="on_background">@color/white</color>
+    <color name="on_surface">@color/white</color>
+
+    <color name="neon_cyan">#22D3EE</color>
+    <color name="neon_pink">#EC4899</color>
+    <color name="neon_purple">#8B5CF6</color>
+    <color name="neon_orange">#F59E0B</color>
+
+    <color name="grad_cyan_start">#22D3EE</color>
+    <color name="grad_cyan_end">#00B8D4</color>
+    <color name="grad_pink_start">#EC4899</color>
+    <color name="grad_pink_end">#C51162</color>
+    <color name="grad_purple_start">#8B5CF6</color>
+    <color name="grad_purple_end">#6D28D9</color>
+
+    <!-- Liquid / Colorful Theme Colors -->
+    <color name="liquid_indigo">#6366F1</color>
+    <color name="liquid_teal">#14B8A6</color>
+    <color name="liquid_amber">#F59E0B</color>
+    <color name="liquid_rose">#F43F5E</color>
+
+    <color name="glass_primary">#4022D3EE</color>
+    <color name="glass_secondary">#40EC4899</color>
+
+    <color name="story_border">@color/neon_cyan</color>
+
+    <color name="grey_50">#FAFAFA</color>
+    <color name="grey_100">#F1F5F9</color>
+    <color name="grey_200">#E2E8F0</color>
+    <color name="grey_300">#CBD5E1</color>
+    <color name="grey_400">#94A3B8</color>
+    <color name="grey_500">#64748B</color>
+    <color name="grey_600">#475569</color>
+    <color name="grey_700">#334155</color>
+    <color name="grey_800">#1E293B</color>
+    <color name="grey_900">#0F172A</color>
+    <!-- WhatsApp Style / Light Themes -->
+    <color name="wa_bg_light">#F7F8FA</color>
+    <color name="wa_primary">#075E54</color>
+    <color name="wa_secondary">#25D366</color>
+    <color name="wa_text_primary">#111B21</color>
+    <color name="wa_text_secondary">#667781</color>
+    <color name="wa_message_sent">#D9FDD3</color>
+    <color name="wa_message_received">#FFFFFF</color>
+    <color name="wa_surface">#FFFFFF</color>
+
+    <!-- Ars White Theme Colors (Minimalist) -->
+    <color name="white_bg">#F8F9FA</color>
+    <color name="white_card">#FFFFFF</color>
+    <color name="white_text_primary">#1D1D1F</color>
+    <color name="white_text_secondary">#6E6E73</color>
+    <color name="white_border">#E5E5E7</color>
+    <color name="white_accent">#007AFF</color> <!-- iOS style blue for Ars White -->
+
+    <!-- Ars Dark Theme Colors (Obsidian & Electric Blue) -->
+    <color name="ars_dark_bg">#010101</color>
+    <color name="ars_dark_card">#0F0F12</color>
+    <color name="ars_dark_text_primary">#FFFFFF</color>
+    <color name="ars_dark_text_secondary">#9CA3AF</color>
+    <color name="ars_dark_border">#1F1F23</color>
+    <color name="ars_dark_accent">#00E5FF</color>
+
+    <color name="border_light">#F1F2F6</color>
+    <color name="accent_blue">#E3F2FD</color>
+</resources>
+

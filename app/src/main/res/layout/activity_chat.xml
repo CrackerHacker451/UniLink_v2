@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/appBackgroundColor">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/appBackgroundColor"
+        app:elevation="0dp">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="?attr/homeAsUpIndicator"
+            app:navigationIconTint="?attr/accentColor"
+            app:title=""
+            app:titleTextColor="?attr/textPrimaryColor">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/ivChatReceiverAvatar"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:background="@drawable/bg_tag"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_profile_placeholder" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:orientation="vertical">
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvChatReceiverName"
+                    android:layout_width="145dp"
+                    android:layout_height="wrap_content"
+                    android:text="Receiver Name"
+                    android:textColor="?attr/textPrimaryColor"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvChatReceiverStatus"
+                    android:layout_width="34dp"
+                    android:layout_height="wrap_content"
+                    android:text="Online"
+                    android:textColor="?attr/accentColor"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/btnViewProfile"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="18dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:src="@android:drawable/ic_menu_myplaces"
+                    app:tint="?attr/accentColor" />
+
+                <ImageView
+                    android:id="@+id/btnChatSettings"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="18dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:src="@android:drawable/ic_menu_manage"
+                    app:tint="?attr/textPrimaryColor" />
+
+                <ImageView
+                    android:id="@+id/btnMore"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="12dp"
+                    android:src="@android:drawable/ic_menu_more"
+                    app:tint="?attr/textPrimaryColor" />
+            </LinearLayout>
+        </androidx.appcompat.widget.Toolbar>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <ImageView
+            android:id="@+id/ivChatWallpaper"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:alpha="0.6"
+            android:visibility="gone" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvMessages"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:clipToPadding="false"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            app:layout_constraintBottom_toTopOf="@id/typingIndicator"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0"
+            tools:layout_editor_absoluteX="180dp" />
+
+        <TextView
+            android:id="@+id/typingIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginBottom="4dp"
+            android:text="Typing..."
+            android:textColor="?attr/accentColor"
+            android:textSize="11sp"
+            android:textStyle="italic"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/quickActionBar"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <!-- Quick Action Bar (More Minimalist) -->
+        <HorizontalScrollView
+            android:id="@+id/quickActionBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/appBackgroundColor"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:scrollbars="none"
+            app:layout_constraintBottom_toTopOf="@id/inputArea">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/qaPoll"
+                    style="@style/QuickActionItem"
+                    android:text="📊 Poll" />
+                <TextView
+                    android:id="@+id/qaDoubt"
+                    style="@style/QuickActionItem"
+                    android:text="🧠 Doubt" />
+                <TextView
+                    android:id="@+id/qaToken"
+                    style="@style/QuickActionItem"
+                    android:text="💰 Token" />
+                <TextView
+                    android:id="@+id/qaCode"
+                    style="@style/QuickActionItem"
+                    android:text="💻 Code" />
+                <TextView
+                    android:id="@+id/qaDuel"
+                    style="@style/QuickActionItem"
+                    android:text="⚔️ Duel" />
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <LinearLayout
+            android:id="@+id/inputArea"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/appBackgroundColor"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <!-- Reply Preview -->
+            <RelativeLayout
+                android:id="@+id/replyPreview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/tagBackgroundColor"
+                android:padding="10dp"
+                android:visibility="gone">
+                <View
+                    android:layout_width="3dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignTop="@id/tvReplyTarget"
+                    android:layout_alignBottom="@id/tvReplyTarget"
+                    android:background="?attr/accentColor"
+                    android:layout_alignParentStart="true" />
+                <TextView
+                    android:id="@+id/tvReplyTarget"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginEnd="32dp"
+                    android:textColor="?attr/textSecondaryColor"
+                    android:textSize="12sp"
+                    android:maxLines="2"
+                    android:ellipsize="end" />
+                <ImageView
+                    android:id="@+id/btnCloseReply"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:src="@android:drawable/ic_menu_close_clear_cancel"
+                    app:tint="?attr/textSecondaryColor" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="bottom"
+                android:orientation="horizontal"
+                android:paddingHorizontal="12dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="12dp">
+
+                <ImageView
+                    android:id="@+id/btnAttach"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:padding="8dp"
+                    android:src="@android:drawable/ic_input_add"
+                    app:tint="?attr/textSecondaryColor" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="8dp"
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="?attr/cardBackgroundColor"
+                    app:cardCornerRadius="26dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="?attr/borderStrokeColor"
+                    app:strokeWidth="1dp">
+
+                    <EditText
+                        android:id="@+id/etMessage"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@null"
+                        android:hint="Type message..."
+                        android:inputType="textMultiLine|textCapSentences"
+                        android:maxLines="5"
+                        android:paddingHorizontal="20dp"
+                        android:paddingVertical="12dp"
+                        android:textColor="?attr/textPrimaryColor"
+                        android:textColorHint="?attr/textSecondaryColor"
+                        android:textSize="15sp" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <FrameLayout
+                    android:layout_width="44dp"
+                    android:layout_height="44dp">
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/btnSend"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:fabCustomSize="44dp"
+                        app:backgroundTint="?attr/accentColor"
+                        app:elevation="0dp"
+                        android:src="@android:drawable/ic_menu_send"
+                        app:tint="@color/white" />
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/btnVoice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:fabCustomSize="44dp"
+                        app:backgroundTint="?attr/tagBackgroundColor"
+                        app:elevation="0dp"
+                        android:src="@android:drawable/ic_btn_speak_now"
+                        app:tint="?attr/accentColor"
+                        android:visibility="gone" />
+                </FrameLayout>
+
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

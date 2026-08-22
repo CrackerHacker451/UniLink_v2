@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Solid base for maximum stability -->
+    <item>
+        <shape>
+            <solid android:color="#0A0A0F" />
+        </shape>
+    </item>
+
+    <!-- Subtle accents (Reduced size and complexity for older devices) -->
+    <item android:top="0dp" android:left="0dp">
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="linear"
+                android:angle="135"
+                android:startColor="#1AEC4899"
+                android:endColor="@android:color/transparent" />
+        </shape>
+    </item>
+
+    <item android:bottom="0dp" android:right="0dp">
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="linear"
+                android:angle="315"
+                android:startColor="#1A22D3EE"
+                android:endColor="@android:color/transparent" />
+        </shape>
+    </item>
+
+    <!-- Noise/Texture Overlay -->
+    <item>
+        <shape>
+            <gradient
+                android:type="linear"
+                android:angle="270"
+                android:startColor="#00000000"
+                android:centerColor="#0DFFFFFF"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+</layer-list>

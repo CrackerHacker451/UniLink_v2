@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "326237133092",
+    "project_id": "uni-link-b7f2c",
+    "storage_bucket": "uni-link-b7f2c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:326237133092:android:9aea4cc084e6ce212efbb1",
+        "android_client_info": {
+          "package_name": "com.example.unilink"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "326237133092-g8lqf9d2dbv4epoo9ofma5ubp04dqm33.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWi48FeraXq5VTrP2EglbKOU0ng6QHXss"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "326237133092-g8lqf9d2dbv4epoo9ofma5ubp04dqm33.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

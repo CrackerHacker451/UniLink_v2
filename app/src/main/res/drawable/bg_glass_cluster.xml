@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Base Deep Space Blue -->
+    <item>
+        <shape>
+            <gradient
+                android:angle="135"
+                android:startColor="#020617"
+                android:centerColor="#0F172A"
+                android:endColor="#1E293B" />
+        </shape>
+    </item>
+
+    <!-- Aura Orb 1: Vibrant Magenta (Top Left) -->
+    <item android:top="-120dp" android:left="-80dp">
+        <shape android:shape="oval">
+            <size android:width="450dp" android:height="450dp"/>
+            <gradient
+                android:type="radial"
+                android:gradientRadius="350dp"
+                android:startColor="#59EC4899"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+
+    <!-- Aura Orb 2: Electric Cyan (Bottom Right) -->
+    <item android:bottom="-180dp" android:right="-120dp">
+        <shape android:shape="oval">
+            <size android:width="550dp" android:height="550dp"/>
+            <gradient
+                android:type="radial"
+                android:gradientRadius="450dp"
+                android:startColor="#5922D3EE"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+
+    <!-- Aura Orb 3: Royal Purple (Top Right) -->
+    <item android:top="-50dp" android:right="-50dp">
+        <shape android:shape="oval">
+            <size android:width="400dp" android:height="400dp"/>
+            <gradient
+                android:type="radial"
+                android:gradientRadius="300dp"
+                android:startColor="#408B5CF6"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+
+    <!-- Aura Orb 4: Deep Indigo (Center Left) -->
+    <item android:top="200dp" android:left="-150dp">
+        <shape android:shape="oval">
+            <size android:width="350dp" android:height="350dp"/>
+            <gradient
+                android:type="radial"
+                android:gradientRadius="250dp"
+                android:startColor="#336366F1"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+
+    <!-- Subtle Shimmer Overlay -->
+    <item>
+        <shape>
+            <gradient
+                android:type="linear"
+                android:angle="45"
+                android:startColor="#00FFFFFF"
+                android:centerColor="#0AFFFFFF"
+                android:endColor="#00FFFFFF" />
+        </shape>
+    </item>
+
+    <!-- Frosted Texture Layer -->
+    <item>
+        <shape>
+            <solid android:color="#0DFFFFFF" />
+        </shape>
+    </item>
+</layer-list>

@@ -1,0 +1,638 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/swipeRefreshHome"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/bg_aura_premium"
+            android:scaleType="centerCrop"
+            android:alpha="0.4" />
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/home_root_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="160dp">
+
+                <!-- Header -->
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="24dp"
+                    android:paddingTop="28dp"
+                    android:paddingBottom="16dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/ivLogo"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:src="@mipmap/ic_launcher"
+                            app:shapeAppearanceOverlay="@style/CircleImage"
+                            android:background="@drawable/bg_pro_pulse"
+                            android:padding="1.5dp" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/tvLogoText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="UniLink"
+                                android:textColor="?attr/textPrimaryColor"
+                                android:textSize="26sp"
+                                android:textStyle="bold"
+                                android:letterSpacing="-0.03" />
+                            <TextView
+                                android:id="@+id/tvCollegeName"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Campus Pulse"
+                                android:textColor="?attr/accentColor"
+                                android:textSize="11sp"
+                                android:textStyle="bold"
+                                android:textAllCaps="true"
+                                android:letterSpacing="0.15" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/btnLeaderboard"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:layout_marginEnd="12dp"
+                            app:cardBackgroundColor="#0DFFFFFF"
+                            app:cardCornerRadius="21dp"
+                            app:cardElevation="0dp"
+                            app:strokeColor="#1AFFFFFF"
+                            app:strokeWidth="1dp">
+                            <ImageView
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:layout_gravity="center"
+                                android:src="@android:drawable/btn_star_big_on"
+                                app:tint="#FFD700" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/btnNotifications"
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            app:cardBackgroundColor="#0DFFFFFF"
+                            app:cardCornerRadius="21dp"
+                            app:cardElevation="0dp"
+                            app:strokeColor="#1AFFFFFF"
+                            app:strokeWidth="1dp">
+                            <FrameLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent">
+                                <ImageView
+                                    android:layout_width="22dp"
+                                    android:layout_height="22dp"
+                                    android:layout_gravity="center"
+                                    android:src="@android:drawable/ic_popup_reminder"
+                                    app:tint="?attr/textPrimaryColor" />
+                                <TextView
+                                    android:id="@+id/tvNotificationCount"
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:layout_gravity="top|end"
+                                    android:layout_marginTop="6dp"
+                                    android:layout_marginEnd="6dp"
+                                    android:background="@drawable/bg_notification_badge"
+                                    android:gravity="center"
+                                    android:text="0"
+                                    android:textColor="@color/white"
+                                    android:textSize="9sp"
+                                    android:visibility="gone" />
+                            </FrameLayout>
+                        </com.google.android.material.card.MaterialCardView>
+                    </LinearLayout>
+                </RelativeLayout>
+
+                <!-- Search Entry -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:layout_marginHorizontal="24dp"
+                    android:layout_marginTop="8dp"
+                    app:cardCornerRadius="30dp"
+                    style="@style/GlassCard"
+                    app:strokeWidth="1.5dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="20dp">
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:src="@android:drawable/ic_menu_search"
+                            app:tint="?attr/accentColor" />
+                        <EditText
+                            android:id="@+id/etSearchAll"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@null"
+                            android:hint="Search campus..."
+                            android:paddingHorizontal="16dp"
+                            android:textColor="?attr/textPrimaryColor"
+                            android:textSize="15sp"
+                            android:imeOptions="actionSearch"
+                            android:inputType="text" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Stats Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="24dp"
+                    android:layout_marginTop="24dp"
+                    style="@style/GlassCard"
+                    app:cardCornerRadius="32dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_premium_card"
+                        android:padding="24dp"
+                        android:orientation="vertical">
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+                            <TextView
+                                android:id="@+id/tvTotalXp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0 IMPACT"
+                                android:textColor="?attr/accentColor"
+                                android:textSize="13sp"
+                                android:textStyle="bold"
+                                android:textAllCaps="true" />
+
+                            <TextView
+                                android:id="@+id/tvXpStreak"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentEnd="true"
+                                android:text="🔥 0 DAYS"
+                                android:textColor="#FACC15"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+                        </RelativeLayout>
+
+                        <ProgressBar
+                            android:id="@+id/progressXp"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="8dp"
+                            android:layout_marginTop="16dp"
+                            android:progressDrawable="@drawable/bg_streak_progress" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="20dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:id="@+id/tvUniCoins"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="0"
+                                    android:textColor="#FFD700"
+                                    android:textSize="26sp"
+                                    android:textStyle="bold" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="UNICOINS"
+                                    android:textColor="?attr/textSecondaryColor"
+                                    android:textSize="10sp"
+                                    android:textStyle="bold"
+                                    android:textAllCaps="true" />
+                            </LinearLayout>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnAiAssistant"
+                                android:layout_width="wrap_content"
+                                android:layout_height="44dp"
+                                android:text="Ask UniAI"
+                                android:textAllCaps="false"
+                                android:textStyle="bold"
+                                app:backgroundTint="?attr/accentColor"
+                                app:cornerRadius="22dp"
+                                android:textColor="@color/bg_dark"
+                                app:icon="@android:drawable/ic_menu_help"
+                                app:iconTint="@color/bg_dark"
+                                app:iconSize="18dp"
+                                app:elevation="2dp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Dashboard Pulse -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="24dp"
+                    android:layout_marginTop="24dp">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="90dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="12dp"
+                        style="@style/GlassCard"
+                        app:cardCornerRadius="24dp">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/tvOnlineCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0 Students"
+                                android:textColor="?attr/accentColor"
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Online Now"
+                                android:textColor="?attr/textSecondaryColor"
+                                android:textSize="10sp"
+                                android:textStyle="bold"
+                                android:textAllCaps="true" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="90dp"
+                        android:layout_weight="1"
+                        style="@style/GlassCard"
+                        app:cardCornerRadius="24dp">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/tvActiveTeamsCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0 Teams"
+                                android:textColor="@color/neon_pink"
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Collaborating"
+                                android:textColor="?attr/textSecondaryColor"
+                                android:textSize="10sp"
+                                android:textStyle="bold"
+                                android:textAllCaps="true" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+                <!-- Vault Stats -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="80dp"
+                    android:layout_marginHorizontal="24dp"
+                    android:layout_marginTop="12dp"
+                    style="@style/GlassCard"
+                    app:cardCornerRadius="24dp">
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:paddingHorizontal="20dp">
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/tvNewVaultsCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0 Resources"
+                                android:textColor="?attr/textPrimaryColor"
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="New entries in Resource Vault"
+                                android:textColor="?attr/textSecondaryColor"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:src="@android:drawable/ic_menu_agenda"
+                            app:tint="?attr/accentColor" />
+                    </RelativeLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Highlights -->
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="32dp"
+                    android:paddingHorizontal="24dp">
+                    <TextView
+                        android:id="@+id/tvHighlightTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Campus Highlights"
+                        android:textColor="?attr/textPrimaryColor"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="-0.02" />
+                </RelativeLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvCampusHighlights"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:clipToPadding="false"
+                    android:paddingHorizontal="24dp"
+                    android:orientation="horizontal" />
+
+                <!-- Stories -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginTop="32dp"
+                    android:text="Campus Stories"
+                    android:textColor="?attr/textPrimaryColor"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="-0.02" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvStories"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:clipToPadding="false"
+                    android:paddingHorizontal="24dp"
+                    android:orientation="horizontal" />
+
+                <!-- Launchpad -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginTop="32dp"
+                    android:text="Launchpad"
+                    android:textColor="?attr/textPrimaryColor"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="-0.02" />
+
+                <!-- Doubt Board -->
+
+                <GridLayout
+                    android:layout_width="376dp"
+                    android:layout_height="102dp"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginTop="16dp"
+                    android:alignmentMode="alignMargins"
+                    android:columnCount="4"
+                    android:columnOrderPreserved="false">
+
+                    <include
+                        android:id="@+id/actionFindTeam"
+                        layout="@layout/item_quick_action_premium"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1" />
+
+                    <include
+                        android:id="@+id/actionCreateTeam"
+                        layout="@layout/item_quick_action_premium"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1" />
+
+                    <include
+                        android:id="@+id/actionNearby"
+                        layout="@layout/item_quick_action_premium"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1" />
+
+                    <include
+                        android:id="@+id/actionRandomMatch"
+                        layout="@layout/item_quick_action_premium"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1" />
+                </GridLayout>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginTop="32dp"
+                    style="@style/GlassCard"
+                    app:cardCornerRadius="32dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="22dp">
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Doubt Board"
+                                android:textColor="?attr/textPrimaryColor"
+                                android:textSize="18sp"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:id="@+id/tvViewAllDoubts"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentEnd="true"
+                                android:text="View All"
+                                android:textColor="?attr/accentColor"
+                                android:textStyle="bold"
+                                android:textSize="12sp" />
+                        </RelativeLayout>
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rvDoubtBoard"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:nestedScrollingEnabled="false" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnPostDoubt"
+                            style="@style/PrimaryButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="54dp"
+                            android:layout_marginTop="20dp"
+                            android:text="Ask a Question"
+                            app:backgroundTint="?attr/accentColor"
+                            android:textColor="@color/bg_dark"
+                            app:icon="@android:drawable/ic_menu_help"
+                            app:iconGravity="textStart"
+                            app:iconPadding="10dp"
+                            app:iconTint="@color/bg_dark"
+                            app:cornerRadius="27dp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Skill Duels -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginTop="32dp"
+                    android:text="Skill Duels"
+                    android:textColor="?attr/textPrimaryColor"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvSkillDuels"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:clipToPadding="false"
+                    android:paddingHorizontal="24dp"
+                    android:orientation="horizontal" />
+
+                <!-- Focus Zones -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginTop="32dp"
+                    style="@style/GlassCard"
+                    app:cardCornerRadius="32dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="22dp">
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Focus Zones"
+                                android:textColor="?attr/textPrimaryColor"
+                                android:textSize="18sp"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:id="@+id/tvJoinFocusRoom"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentEnd="true"
+                                android:text="Join Session"
+                                android:textColor="?attr/accentColor"
+                                android:textStyle="bold"
+                                android:textSize="12sp" />
+                        </RelativeLayout>
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rvFocusRooms"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:clipToPadding="false"
+                            android:orientation="horizontal" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Campus Feed -->
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="36dp"
+                    android:paddingHorizontal="24dp">
+                    <TextView
+                        android:id="@+id/tvLivePulse"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Campus Pulse"
+                        android:textColor="?attr/textPrimaryColor"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="-0.02" />
+                    <View
+                        android:id="@+id/livePulseBadge"
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_toEndOf="@id/tvLivePulse"
+                        android:layout_centerVertical="true"
+                        android:background="@drawable/bg_online_glow"
+                        android:visibility="gone"/>
+                </RelativeLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvActivityFeed"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:nestedScrollingEnabled="false" />
+
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </FrameLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

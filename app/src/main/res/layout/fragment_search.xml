@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/appBackgroundColor">
+
+    <com.example.unilink.utils.AuraParticlesView
+        android:id="@+id/auraParticles"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.2"
+        android:visibility="visible" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="32dp"
+            android:paddingBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="307dp"
+                android:layout_height="77dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:letterSpacing="-0.03"
+                    android:text="Discover"
+                    android:textColor="?attr/textPrimaryColor"
+                    android:textSize="34sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:letterSpacing="0.1"
+                    android:text="Connect with the top 1% of campus"
+                    android:textAllCaps="true"
+                    android:textColor="?attr/accentColor"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </FrameLayout>
+
+        <!-- Modern Search Bar -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginTop="8dp"
+            style="@style/GlassCard"
+            app:cardCornerRadius="28dp"
+            app:strokeWidth="1dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="368dp"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="20dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@android:drawable/ic_menu_search"
+                    app:tint="?attr/accentColor" />
+
+                <EditText
+                    android:id="@+id/etSearchStudents"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:hint="Search names, skills, or projects..."
+                    android:imeOptions="actionSearch"
+                    android:inputType="textPersonName"
+                    android:paddingStart="16dp"
+                    android:textColor="?attr/textPrimaryColor"
+                    android:textColorHint="?attr/textSecondaryColor"
+                    android:textSize="15sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Modern Category Chips -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:clipToPadding="false"
+            android:paddingHorizontal="24dp"
+            android:scrollbars="none">
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/cgCategories"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:singleLine="true"
+                app:singleSelection="true"
+                app:selectionRequired="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipAll"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="All Minds"
+                    app:chipBackgroundColor="#1A22D3EE"
+                    app:chipStrokeColor="#4022D3EE"
+                    app:chipStrokeWidth="1dp"
+                    android:textColor="?attr/textPrimaryColor"
+                    app:chipCornerRadius="14dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipEngineering"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tech"
+                    app:chipBackgroundColor="#0DFFFFFF"
+                    app:chipStrokeColor="#1AFFFFFF"
+                    android:textColor="?attr/textPrimaryColor"
+                    app:chipCornerRadius="14dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipDesign"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Creative"
+                    app:chipBackgroundColor="#0DFFFFFF"
+                    app:chipStrokeColor="#1AFFFFFF"
+                    android:textColor="?attr/textPrimaryColor"
+                    app:chipCornerRadius="14dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipMedical"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Healthcare"
+                    app:chipBackgroundColor="#0DFFFFFF"
+                    app:chipStrokeColor="#1AFFFFFF"
+                    android:textColor="?attr/textPrimaryColor"
+                    app:chipCornerRadius="14dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipManagement"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Business"
+                    app:chipBackgroundColor="#0DFFFFFF"
+                    app:chipStrokeColor="#1AFFFFFF"
+                    android:textColor="?attr/textPrimaryColor"
+                    app:chipCornerRadius="14dp" />
+
+            </com.google.android.material.chip.ChipGroup>
+        </HorizontalScrollView>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvStudentGrid"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="16dp"
+            android:clipToPadding="false"
+            android:paddingHorizontal="12dp"
+            android:paddingBottom="120dp"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:spanCount="2" />
+
+        <!-- Skeleton Loading -->
+        <LinearLayout
+            android:id="@+id/llSkeletonContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingHorizontal="12dp"
+            android:visibility="gone">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+                <include layout="@layout/skeleton_student_card" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" />
+                <include layout="@layout/skeleton_student_card" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvEmptySearch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="No students found matching your criteria"
+        android:textColor="?attr/textSecondaryColor"
+        android:textSize="16sp"
+        android:visibility="gone" />
+
+</FrameLayout>

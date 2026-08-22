@@ -1,0 +1,16 @@
+# Firebase Firestore Models
+-keepclassmembers class com.example.unilink.models.** {
+    @com.google.firebase.firestore.PropertyName <fields>;
+    @com.google.firebase.firestore.PropertyName <methods>;
+    public <methods>;
+    public <fields>;
+}
+
+-keep class com.example.unilink.models.** { *; }
+
+# Keep Firebase classes
+-keep class com.google.firebase.** { *; }
+-keep class com.google.android.gms.internal.** { *; }
+
+# Prevent shrinking of data classes used by Firestore
+-keepnames class com.example.unilink.models.** { *; }

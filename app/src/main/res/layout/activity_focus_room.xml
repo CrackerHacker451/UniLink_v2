@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/appBackgroundColor"
+    android:orientation="vertical"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/tvRoomName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Midterm Grind"
+        android:textColor="?attr/textPrimaryColor"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Session: Focus"
+        android:textColor="?attr/accentColor"
+        android:textSize="14sp" />
+
+    <RelativeLayout
+        android:layout_width="280dp"
+        android:layout_height="280dp"
+        android:layout_marginTop="40dp">
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/progressTimer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            app:indicatorSize="260dp"
+            app:trackThickness="12dp"
+            app:trackColor="?attr/borderStrokeColor"
+            app:indicatorColor="?attr/accentColor"
+            android:progress="100" />
+
+        <TextView
+            android:id="@+id/tvTimer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="25:00"
+            android:textColor="?attr/textPrimaryColor"
+            android:textSize="48sp"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnToggleTimer"
+        android:layout_width="200dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="40dp"
+        android:text="Start Session"
+        android:textAllCaps="false"
+        app:backgroundTint="?attr/accentColor"
+        app:cornerRadius="30dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnJoinChat"
+        android:layout_width="200dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="16dp"
+        android:text="Group Chat"
+        android:textAllCaps="false"
+        app:backgroundTint="?attr/cardBackgroundColor"
+        app:cornerRadius="30dp"
+        app:strokeColor="?attr/accentColor"
+        app:strokeWidth="1dp"
+        android:textColor="?attr/textPrimaryColor"
+        app:icon="@android:drawable/ic_menu_send"
+        app:iconTint="?attr/accentColor" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnLofi"
+        android:layout_width="200dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="16dp"
+        android:text="Lofi: Off"
+        android:textAllCaps="false"
+        app:backgroundTint="?attr/cardBackgroundColor"
+        app:cornerRadius="30dp"
+        app:strokeColor="?attr/accentColor"
+        app:strokeWidth="1dp"
+        android:textColor="?attr/textPrimaryColor"
+        app:icon="@android:drawable/ic_lock_silent_mode"
+        app:iconTint="?attr/accentColor" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnAiPlan"
+        android:layout_width="200dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="16dp"
+        android:text="AI Study Plan"
+        android:textAllCaps="false"
+        app:backgroundTint="#1AFFFFFF"
+        app:cornerRadius="30dp"
+        app:strokeColor="?attr/accentColor"
+        app:strokeWidth="1dp"
+        android:textColor="?attr/textPrimaryColor"
+        app:icon="@android:drawable/ic_menu_edit"
+        app:iconTint="?attr/accentColor" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnZenMode"
+        android:layout_width="200dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="16dp"
+        android:text="Zen Mode"
+        android:textAllCaps="false"
+        app:backgroundTint="#00000000"
+        app:cornerRadius="30dp"
+        app:strokeColor="#FFFFFF"
+        app:strokeWidth="1dp"
+        android:textColor="#FFFFFF"
+        android:visibility="gone" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Earn 5 UniCoins per session"
+        android:textColor="?attr/textSecondaryColor"
+        android:textSize="12sp" />
+
+</LinearLayout>

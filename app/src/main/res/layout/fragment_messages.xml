@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="48dp"
+            android:paddingBottom="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Conversations"
+                android:textColor="?attr/textPrimaryColor"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:letterSpacing="-0.02" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btnNewChat"
+                android:layout_width="49dp"
+                android:layout_height="50dp"
+                android:layout_alignParentEnd="true"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardBackgroundColor="#0DFFFFFF"
+                app:cardCornerRadius="22dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#1AFFFFFF"
+                app:strokeWidth="1dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:src="@android:drawable/ic_menu_edit"
+                    app:tint="?attr/accentColor" />
+            </com.google.android.material.card.MaterialCardView>
+        </RelativeLayout>
+
+        <!-- Search bar -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/GlassCard"
+            android:layout_width="361dp"
+            android:layout_height="44dp"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginTop="12dp"
+            app:cardCornerRadius="26dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="37dp"
+                android:gravity="center_vertical"
+                android:paddingLeft="18dp"
+                android:paddingRight="18dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@android:drawable/ic_menu_search"
+                    app:tint="?attr/textSecondaryColor" />
+
+                <EditText
+                    android:id="@+id/etSearchMessages"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:hint="@string/search_chats_hint"
+                    android:inputType="textPersonName"
+                    android:paddingStart="12dp"
+                    android:textColor="?attr/textPrimaryColor"
+                    android:textColorHint="?attr/textSecondaryColor"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvChats"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="16dp"
+            android:clipToPadding="false"
+            android:paddingBottom="100dp" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvEmptyChats"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/no_messages_yet"
+        android:textColor="?attr/textSecondaryColor"
+        android:textSize="16sp"
+        android:visibility="gone" />
+
+</FrameLayout>

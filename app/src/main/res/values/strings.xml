@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">UniLink</string>
+    <string name="hub_doubt">Doubt Board</string>
+    <string name="hub_duel">Skill Duels</string>
+    <string name="hub_focus">Focus Rooms</string>
+    <string name="hub_vault">Resource Vault</string>
+    <string name="uni_coins">UniCoins</string>
+    <string name="xp_streak">streak</string>
+    <string name="search_hint">Search students, projects, doubts...</string>
+    <string name="view_all">View All →</string>
+    <string name="answer">Answer</string>
+    <string name="doubt_board_title">🧠 Doubt Board</string>
+    <string name="token_reward_format">💰 %1$d UniCoins Reward</string>
+    <string name="unicoins_format">%1$d UNICOINS</string>
+    <string name="duel_wager_format">Wager: %1$d UniCoins</string>
+    <string name="waiting_for_partner">Waiting for partner...</string>
+    <string name="accept_challenge">Accept Challenge</string>
+    <string name="studying_count_format">%1$d Studying</string>
+    <string name="join_room">Join Room</string>
+    <string name="search_chats_hint">Search chats...</string>
+    <string name="no_messages_yet">No messages yet</string>
+    <string name="no_students_found">No students found</string>
+    <string name="no_projects_found">No projects found</string>
+    <string name="no_resources_available">No resources available</string>
+    <string name="no_rankings_found">No rankings found</string>
+    <string name="campus_live_plus">Campus Live+</string>
+    <string name="mark_all_as_read">Mark all as read</string>
+
+    <!-- AdMob IDs (Sample IDs) -->
+    <string name="admob_app_id">ca-app-pub-3940256099942544~3347511713</string>
+    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+</resources>

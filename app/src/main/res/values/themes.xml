@@ -1,0 +1,271 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme (Cyber Default) -->
+    <style name="Theme.UniLink" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/cyan_brand</item>
+        <item name="android:windowAnimationStyle">@style/CustomActivityAnimation</item>
+        <item name="colorPrimaryVariant">@color/bg_dark</item>
+        <item name="colorOnPrimary">@color/bg_dark</item>
+        <item name="colorSecondary">@color/pink_brand</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="android:statusBarColor">@color/bg_dark</item>
+        <item name="android:windowBackground">@color/bg_dark</item>
+        <item name="android:navigationBarColor">#16161E</item>
+
+        <!-- Custom Semantic Attributes -->
+        <item name="appBackgroundColor">@color/bg_dark</item>
+        <item name="cardBackgroundColor">@color/bg_card</item>
+        <item name="textPrimaryColor">@color/text_white</item>
+        <item name="textSecondaryColor">@color/text_grey</item>
+        <item name="accentColor">@color/neon_cyan</item>
+        <item name="borderStrokeColor">#1AFFFFFF</item>
+        <item name="inputBackgroundColor">@color/bg_card</item>
+        <item name="bottomNavBackground">#020617</item>
+        <item name="navItemSelectedColor">@color/neon_cyan</item>
+        <item name="navItemUnselectedColor">#64748B</item>
+        <item name="tagBackgroundColor">#0DFFFFFF</item>
+        <item name="tagTextColor">@color/neon_cyan</item>
+
+        <item name="editTextColor">@color/white</item>
+        <item name="android:editTextColor">@color/white</item>
+        <item name="android:textColorPrimary">@color/white</item>
+    </style>
+
+    <!-- Liquid Themes (Premium) -->
+    <style name="Theme.UniLink.Indigo" parent="Theme.UniLink.ArsDark">
+        <item name="colorPrimary">@color/liquid_indigo</item>
+        <item name="accentColor">@color/liquid_indigo</item>
+        <item name="navItemSelectedColor">@color/liquid_indigo</item>
+        <item name="tagTextColor">@color/liquid_indigo</item>
+        <item name="borderStrokeColor">#336366F1</item>
+        <item name="tagBackgroundColor">#1A6366F1</item>
+    </style>
+
+    <style name="Theme.UniLink.Teal" parent="Theme.UniLink.White">
+        <item name="colorPrimary">@color/liquid_teal</item>
+        <item name="accentColor">@color/liquid_teal</item>
+        <item name="navItemSelectedColor">@color/liquid_teal</item>
+        <item name="tagTextColor">@color/liquid_teal</item>
+        <item name="appBackgroundColor">#F0F9FA</item>
+        <item name="android:windowBackground">#F0F9FA</item>
+        <item name="android:statusBarColor">#F0F9FA</item>
+        <item name="borderStrokeColor">#2614B8A6</item>
+        <item name="tagBackgroundColor">#1A14B8A6</item>
+    </style>
+
+    <style name="Theme.UniLink.Rose" parent="Theme.UniLink.White">
+        <item name="colorPrimary">@color/liquid_rose</item>
+        <item name="accentColor">@color/liquid_rose</item>
+        <item name="navItemSelectedColor">@color/liquid_rose</item>
+        <item name="tagTextColor">@color/liquid_rose</item>
+        <item name="appBackgroundColor">#FFF5F7</item>
+        <item name="android:windowBackground">#FFF5F7</item>
+        <item name="android:statusBarColor">#FFF5F7</item>
+        <item name="borderStrokeColor">#26F43F5E</item>
+        <item name="tagBackgroundColor">#1AF43F5E</item>
+    </style>
+
+    <style name="Theme.UniLink.Amber" parent="Theme.UniLink">
+        <item name="colorPrimary">@color/liquid_amber</item>
+        <item name="accentColor">@color/liquid_amber</item>
+        <item name="navItemSelectedColor">@color/liquid_amber</item>
+        <item name="tagTextColor">@color/liquid_amber</item>
+        <item name="tagBackgroundColor">#1AF59E0B</item>
+    </style>
+
+    <!-- Midnight Gold (VIP Premium) -->
+    <style name="Theme.UniLink.Gold" parent="Theme.UniLink">
+        <item name="colorPrimary">#FACC15</item>
+        <item name="accentColor">#FACC15</item>
+        <item name="navItemSelectedColor">#FACC15</item>
+        <item name="tagTextColor">#FACC15</item>
+        <item name="borderStrokeColor">#33FACC15</item>
+        <item name="tagBackgroundColor">#1AFACC15</item>
+    </style>
+
+    <!-- Refined Ars Dark (Obsidian) -->
+    <style name="Theme.UniLink.ArsDark" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/ars_dark_accent</item>
+        <item name="colorPrimaryVariant">@color/ars_dark_bg</item>
+        <item name="colorOnPrimary">@color/ars_dark_bg</item>
+        <item name="colorSecondary">@color/ars_dark_accent</item>
+        <item name="android:statusBarColor">@color/ars_dark_bg</item>
+        <item name="android:windowBackground">@color/ars_dark_bg</item>
+        <item name="android:navigationBarColor">@color/ars_dark_bg</item>
+
+        <item name="appBackgroundColor">@color/ars_dark_bg</item>
+        <item name="cardBackgroundColor">@color/ars_dark_card</item>
+        <item name="textPrimaryColor">@color/ars_dark_text_primary</item>
+        <item name="textSecondaryColor">@color/ars_dark_text_secondary</item>
+        <item name="accentColor">@color/ars_dark_accent</item>
+        <item name="borderStrokeColor">@color/ars_dark_border</item>
+        <item name="inputBackgroundColor">@color/ars_dark_card</item>
+        <item name="bottomNavBackground">@color/ars_dark_bg</item>
+        <item name="navItemSelectedColor">@color/ars_dark_accent</item>
+        <item name="navItemUnselectedColor">@color/ars_dark_text_secondary</item>
+        <item name="tagBackgroundColor">@color/ars_dark_border</item>
+        <item name="tagTextColor">@color/ars_dark_accent</item>
+
+        <item name="android:textColorPrimary">@color/ars_dark_text_primary</item>
+        <item name="editTextColor">@color/ars_dark_text_primary</item>
+    </style>
+
+    <!-- Classic theme (Refined Light) -->
+    <style name="Theme.UniLink.Light" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/wa_primary</item>
+        <item name="colorPrimaryVariant">@color/wa_primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/wa_secondary</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="android:windowBackground">@color/wa_bg_light</item>
+        <item name="android:statusBarColor">@color/wa_primary</item>
+        <item name="android:navigationBarColor">@color/white</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+
+        <item name="android:textColorPrimary">@color/wa_text_primary</item>
+        <item name="android:textColorSecondary">@color/wa_text_secondary</item>
+
+        <!-- Custom Semantic Attributes (Light/WhatsApp) -->
+        <item name="appBackgroundColor">@color/wa_bg_light</item>
+        <item name="cardBackgroundColor">@color/white</item>
+        <item name="textPrimaryColor">@color/wa_text_primary</item>
+        <item name="textSecondaryColor">@color/wa_text_secondary</item>
+        <item name="accentColor">@color/wa_primary</item>
+        <item name="borderStrokeColor">#E0E0E0</item>
+        <item name="inputBackgroundColor">@color/white</item>
+        <item name="bottomNavBackground">@color/white</item>
+        <item name="navItemSelectedColor">@color/wa_primary</item>
+        <item name="navItemUnselectedColor">@color/wa_text_secondary</item>
+        <item name="tagBackgroundColor">#F0F2F5</item>
+        <item name="tagTextColor">@color/wa_primary</item>
+    </style>
+
+    <!-- Ars White Theme -->
+    <style name="Theme.UniLink.White" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/white_accent</item>
+        <item name="colorPrimaryVariant">@color/white_bg</item>
+        <item name="colorOnPrimary">@color/white_bg</item>
+        <item name="colorSecondary">@color/white_accent</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="android:windowBackground">@color/white_bg</item>
+        <item name="android:statusBarColor">@color/white_bg</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+        <item name="android:navigationBarColor">@color/white_bg</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+
+        <item name="android:textColorPrimary">@color/white_text_primary</item>
+        <item name="android:textColorSecondary">@color/white_text_secondary</item>
+
+        <item name="appBackgroundColor">@color/white_bg</item>
+        <item name="cardBackgroundColor">@color/white_card</item>
+        <item name="textPrimaryColor">@color/white_text_primary</item>
+        <item name="textSecondaryColor">@color/white_text_secondary</item>
+        <item name="accentColor">@color/white_accent</item>
+        <item name="borderStrokeColor">@color/white_border</item>
+        <item name="inputBackgroundColor">@color/white_card</item>
+        <item name="bottomNavBackground">@color/white_bg</item>
+        <item name="navItemSelectedColor">@color/white_accent</item>
+        <item name="navItemUnselectedColor">@color/white_text_secondary</item>
+        <item name="tagBackgroundColor">@color/white_border</item>
+        <item name="tagTextColor">@color/white_accent</item>
+
+        <item name="editTextColor">@color/white_text_primary</item>
+    </style>
+
+    <!-- Aura Glass 2.0 Theme (Elite Edition) -->
+    <style name="Theme.UniLink.AuraGlass" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#FFFFFF</item>
+        <item name="colorPrimaryVariant">#020617</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorSecondary">#22D3EE</item>
+        <item name="android:windowBackground">@drawable/bg_aura_premium</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+
+        <!-- Custom Semantic Attributes (Aura 2.0) -->
+        <item name="appBackgroundColor">@android:color/transparent</item>
+        <item name="cardBackgroundColor">#0AFFFFFF</item>
+        <item name="textPrimaryColor">#F8FAFC</item>
+        <item name="textSecondaryColor">#94A3B8</item>
+        <item name="accentColor">#22D3EE</item>
+        <item name="borderStrokeColor">#26FFFFFF</item>
+        <item name="inputBackgroundColor">#0DFFFFFF</item>
+        <item name="bottomNavBackground">#00000000</item>
+        <item name="navItemSelectedColor">#22D3EE</item>
+        <item name="navItemUnselectedColor">#4DFFFFFF</item>
+        <item name="tagBackgroundColor">#1AFFFFFF</item>
+        <item name="tagTextColor">#22D3EE</item>
+
+        <item name="android:textColorPrimary">#F8FAFC</item>
+        <item name="editTextColor">#FFFFFF</item>
+    </style>
+
+    <style name="PrimaryButton" parent="Widget.MaterialComponents.Button">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">60dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="cornerRadius">18dp</item>
+        <item name="elevation">4dp</item>
+    </style>
+
+    <style name="BottomNavText" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+
+    <style name="CircleImage">
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <style name="App.Custom.Indicator" parent="">
+        <item name="android:color">?attr/accentColor</item>
+    </style>
+
+    <style name="GlassCard" parent="Widget.MaterialComponents.CardView">
+        <item name="cardBackgroundColor">?attr/cardBackgroundColor</item>
+        <item name="cardElevation">0dp</item>
+        <item name="cardCornerRadius">32dp</item>
+        <item name="strokeColor">?attr/borderStrokeColor</item>
+        <item name="strokeWidth">1.2dp</item>
+    </style>
+
+    <style name="QuickActionItem">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">32dp</item>
+        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:background">@drawable/bg_quick_action</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingLeft">12dp</item>
+        <item name="android:paddingRight">12dp</item>
+        <item name="android:textColor">?attr/textPrimaryColor</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <style name="MessageActionItem">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">56dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textColor">?attr/textPrimaryColor</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+    </style>
+
+    <style name="CustomActivityAnimation" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/slide_in_up</item>
+        <item name="android:activityOpenExitAnimation">@anim/fade_out_subtle</item>
+        <item name="android:activityCloseEnterAnimation">@anim/fade_in_subtle</item>
+        <item name="android:activityCloseExitAnimation">@anim/slide_out_down</item>
+    </style>
+</resources>

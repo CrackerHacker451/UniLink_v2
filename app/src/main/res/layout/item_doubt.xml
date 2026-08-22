@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/GlassCard"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="20dp"
+    android:layout_marginVertical="8dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/ivUserAvatar"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_profile_placeholder"
+                app:shapeAppearanceOverlay="@style/CircleImage"
+                android:background="@drawable/bg_pro_pulse"
+                android:padding="1dp" />
+
+            <View
+                android:id="@+id/viewOnlineStatus"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:layout_alignEnd="@id/ivUserAvatar"
+                android:layout_alignBottom="@id/ivUserAvatar"
+                android:background="@drawable/bg_online_glow" />
+
+            <TextView
+                android:id="@+id/tvUserName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="12dp"
+                android:layout_toEndOf="@id/ivUserAvatar"
+                android:textColor="?attr/textPrimaryColor"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                tools:text="Aryan Sharma" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/bg_tag"
+                android:backgroundTint="#1AFFFFFF"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp">
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:src="@android:drawable/btn_star_big_on"
+                    app:tint="#FFD700" />
+                <TextView
+                    android:id="@+id/tvRewardCoins"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:textColor="#FFD700"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    tools:text="40" />
+            </LinearLayout>
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/tvQuestion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:lineSpacingExtra="4dp"
+            android:textColor="?attr/textPrimaryColor"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:text="How do I implement E2EE for a React Native chat application effectively?" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvTag1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_tag"
+                android:backgroundTint="#0DFFFFFF"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:textColor="?attr/accentColor"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:textAllCaps="true"
+                tools:text="SECURITY" />
+
+            <TextView
+                android:id="@+id/tvTag2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_tag"
+                android:backgroundTint="#0DFFFFFF"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:textColor="?attr/accentColor"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:textAllCaps="true"
+                tools:text="REACT NATIVE" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/tvAnswerCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="12dp"
+                android:textColor="@color/status_online"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                tools:text="✅ 3 solutions" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAnswer"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="Answer"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                app:backgroundTint="?attr/accentColor"
+                app:cornerRadius="18dp"
+                android:textColor="@color/bg_dark"
+                android:paddingHorizontal="16dp"
+                android:minWidth="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp" />
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

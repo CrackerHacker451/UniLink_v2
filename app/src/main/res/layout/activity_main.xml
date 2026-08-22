@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/appBackgroundColor"
+    android:animateLayoutChanges="true"
+    tools:context=".activities.MainActivity">
+
+    <com.example.unilink.utils.AuraParticlesView
+        android:id="@+id/auraParticles"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.4"
+        android:visibility="visible" />
+
+    <FrameLayout
+        android:id="@+id/fragmentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent" >
+
+    </FrameLayout>
+
+    <!-- Floating Navigation Dock (Previous Best Design) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/navCard"
+        android:layout_width="356dp"
+        android:layout_height="67dp"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginBottom="28dp"
+        app:cardBackgroundColor="#CC020617"
+        app:cardCornerRadius="38dp"
+        app:cardElevation="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:strokeColor="#33FFFFFF"
+        app:strokeWidth="1.2dp">
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottomNavigation"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@android:color/transparent"
+            app:elevation="0dp"
+            app:itemIconSize="24dp"
+            app:itemIconTint="@color/nav_item_color"
+            app:itemTextAppearanceActive="@style/BottomNavText"
+            app:itemTextAppearanceInactive="@style/BottomNavText"
+            app:itemTextColor="@color/nav_item_color"
+            app:labelVisibilityMode="labeled"
+            app:menu="@menu/bottom_nav_menu" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Balanced FAB Group Sitting above Dock -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="16dp"
+        android:gravity="center_vertical"
+        app:layout_constraintBottom_toTopOf="@id/navCard"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/fabUniAI"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="12dp"
+            app:cardBackgroundColor="#1A22D3EE"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="4dp"
+            app:strokeColor="#22D3EE"
+            app:strokeWidth="1.2dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground">
+
+            <ImageView
+                android:layout_width="41dp"
+                android:layout_height="42dp"
+                android:layout_gravity="center"
+                android:background="#141313"
+                android:src="@android:drawable/ic_menu_help"
+                app:srcCompat="?android:attr/fingerprintAuthDrawable"
+                app:tint="#22D3EE"
+                tools:srcCompat="@tools:sample/backgrounds/scenic" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabCreate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="Create"
+            android:src="@android:drawable/ic_input_add"
+            app:backgroundTint="@null"
+            android:background="@drawable/bg_fab_gradient"
+            app:tint="@color/white"
+            app:elevation="12dp"
+            app:borderWidth="0dp"
+            app:fabCustomSize="56dp" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

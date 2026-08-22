@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/appBackgroundColor"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="20dp"
+        android:background="?attr/borderStrokeColor" />
+
+    <TextView
+        android:id="@+id/actionReply"
+        style="@style/MessageActionItem"
+        android:text="↩️ Reply" />
+    <TextView
+        android:id="@+id/actionCopy"
+        style="@style/MessageActionItem"
+        android:text="📋 Copy Text" />
+    <TextView
+        android:id="@+id/actionEdit"
+        style="@style/MessageActionItem"
+        android:text="✏️ Edit" />
+    <TextView
+        android:id="@+id/actionReact"
+        style="@style/MessageActionItem"
+        android:text="😀 React" />
+    <TextView
+        android:id="@+id/actionVouch"
+        style="@style/MessageActionItem"
+        android:text="🛡️ Vouch" />
+    <TextView
+        android:id="@+id/actionSendTokens"
+        style="@style/MessageActionItem"
+        android:text="💰 Send Tokens" />
+    <TextView
+        android:id="@+id/actionPin"
+        style="@style/MessageActionItem"
+        android:text="📌 Pin Message" />
+    <TextView
+        android:id="@+id/actionDelete"
+        style="@style/MessageActionItem"
+        android:text="🗑️ Delete"
+        android:textColor="@color/error" />
+
+</LinearLayout>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Deep Space Base -->
+    <item>
+        <shape>
+            <gradient
+                android:angle="135"
+                android:startColor="#01040D"
+                android:centerColor="#050A1A"
+                android:endColor="#0F172A" />
+        </shape>
+    </item>
+
+    <!-- Moving Aura Orbs -->
+    <item android:top="-180dp" android:left="-120dp">
+        <shape android:shape="oval">
+            <size android:width="700dp" android:height="700dp"/>
+            <gradient
+                android:type="radial"
+                android:gradientRadius="450dp"
+                android:startColor="#22EC4899"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+
+    <item android:bottom="-300dp" android:right="-200dp">
+        <shape android:shape="oval">
+            <size android:width="850dp" android:height="850dp"/>
+            <gradient
+                android:type="radial"
+                android:gradientRadius="600dp"
+                android:startColor="#2222D3EE"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+
+    <!-- Ultra-Vivid Core Glows -->
+    <item android:top="200dp" android:right="-150dp">
+        <shape android:shape="oval">
+            <size android:width="600dp" android:height="600dp"/>
+            <gradient
+                android:type="radial"
+                android:gradientRadius="400dp"
+                android:startColor="#338B5CF6"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+
+    <item android:top="500dp" android:left="-250dp">
+        <shape android:shape="oval">
+            <size android:width="650dp" android:height="650dp"/>
+            <gradient
+                android:type="radial"
+                android:gradientRadius="450dp"
+                android:startColor="#263B82F6"
+                android:endColor="#00000000" />
+        </shape>
+    </item>
+
+    <!-- Frosted Shimmer Overlay -->
+    <item>
+        <shape>
+            <gradient
+                android:type="linear"
+                android:angle="45"
+                android:startColor="#00FFFFFF"
+                android:centerColor="#06FFFFFF"
+                android:endColor="#00FFFFFF" />
+        </shape>
+    </item>
+
+    <!-- Crystal Texture Layer -->
+    <item>
+        <shape>
+            <solid android:color="#0BFFFFFF" />
+        </shape>
+    </item>
+</layer-list>

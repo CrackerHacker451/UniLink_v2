@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="12dp"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tvSkillName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Skill Name"
+            android:textColor="?attr/textPrimaryColor"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tvVouchCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/tvSkillName"
+            android:layout_marginStart="8dp"
+            android:text="0 Vouches"
+            android:textColor="?attr/textSecondaryColor"
+            android:textSize="10sp" />
+
+        <ImageView
+            android:id="@+id/btnVouch"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_alignParentEnd="true"
+            android:src="@android:drawable/btn_star_big_off"
+            app:tint="?attr/accentColor"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="gone" />
+    </RelativeLayout>
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/skillProgress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:progress="50"
+        app:indicatorColor="?attr/accentColor"
+        app:trackColor="?attr/borderStrokeColor"
+        app:trackThickness="6dp"
+        app:trackCornerRadius="4dp" />
+</LinearLayout>

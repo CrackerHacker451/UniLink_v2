@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:attr/windowBackground">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:navigationIcon="?attr/homeAsUpIndicator"
+        app:navigationIconTint="?attr/accentColor"
+        app:title="Find Your Team"
+        app:titleTextColor="?attr/textPrimaryColor"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Search Bar -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardSearch"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="12dp"
+        app:cardBackgroundColor="?attr/cardBackgroundColor"
+        app:cardCornerRadius="26dp"
+        app:cardElevation="0dp"
+        app:strokeColor="?attr/borderStrokeColor"
+        app:strokeWidth="1dp"
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@android:drawable/ic_menu_search"
+                app:tint="?attr/textSecondaryColor" />
+
+            <EditText
+                android:id="@+id/etSearchTeam"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@null"
+                android:hint="Search project, skill or tag..."
+                android:paddingStart="12dp"
+                android:textColor="?attr/textPrimaryColor"
+                android:textColorHint="?attr/textSecondaryColor"
+                android:textSize="14sp"
+                android:textCursorDrawable="@null"
+                android:inputType="text" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Categories -->
+    <HorizontalScrollView
+        android:id="@+id/scrollCategories"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:clipToPadding="false"
+        android:paddingHorizontal="20dp"
+        android:scrollbars="none"
+        app:layout_constraintTop_toBottomOf="@id/cardSearch">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/catAiMatch"
+                style="@style/QuickActionItem"
+                android:background="@drawable/bg_pro_pulse"
+                android:text="🤖 Smart Find"
+                android:textColor="#FFD700" />
+
+            <TextView
+                android:id="@+id/catAll"
+                style="@style/QuickActionItem"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_neon_ring"
+                android:text="All Projects" />
+
+            <TextView
+                android:id="@+id/catHackathon"
+                style="@style/QuickActionItem"
+                android:layout_marginStart="8dp"
+                android:text="Hackathons" />
+
+            <TextView
+                android:id="@+id/catStartup"
+                style="@style/QuickActionItem"
+                android:layout_marginStart="8dp"
+                android:text="Startups" />
+
+            <TextView
+                android:id="@+id/catStudy"
+                style="@style/QuickActionItem"
+                android:layout_marginStart="8dp"
+                android:text="Study Groups" />
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvTeams"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:clipToPadding="false"
+        android:paddingBottom="40dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toTopOf="@id/adView"
+        app:layout_constraintTop_toBottomOf="@id/scrollCategories" />
+
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/adView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:adSize="BANNER"
+        app:adUnitId="@string/banner_ad_unit_id"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fabCreateTeam"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="24dp"
+        android:text="Create Team"
+        android:textColor="@color/white"
+        app:icon="@android:drawable/ic_menu_add"
+        app:iconTint="@color/white"
+        app:backgroundTint="?attr/accentColor"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

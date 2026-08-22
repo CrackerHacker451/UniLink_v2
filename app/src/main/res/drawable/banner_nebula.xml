@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <gradient
+                android:angle="0"
+                android:startColor="#0F0C29"
+                android:centerColor="#302B63"
+                android:endColor="#24243E" />
+        </shape>
+    </item>
+    <item>
+        <shape>
+            <gradient
+                android:type="radial"
+                android:gradientRadius="300dp"
+                android:centerX="0.2"
+                android:centerY="0.8"
+                android:startColor="#33EC4899"
+                android:endColor="@android:color/transparent" />
+        </shape>
+    </item>
+    <item>
+        <shape>
+            <gradient
+                android:type="radial"
+                android:gradientRadius="300dp"
+                android:centerX="0.8"
+                android:centerY="0.3"
+                android:startColor="#338B5CF6"
+                android:endColor="@android:color/transparent" />
+        </shape>
+    </item>
+</layer-list>

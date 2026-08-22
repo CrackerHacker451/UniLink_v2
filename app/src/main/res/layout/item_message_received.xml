@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="start"
+    android:orientation="horizontal"
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="2dp">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/ivSenderAvatar"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="4dp"
+        android:src="@drawable/ic_profile_placeholder"
+        app:shapeAppearanceOverlay="@style/CircleImage"
+        android:background="@drawable/bg_pro_pulse"
+        android:padding="1dp" />
+
+    <LinearLayout
+        android:id="@+id/llMessageBubble"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="60dp"
+        android:background="@drawable/bg_chat_bubble_received_premium"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="10dp">
+
+        <TextView
+            android:id="@+id/tvSenderUsername"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:textColor="?attr/accentColor"
+            android:textSize="10.5sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <!-- Reply Quote -->
+        <LinearLayout
+            android:id="@+id/llReplyQuote"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/tagBackgroundColor"
+            android:orientation="horizontal"
+            android:padding="6dp"
+            android:layout_marginBottom="4dp"
+            android:visibility="gone">
+            <View
+                android:layout_width="2dp"
+                android:layout_height="match_parent"
+                android:background="?attr/accentColor" />
+            <TextView
+                android:id="@+id/tvReplyText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:textColor="?attr/textSecondaryColor"
+                android:textSize="11sp"
+                android:maxLines="1"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxWidth="260dp"
+            android:text="Message content"
+            android:textColor="?attr/textPrimaryColor"
+            android:textSize="14.5sp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="2dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvEdited"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="edited • "
+                android:textColor="?attr/textSecondaryColor"
+                android:textSize="9sp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvTimestamp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="12:01 PM"
+                android:textColor="?attr/textSecondaryColor"
+                android:textSize="9sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/llReactions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-6dp"
+        android:layout_marginStart="32dp"
+        android:background="@drawable/bg_tag"
+        android:backgroundTint="?attr/appBackgroundColor"
+        android:orientation="horizontal"
+        android:paddingHorizontal="6dp"
+        android:paddingVertical="1dp"
+        android:visibility="gone" />
+</LinearLayout>

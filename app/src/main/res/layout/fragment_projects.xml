@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="48dp"
+            android:text="Project Hub"
+            android:textColor="?attr/textPrimaryColor"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:letterSpacing="-0.02" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="4dp"
+            android:text="Find study partners and project teams"
+            android:textColor="?attr/accentColor"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textAllCaps="true"
+            android:letterSpacing="0.05" />
+
+        <!-- Search bar -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginTop="20dp"
+            style="@style/GlassCard"
+            app:cardCornerRadius="26dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp">
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@android:drawable/ic_menu_search"
+                    app:tint="?attr/textSecondaryColor" />
+                <EditText
+                    android:id="@+id/etSearchProjects"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:hint="Search projects or skills..."
+                    android:paddingStart="12dp"
+                    android:textColor="?attr/textPrimaryColor"
+                    android:textColorHint="?attr/textSecondaryColor"
+                    android:textSize="14sp"
+                    android:inputType="textFilter" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Categories -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:clipToPadding="false"
+            android:paddingHorizontal="24dp"
+            android:scrollbars="none">
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupCategories"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:singleLine="true"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipAll"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="All Projects"
+                    app:chipBackgroundColor="?attr/tagBackgroundColor"
+                    app:chipStrokeColor="?attr/borderStrokeColor"
+                    android:textColor="?attr/textPrimaryColor" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipAI"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="AI / ML"
+                    app:chipBackgroundColor="?attr/tagBackgroundColor"
+                    app:chipStrokeColor="?attr/borderStrokeColor"
+                    android:textColor="?attr/textPrimaryColor" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipDev"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="App Dev"
+                    app:chipBackgroundColor="?attr/tagBackgroundColor"
+                    app:chipStrokeColor="?attr/borderStrokeColor"
+                    android:textColor="?attr/textPrimaryColor" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipDesign"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="UI/UX"
+                    app:chipBackgroundColor="?attr/tagBackgroundColor"
+                    app:chipStrokeColor="?attr/borderStrokeColor"
+                    android:textColor="?attr/textPrimaryColor" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipResearch"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Research"
+                    app:chipBackgroundColor="?attr/tagBackgroundColor"
+                    app:chipStrokeColor="?attr/borderStrokeColor"
+                    android:textColor="?attr/textPrimaryColor" />
+            </com.google.android.material.chip.ChipGroup>
+        </HorizontalScrollView>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="8dp">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvProjects"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingHorizontal="24dp"
+                android:paddingBottom="100dp" />
+
+            <!-- Project Skeleton -->
+            <LinearLayout
+                android:id="@+id/llSkeletonContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="gone">
+                <include layout="@layout/skeleton_list_item" />
+                <include layout="@layout/skeleton_list_item" />
+                <include layout="@layout/skeleton_list_item" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvEmptyState"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/no_projects_found"
+                android:textColor="?attr/textSecondaryColor"
+                android:textSize="16sp"
+                android:visibility="gone" />
+        </FrameLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/appBackgroundColor">
+
+    <com.example.unilink.utils.AuraParticlesView
+        android:id="@+id/auraParticles"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.4"
+        android:visibility="visible" />
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:navigationIcon="?attr/homeAsUpIndicator"
+        app:navigationIconTint="?attr/textPrimaryColor"
+        app:title="University Vault"
+        app:titleTextColor="?attr/textPrimaryColor"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/searchCard"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="16dp"
+        style="@style/GlassCard"
+        app:cardCornerRadius="28dp"
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="20dp">
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@android:drawable/ic_menu_search"
+                app:tint="?attr/accentColor" />
+            <EditText
+                android:id="@+id/etSearchVault"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@null"
+                android:hint="Search premium notes, papers..."
+                android:paddingStart="16dp"
+                android:textColor="?attr/textPrimaryColor"
+                android:textColorHint="?attr/textSecondaryColor"
+                android:textSize="14sp"
+                android:imeOptions="actionSearch"
+                android:inputType="text" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <HorizontalScrollView
+        android:id="@+id/hsvFilters"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:clipToPadding="false"
+        android:paddingHorizontal="24dp"
+        android:scrollbars="none"
+        app:layout_constraintTop_toBottomOf="@id/searchCard">
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/cgVaultCategories"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:singleLine="true"
+            app:singleSelection="true"
+            app:selectionRequired="true">
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipAll"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="All Resources"
+                app:chipBackgroundColor="#0DFFFFFF"
+                app:chipStrokeColor="#1AFFFFFF"
+                android:textColor="?attr/textPrimaryColor"
+                app:chipCornerRadius="16dp" />
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipNotes"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Notes"
+                app:chipBackgroundColor="#0DFFFFFF"
+                app:chipStrokeColor="#1AFFFFFF"
+                android:textColor="?attr/textPrimaryColor"
+                app:chipCornerRadius="16dp" />
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipPapers"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Papers"
+                app:chipBackgroundColor="#0DFFFFFF"
+                app:chipStrokeColor="#1AFFFFFF"
+                android:textColor="?attr/textPrimaryColor"
+                app:chipCornerRadius="16dp" />
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipProjects"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reports"
+                app:chipBackgroundColor="#0DFFFFFF"
+                app:chipStrokeColor="#1AFFFFFF"
+                android:textColor="?attr/textPrimaryColor"
+                app:chipCornerRadius="16dp" />
+        </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvVault"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="12dp"
+        android:clipToPadding="false"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="100dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/hsvFilters" />
+
+    <TextView
+        android:id="@+id/tvEmptyVault"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="The vault is currently locked or empty"
+        android:textColor="?attr/textSecondaryColor"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/hsvFilters" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/btnUpload"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_margin="24dp"
+        android:text="Contribute"
+        android:textAllCaps="false"
+        android:textStyle="bold"
+        app:icon="@android:drawable/ic_menu_add"
+        app:backgroundTint="?attr/accentColor"
+        android:textColor="@color/bg_dark"
+        app:iconTint="@color/bg_dark"
+        app:cornerRadius="30dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

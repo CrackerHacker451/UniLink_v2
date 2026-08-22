@@ -1,0 +1,31 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme for Night mode. (Cyber Dark) -->
+    <style name="Theme.UniLink" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/cyan_brand</item>
+        <item name="colorPrimaryVariant">@color/bg_dark</item>
+        <item name="colorOnPrimary">@color/bg_dark</item>
+        <item name="colorSecondary">@color/pink_brand</item>
+        <item name="colorSecondaryVariant">@color/pink_brand</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="android:statusBarColor">@color/bg_dark</item>
+        <item name="android:windowBackground">@color/bg_dark</item>
+        <item name="android:navigationBarColor">#16161E</item>
+        <item name="editTextColor">@color/white</item>
+        <item name="android:editTextColor">@color/white</item>
+        <item name="android:textColorPrimary">@color/white</item>
+
+        <!-- Custom Semantic Attributes (Dark/Cyber) -->
+        <item name="appBackgroundColor">@color/bg_dark</item>
+        <item name="cardBackgroundColor">@color/bg_card</item>
+        <item name="textPrimaryColor">@color/text_white</item>
+        <item name="textSecondaryColor">@color/text_grey</item>
+        <item name="accentColor">@color/neon_cyan</item>
+        <item name="borderStrokeColor">@color/glass_border</item>
+        <item name="inputBackgroundColor">@color/bg_card</item>
+        <item name="bottomNavBackground">#16161E</item>
+        <item name="navItemSelectedColor">@color/neon_cyan</item>
+        <item name="navItemUnselectedColor">@color/text_grey</item>
+        <item name="tagBackgroundColor">#1AFFFFFF</item>
+        <item name="tagTextColor">@color/neon_cyan</item>
+    </style>
+</resources>

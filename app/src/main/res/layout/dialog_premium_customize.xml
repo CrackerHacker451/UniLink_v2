@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/bg_dark">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="28dp">
+
+        <View
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="24dp"
+            android:background="@drawable/bg_tag"
+            android:backgroundTint="@color/text_grey" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Premium Customization"
+            android:textColor="@color/text_white"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Personalize your UniLink experience with exclusive themes"
+            android:textColor="@color/text_grey"
+            android:textSize="14sp" />
+
+        <!-- Profile Banner Selection -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="Profile Banner"
+            android:textColor="@color/text_white"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:scrollbars="none">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/bannerOption1"
+                    android:layout_width="100dp"
+                    android:layout_height="60dp"
+                    android:layout_marginEnd="12dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/neon_cyan"
+                    app:strokeWidth="2dp">
+                    <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/banner_sci_fi"/>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/bannerOption2"
+                    android:layout_width="100dp"
+                    android:layout_height="60dp"
+                    android:layout_marginEnd="12dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
+                    <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/banner_lightning"/>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/bannerOption3"
+                    android:layout_width="100dp"
+                    android:layout_height="60dp"
+                    android:layout_marginEnd="12dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
+                    <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/bg_brand_gradient"/>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/bannerOption4"
+                    android:layout_width="100dp"
+                    android:layout_height="60dp"
+                    android:layout_marginEnd="12dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
+                    <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/banner_nebula"/>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/bannerOption5"
+                    android:layout_width="100dp"
+                    android:layout_height="60dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
+                    <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/grad_cyber"/>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <!-- App Theme Selection -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="Interface Theme"
+            android:textColor="@color/text_white"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/rgThemes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_glass"
+            android:padding="16dp">
+
+            <RadioButton
+                android:id="@+id/rbThemeCyber"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Cyber Neon (Default)"
+                android:textColor="@color/neon_cyan"
+                android:buttonTint="@color/neon_cyan" />
+
+            <RadioButton
+                android:id="@+id/rbThemeIndigo"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Indigo Liquid"
+                android:textColor="@color/liquid_indigo"
+                android:buttonTint="@color/liquid_indigo" />
+
+            <RadioButton
+                android:id="@+id/rbThemeTeal"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Ocean Glass"
+                android:textColor="@color/liquid_teal"
+                android:buttonTint="@color/liquid_teal" />
+
+            <RadioButton
+                android:id="@+id/rbThemeRose"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Rose Crystal"
+                android:textColor="@color/liquid_rose"
+                android:buttonTint="@color/liquid_rose" />
+
+            <RadioButton
+                android:id="@+id/rbThemeAmber"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Amber Glow"
+                android:textColor="@color/liquid_amber"
+                android:buttonTint="@color/liquid_amber" />
+
+            <RadioButton
+                android:id="@+id/rbThemeGold"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Midnight Gold (VIP)"
+                android:textColor="#FACC15"
+                android:buttonTint="#FACC15" />
+
+            <RadioButton
+                android:id="@+id/rbThemeArsDark"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Ars Dark (Minimalist)"
+                android:textColor="@color/ars_dark_accent"
+                android:buttonTint="@color/ars_dark_accent" />
+
+            <RadioButton
+                android:id="@+id/rbThemeLight"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Classic Theme"
+                android:textColor="#FFFFFF"
+                android:buttonTint="#25D366" />
+
+            <RadioButton
+                android:id="@+id/rbThemeWhite"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Ars White (Minimalist)"
+                android:textColor="@color/white"
+                android:buttonTint="@color/white" />
+
+            <RadioButton
+                android:id="@+id/rbThemeGlass"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Aura Glass (Vivid)"
+                android:textColor="#22D3EE"
+                android:buttonTint="#22D3EE" />
+        </RadioGroup>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSaveCustomization"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="16dp"
+            android:text="Save Selection"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:backgroundTint="@color/neon_cyan"
+            app:cornerRadius="18dp"
+            app:rippleColor="@color/white" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
