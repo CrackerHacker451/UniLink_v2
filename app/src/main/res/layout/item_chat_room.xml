@@ -107,7 +107,7 @@
                     android:layout_height="wrap_content"
                     android:paddingHorizontal="6dp"
                     android:paddingVertical="2dp"
-                    android:textColor="@color/bg_dark"
+                    android:textColor="@color/white"
                     android:textSize="10sp"
                     android:textStyle="bold"
                     tools:text="1" />

@@ -1,70 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    style="@style/GlassCard"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/CardView.Professional"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="20dp">
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
+            <LinearLayout
+                android:id="@+id/layoutBadges"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvSourceBadge"
+                    style="@style/ChipTag"
+                    android:layout_marginEnd="8dp"
+                    android:text="🌐 Web"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tvProjectStatus"
+                    style="@style/ChipTag"
+                    android:text="Open"
+                    android:backgroundTint="#1A22C55E"
+                    android:textColor="#22C55E" />
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/tvProjectTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Project Title"
-                android:textColor="?attr/textPrimaryColor"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:layout_toStartOf="@id/layoutBadges"
+                android:layout_alignParentStart="true"
+                android:layout_marginEnd="12dp"
+                style="@style/TextHeading"
+                android:textSize="18sp"
+                tools:text="Project Title" />
 
-            <TextView
-                android:id="@+id/tvProjectStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:background="@drawable/bg_tag"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="4dp"
-                android:text="Open"
-                android:textColor="?attr/accentColor"
-                android:textSize="10sp"
-                android:textStyle="bold" />
         </RelativeLayout>
 
         <TextView
             android:id="@+id/tvProjectDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="12dp"
+            style="@style/TextBody"
+            android:maxLines="3"
             android:ellipsize="end"
-            android:maxLines="2"
-            android:text="Project description goes here..."
-            android:textColor="?attr/textSecondaryColor"
-            android:textSize="13sp" />
+            tools:text="Professional project description with better spacing and typography." />
 
         <TextView
             android:id="@+id/tvProjectSkills"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Skills: Kotlin, Firebase"
+            android:layout_marginTop="12dp"
+            android:text="Kotlin • Firebase • AI"
             android:textColor="?attr/accentColor"
-            android:textSize="11sp"
-            android:textStyle="italic" />
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textAllCaps="true"
+            android:letterSpacing="0.05" />
 
         <!-- Progress & Team Meter -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="20dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -77,18 +92,18 @@
                     android:id="@+id/tvProgressPercent"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Progress: 60%"
-                    android:textColor="?attr/textSecondaryColor"
-                    android:textSize="11sp" />
+                    style="@style/TextSubheading"
+                    android:textSize="11sp"
+                    android:text="Progress: 60%" />
                 <com.google.android.material.progressindicator.LinearProgressIndicator
                     android:id="@+id/projectProgress"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="6dp"
                     app:indicatorColor="?attr/accentColor"
-                    app:trackColor="?attr/borderStrokeColor"
+                    app:trackColor="?attr/tagBackgroundColor"
                     app:trackCornerRadius="4dp"
-                    app:trackThickness="6dp"
+                    app:trackThickness="8dp"
                     android:progress="60" />
             </LinearLayout>
 
@@ -102,31 +117,24 @@
                     android:id="@+id/tvTeamCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="3/4"
-                    android:textColor="?attr/textPrimaryColor"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
+                    style="@style/TextHeading"
+                    android:textSize="16sp"
+                    tools:text="3/4" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Team Fill"
-                    android:textColor="?attr/textSecondaryColor"
-                    android:textSize="10sp" />
+                    style="@style/TextSubheading"
+                    android:textSize="10sp"
+                    android:text="Team Fill" />
             </LinearLayout>
 
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnOpen"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="16dp"
-            android:text="Join Project"
-            android:textAllCaps="false"
-            android:textStyle="bold"
-            app:backgroundTint="?attr/accentColor"
-            app:cornerRadius="12dp"
-            app:rippleColor="@color/white" />
+            style="@style/PrimaryButton"
+            android:layout_marginTop="20dp"
+            android:text="Join Project" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

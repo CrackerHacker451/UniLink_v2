@@ -8,9 +8,8 @@ import com.example.unilink.R
 import com.example.unilink.databinding.ItemChatRoomBinding
 import com.example.unilink.models.ChatRoom
 import com.example.unilink.repository.UserRepository
+import com.example.unilink.utils.ImageLoaderUtils
 import com.example.unilink.utils.ThemeUtils
-import coil.load
-import coil.transform.CircleCropTransformation
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -33,24 +32,32 @@ class ChatRoomAdapter(
         val currentTheme = ThemeUtils.getSelectedTheme(context)
         
         if (room.isGroup) {
-            holder.binding.tvChatName.text = room.groupName
+            holder.binding.tvChatName.text = room.groupName.ifEmpty { "Group Chat" }
             holder.binding.onlineStatusIndicator.visibility = android.view.View.GONE
-            holder.binding.ivGroupIcon.load(R.drawable.ic_profile_placeholder) {
-                transformations(CircleCropTransformation())
-            }
+            ImageLoaderUtils.loadSmartImage(
+                holder.binding.ivGroupIcon,
+                null,
+                R.drawable.ic_profile_placeholder,
+                isCircle = true,
+                fallbackName = room.groupName
+            )
         } else {
             val otherUserId = room.participants.firstOrNull { it != currentUserId }
-            holder.binding.tvChatName.text = "Chat" 
+            holder.binding.tvChatName.text = "Campus Peer" 
             if (otherUserId != null) {
                 UserRepository().getUserById(otherUserId) { user ->
                     if (holder.bindingAdapterPosition == position) {
-                        holder.binding.tvChatName.text = user?.name ?: "User"
+                        holder.binding.tvChatName.text = user?.name?.ifEmpty { "Student" } ?: "Student"
                         val isOnline = user?.isOnline == true
                         holder.binding.onlineStatusIndicator.visibility = if (isOnline) android.view.View.VISIBLE else android.view.View.GONE
                         
-                        holder.binding.ivGroupIcon.load(user?.profileImageUrl ?: R.drawable.ic_profile_placeholder) {
-                            transformations(CircleCropTransformation())
-                        }
+                        ImageLoaderUtils.loadSmartImage(
+                            holder.binding.ivGroupIcon,
+                            user?.profileImageUrl,
+                            R.drawable.ic_profile_placeholder,
+                            isCircle = true,
+                            fallbackName = user?.name
+                        )
 
                         if (user?.isPremium == true) {
                             holder.binding.ivGroupIcon.setBackgroundResource(R.drawable.bg_pro_pulse)
@@ -69,9 +76,9 @@ class ChatRoomAdapter(
                                 else -> "#22C55E"
                             }
                             try {
-                                holder.binding.onlineStatusIndicator.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor(statusColor))
-                            } catch (e: Exception) {
-                                holder.binding.onlineStatusIndicator.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.GREEN)
+                                holder.binding.onlineStatusIndicator.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor(statusColor))
+                            } catch (_: Exception) {
+                                holder.binding.onlineStatusIndicator.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.GREEN)
                             }
                         }
                     }

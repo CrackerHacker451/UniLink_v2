@@ -4,9 +4,9 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
-import coil.load
 import com.example.unilink.R
 import com.example.unilink.databinding.ActivityStoryViewBinding
+import com.example.unilink.utils.ImageLoaderUtils
 
 class StoryViewActivity : AppCompatActivity() {
 
@@ -37,10 +37,11 @@ class StoryViewActivity : AppCompatActivity() {
         binding.tvUserName.text = userName
         
         if (!imageUrl.isNullOrEmpty()) {
-            binding.ivStory.load(imageUrl) {
-                crossfade(true)
-                placeholder(R.drawable.bg_mesh_gradient)
-            }
+            ImageLoaderUtils.loadSmartImage(
+                binding.ivStory,
+                imageUrl,
+                R.drawable.bg_mesh_gradient
+            )
         } else {
             binding.ivStory.setBackgroundColor(android.graphics.Color.parseColor("#1A1A1A"))
         }

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">UniLink</string>
+    <string name="app_name">Newton\'s Lobby</string>
     <string name="hub_doubt">Doubt Board</string>
     <string name="hub_duel">Skill Duels</string>
     <string name="hub_focus">Focus Rooms</string>
@@ -29,4 +29,75 @@
     <!-- AdMob IDs (Sample IDs) -->
     <string name="admob_app_id">ca-app-pub-3940256099942544~3347511713</string>
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="notifications">Notifications</string>
+    <string name="leaderboard">Leaderboard</string>
+    <string name="search_campus_hint">Search campus...</string>
+    <string name="unicoins_label">UNICOINS</string>
+    <string name="ask_uniai">Ask NewtonAI</string>
+    <string name="online_now">Online Now</string>
+    <string name="collaborating_label">Collaborating</string>
+    <string name="vault_new_entries">New entries in Resource Vault</string>
+    <string name="campus_highlights">Campus Highlights</string>
+    <string name="campus_stories">Campus Stories</string>
+    <string name="launchpad_label">Launchpad</string>
+    <string name="doubt_board">Doubt Board</string>
+    <string name="ask_question">Ask a Question</string>
+    <string name="skill_duels">Skill Duels</string>
+    <string name="focus_zones">Focus Zones</string>
+    <string name="join_session">Join Session</string>
+    <string name="campus_pulse">Campus Pulse</string>
+    <string name="sync_innovators">Sync with campus innovators</string>
+    <string name="search_stacks_hint">Search stacks, hackathons...</string>
+    <string name="all_projects">All Projects</string>
+    <string name="ai_data">AI &amp; Data</string>
+    <string name="full_stack">Full Stack</string>
+    <string name="design">Design</string>
+    <string name="research">Research</string>
+    <string name="hub_projects">Project Hub</string>
+    <string name="zero_online">0 Online</string>
+    <string name="zero_files">0 Files</string>
+    <string name="campus_os">THE CAMPUS OPERATING SYSTEM</string>
+    <string name="welcome_back">Welcome Back</string>
+    <string name="login_desc">Securely access your university workspace and student network.</string>
+    <string name="signin_google">Sign in with Google</string>
+    <string name="continue_newton">Continue with Newton\'s Lobby</string>
+    <string name="campus_auth">Campus Verified Auth</string>
+    <string name="terms_policy">By continuing, you agree to Newton\'s Lobby\'s Terms of Service and data privacy policies.</string>
+    <string name="syncing_data">Syncing Campus Data...</string>
+    <string name="secure_connection">Establishing secure connection</string>
+    <string name="discover">Discover</string>
+    <string name="discover_desc">Find the top 1% of campus</string>
+    <string name="search_students_hint">Search names, skills, or projects...</string>
+    <string name="no_students_matching">No students found matching your criteria</string>
+    <string name="conversations">Conversations</string>
+    <string name="sign_out_session">Sign Out of Session</string>
+    <string name="link_up">Link UP</string>
+
+    <!-- Chat Info & Team Creation -->
+    <string name="status_bio">Status/Bio</string>
+    <string name="joined_date_format">Joined %1$s</string>
+    <string name="media_links_docs">Media, links, and docs</string>
+    <string name="none">None</string>
+    <string name="mute_notifications">Mute notifications</string>
+    <string name="custom_notifications">Custom notifications</string>
+    <string name="block_user">Block User</string>
+    <string name="unblock_user">Unblock User</string>
+    <string name="report_user">Report User</string>
+    <string name="user_info">User Info</string>
+    <string name="bio_default">Hey there! I am using Newton\'s Lobby.</string>
+    <string name="user_unblocked">User unblocked</string>
+    <string name="user_blocked">User blocked</string>
+    <string name="user_reported">User reported</string>
+
+    <string name="team_identity">Team Identity</string>
+    <string name="team_project_title">Team / Project Title</string>
+    <string name="description">Description</string>
+    <string name="requirements">Requirements</string>
+    <string name="required_skills_hint">Required Skills (comma separated)</string>
+    <string name="tags">Tags</string>
+    <string name="create_team_session">Create Team Session</string>
+    <string name="title_required">Title required</string>
+    <string name="description_required">Description required</string>
+    <string name="team_created_success">Team created successfully!</string>
+    <string name="team_created_failed">Failed to create team</string>
 </resources>

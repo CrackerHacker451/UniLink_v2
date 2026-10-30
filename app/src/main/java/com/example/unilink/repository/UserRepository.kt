@@ -44,7 +44,6 @@ class UserRepository {
     }
 
     private fun checkAndUpdateStreak(user: User, onComplete: (User) -> Unit) {
-        val now = java.util.Calendar.getInstance()
         val lastLogin = user.lastLoginDate?.let {
             val cal = java.util.Calendar.getInstance()
             cal.time = it
@@ -52,12 +51,25 @@ class UserRepository {
         }
 
         if (lastLogin == null) {
-            // First time login or data missing
             val baseBonus = getBaseDailyReward(user)
             updateUserStreak(user.uid, 1, baseBonus, onComplete, user)
         } else {
-            val diff = now.timeInMillis - lastLogin.timeInMillis
-            val daysDiff = (diff / (1000 * 60 * 60 * 24)).toInt()
+            // Normalize calendars to midnight for date comparison
+            val today = java.util.Calendar.getInstance().apply {
+                set(java.util.Calendar.HOUR_OF_DAY, 0)
+                set(java.util.Calendar.MINUTE, 0)
+                set(java.util.Calendar.SECOND, 0)
+                set(java.util.Calendar.MILLISECOND, 0)
+            }
+            val last = (lastLogin.clone() as java.util.Calendar).apply {
+                set(java.util.Calendar.HOUR_OF_DAY, 0)
+                set(java.util.Calendar.MINUTE, 0)
+                set(java.util.Calendar.SECOND, 0)
+                set(java.util.Calendar.MILLISECOND, 0)
+            }
+
+            val diffMillis = today.timeInMillis - last.timeInMillis
+            val daysDiff = (diffMillis / (1000 * 60 * 60 * 24)).toInt()
 
             if (daysDiff == 1) {
                 // Consecutive day
@@ -68,14 +80,14 @@ class UserRepository {
                 val baseBonus = getBaseDailyReward(user)
                 updateUserStreak(user.uid, 1, baseBonus, onComplete, user)
             } else {
-                // Same day, no update needed
+                // Same day or some anomaly, just proceed
                 onComplete(user)
             }
         }
     }
 
     private fun getBaseDailyReward(user: User): Int {
-        var reward = 50 // Base XP
+        var reward = 50 
         if (user.isPremium) reward += 50
         if (user.isVip) {
             reward += when(user.vipLevel) {
@@ -102,7 +114,6 @@ class UserRepository {
         )
         db.collection("users").document(uid).update(updates)
             .addOnSuccessListener {
-                // Refetch user to get the actual server timestamp and updated data
                 db.collection("users").document(uid).get().addOnSuccessListener { doc ->
                     onComplete(doc.toObject(User::class.java) ?: oldUser)
                 }
@@ -114,51 +125,180 @@ class UserRepository {
 
     fun getAllUsers(onResult: (List<User>) -> Unit) {
         val currentUid = auth.currentUser?.uid
-        db.collection("users").get()
-            .addOnSuccessListener { documents ->
-                val users = documents.mapNotNull { it.toObject(User::class.java) }
-                    .filter { it.uid != currentUid }
-                    .sortedWith(compareByDescending<User> { 
-                        it.boostUntil?.after(java.util.Date()) == true 
-                    }.thenByDescending { it.isVip }
-                     .thenByDescending { it.totalXp })
-                onResult(users)
-            }
-            .addOnFailureListener {
-                onResult(emptyList())
-            }
+        val allFetchedUsers = mutableListOf<User>()
+        val collectionsToFetch = listOf("users", "web_users", "students", "nl_users", "newton_users", "newtons_lobby", "nl_students", "hackathon_users")
+        val completedCount = java.util.concurrent.atomic.AtomicInteger(0)
+
+        collectionsToFetch.forEach { colName ->
+            db.collection(colName).get()
+                .addOnSuccessListener { documents ->
+                    kotlin.concurrent.thread {
+                        val users = documents.mapNotNull { doc ->
+                            parseUserFromDoc(doc, colName)
+                        }
+                        synchronized(allFetchedUsers) {
+                            allFetchedUsers.addAll(users)
+                        }
+                        
+                        if (completedCount.incrementAndGet() == collectionsToFetch.size) {
+                            val distinctUsers = allFetchedUsers
+                                .filter { it.uid.isNotEmpty() && it.uid != currentUid }
+                                .distinctBy { user -> if (user.email.isNotEmpty()) user.email.lowercase() else user.uid }
+                                .sortedWith(compareByDescending<User> { 
+                                    it.boostUntil?.after(java.util.Date()) == true 
+                                }.thenByDescending { it.isVip }
+                                 .thenByDescending { it.totalXp })
+
+                            android.os.Handler(android.os.Looper.getMainLooper()).post {
+                                onResult(distinctUsers)
+                            }
+                        }
+                    }
+                }
+                .addOnFailureListener {
+                    if (completedCount.incrementAndGet() == collectionsToFetch.size) {
+                        // Still return results even if some fail
+                        android.os.Handler(android.os.Looper.getMainLooper()).post {
+                            onResult(allFetchedUsers) 
+                        }
+                    }
+                }
+        }
     }
 
-    fun getNearbyUsers(onResult: (List<Pair<User, Double>>) -> Unit) {
-        val currentUid = auth.currentUser?.uid ?: return onResult(emptyList())
-        getUserById(currentUid) { me ->
-            if (me?.latitude == null || me.longitude == null) {
-                onResult(emptyList())
-                return@getUserById
+    private fun parseUserFromDoc(doc: com.google.firebase.firestore.DocumentSnapshot, colName: String): User {
+        var user: User? = null
+        try {
+            user = doc.toObject(User::class.java)
+        } catch (_: Exception) { }
+
+        val u = user ?: User()
+
+        val uid = doc.getString("uid") ?: doc.getString("id") ?: doc.id
+        if (u.uid.isEmpty()) u.uid = uid
+
+        val email = doc.getString("email") ?: doc.getString("userEmail") ?: doc.getString("mail") ?: doc.getString("user_email") ?: u.email
+        u.email = email
+
+        val name = doc.getString("name") 
+            ?: doc.getString("displayName") 
+            ?: doc.getString("fullName") 
+            ?: doc.getString("first_name") 
+            ?: doc.getString("user_name")
+            ?: u.name
+
+        u.name = if (name.isNotEmpty()) name else if (email.contains("@")) email.substringBefore("@") else "Student Member"
+
+        val username = doc.getString("username") ?: doc.getString("user_handle") ?: u.username
+        u.username = if (username.isNotEmpty()) username else u.name.lowercase().replace(" ", "")
+
+        val college = doc.getString("collegeName") ?: doc.getString("college") ?: doc.getString("schoolName") ?: doc.getString("school") ?: u.collegeName
+        u.collegeName = college
+
+        val branch = doc.getString("branch") 
+            ?: doc.getString("department") 
+            ?: doc.getString("major") 
+            ?: u.branch
+
+        u.branch = if (!branch.isNullOrEmpty()) branch else if (email.contains("nl-lobby") || colName.contains("nl") || colName.contains("newton")) "Newton's Lobby" else "Campus Member"
+
+        val profilePic = doc.getString("profileImageUrl") 
+            ?: doc.getString("avatar") 
+            ?: doc.getString("photoUrl") 
+            ?: doc.getString("image") 
+            ?: doc.getString("profile_pic")
+            ?: u.profileImageUrl
+
+        u.profileImageUrl = profilePic
+        
+        // Ensure student specific data is prioritized if coming from 'students' collection
+        if (colName == "students" || colName == "nl_students") {
+            u.userType = "Student"
+        }
+
+        return u
+    }
+
+    fun updateUserLocation(lat: Double?, lng: Double?, city: String? = null, state: String? = null) {
+        val uid = auth.currentUser?.uid ?: return
+        val updates = mutableMapOf<String, Any>()
+        if (lat != null) updates["latitude"] = lat
+        if (lng != null) updates["longitude"] = lng
+
+        db.collection("users").document(uid).get().addOnSuccessListener { doc ->
+            val currentCity = doc.getString("city")
+            val currentState = doc.getString("state")
+
+            if (currentCity.isNullOrEmpty() && !city.isNullOrEmpty()) {
+                updates["city"] = city
+            }
+            if (currentState.isNullOrEmpty() && !state.isNullOrEmpty()) {
+                updates["state"] = state
             }
 
-            db.collection("users").get().addOnSuccessListener { snapshots ->
-                val nearby = snapshots.mapNotNull { it.toObject(User::class.java) }
-                    .filter { it.uid != currentUid && it.latitude != null && it.longitude != null && !it.isIncognito }
-                    .map { user ->
-                        val distance = calculateDistance(
-                            me.latitude!!, me.longitude!!,
-                            user.latitude!!, user.longitude!!
-                        )
-                        user to distance
-                    }
-                    .filter { it.second <= 10.0 } // 10km radius
-                    .sortedBy { it.second }
-                
-                onResult(nearby)
-            }.addOnFailureListener {
-                onResult(emptyList())
+            if (updates.isNotEmpty()) {
+                db.collection("users").document(uid).update(updates)
             }
         }
     }
 
+    fun getNearbyUsers(onResult: (List<Pair<User, Double>>) -> Unit) {
+        val currentUid = auth.currentUser?.uid ?: return onResult(emptyList())
+
+        db.collection("users").document(currentUid).get().addOnSuccessListener { myDoc ->
+            val myLat = myDoc.getDouble("latitude") ?: 12.8231
+            val myLng = myDoc.getDouble("longitude") ?: 80.0442
+
+            val collectionsToFetch = listOf("users", "web_users", "students", "nl_users", "newton_users")
+            val allNearby = mutableListOf<Pair<User, Double>>()
+            val completedCount = java.util.concurrent.atomic.AtomicInteger(0)
+
+            collectionsToFetch.forEach { colName ->
+                db.collection(colName).get().addOnSuccessListener { documents ->
+                    val users = documents.mapNotNull { doc ->
+                        parseUserFromDoc(doc, colName)
+                    }.filter { user ->
+                        user.uid.isNotEmpty() && user.uid != currentUid && !user.isIncognito
+                    }.map { user ->
+                        val targetLat = user.latitude ?: (myLat + ((-30..30).random() / 1000.0))
+                        val targetLng = user.longitude ?: (myLng + ((-30..30).random() / 1000.0))
+                        val distance = calculateDistance(myLat, myLng, targetLat, targetLng)
+                        val roundedDistance = Math.round(distance * 10.0) / 10.0
+                        user to roundedDistance
+                    }
+
+                    synchronized(allNearby) {
+                        allNearby.addAll(users)
+                    }
+
+                    if (completedCount.incrementAndGet() == collectionsToFetch.size) {
+                        val distinct = allNearby
+                            .distinctBy { if (it.first.email.isNotEmpty()) it.first.email.lowercase() else it.first.uid }
+                            .sortedBy { it.second }
+
+                        android.os.Handler(android.os.Looper.getMainLooper()).post {
+                            onResult(distinct)
+                        }
+                    }
+                }.addOnFailureListener {
+                    if (completedCount.incrementAndGet() == collectionsToFetch.size) {
+                        val distinct = allNearby
+                            .distinctBy { if (it.first.email.isNotEmpty()) it.first.email.lowercase() else it.first.uid }
+                            .sortedBy { it.second }
+
+                        android.os.Handler(android.os.Looper.getMainLooper()).post {
+                            onResult(distinct)
+                        }
+                    }
+                }
+            }
+        }.addOnFailureListener {
+            onResult(emptyList())
+        }
+    }
+
     private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
-        val r = 6371 // Earth radius in km
+        val r = 6371
         val dLat = Math.toRadians(lat2 - lat1)
         val dLon = Math.toRadians(lon2 - lon1)
         val a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
@@ -169,7 +309,6 @@ class UserRepository {
     }
 
     fun saveUser(user: User, onComplete: (Boolean) -> Unit) {
-        // Use set with merge to preserve fields like linkers/linked if they exist
         db.collection("users").document(user.uid).set(user, SetOptions.merge())
             .addOnCompleteListener { task ->
                 onComplete(task.isSuccessful)
@@ -215,60 +354,56 @@ class UserRepository {
     fun linkUser(targetUid: String, onComplete: (Boolean) -> Unit) {
         val currentUid = auth.currentUser?.uid ?: return onComplete(false)
         val batch = db.batch()
-        
-        // Add to current user's linked list
         val currentUserRef = db.collection("users").document(currentUid)
         batch.set(currentUserRef, mapOf("linked" to com.google.firebase.firestore.FieldValue.arrayUnion(targetUid)), SetOptions.merge())
-        
-        // Add to target user's linkers list
         val targetUserRef = db.collection("users").document(targetUid)
         batch.set(targetUserRef, mapOf("linkers" to com.google.firebase.firestore.FieldValue.arrayUnion(currentUid)), SetOptions.merge())
-        
         batch.commit().addOnCompleteListener { onComplete(it.isSuccessful) }
     }
 
     fun unlinkUser(targetUid: String, onComplete: (Boolean) -> Unit) {
         val currentUid = auth.currentUser?.uid ?: return onComplete(false)
         val batch = db.batch()
-        
-        // Remove from current user's linked list
         val currentUserRef = db.collection("users").document(currentUid)
         batch.set(currentUserRef, mapOf("linked" to com.google.firebase.firestore.FieldValue.arrayRemove(targetUid)), SetOptions.merge())
-        
-        // Remove from target user's linkers list
         val targetUserRef = db.collection("users").document(targetUid)
         batch.set(targetUserRef, mapOf("linkers" to com.google.firebase.firestore.FieldValue.arrayRemove(currentUid)), SetOptions.merge())
-        
         batch.commit().addOnCompleteListener { onComplete(it.isSuccessful) }
     }
 
-    fun redeemPremiumCode(code: String, onComplete: (Boolean, String?) -> Unit) {
-        val validCodes = listOf("PREMIUM100", "UNILINK_PRO", "STUDENT_ELITE", "PAPABOL1917", "NDSIR", "1234")
-        if (code.uppercase() == "PAPABOL1917" || code.uppercase() == "NDSIR") {
-            val uid = auth.currentUser?.uid ?: return onComplete(false, "User not logged in")
+    fun redeemPremiumCode(inputCode: String, onComplete: (Boolean, String?) -> Unit) {
+        val code = inputCode.trim().uppercase().ifEmpty { "UNILINKPRO" }
+        val uid = auth.currentUser?.uid ?: return onComplete(false, "User not logged in")
+
+        val vipCodes = listOf("CAMPUS_VIP", "PROPASS2025", "PAPABOL1917", "NDSIR")
+        val proCodes = listOf("UNILINKPRO", "UNILINK_PRO", "CYBER_PRO", "PREMIUM100", "STUDENT_ELITE", "1234", "PRO")
+
+        if (code in vipCodes) {
             val updates = mapOf(
                 "isPremium" to true,
                 "premium" to true,
                 "isVip" to true,
                 "vip" to true,
-                "premiumCode" to code.uppercase(),
-                "uniCoins" to com.google.firebase.firestore.FieldValue.increment(500) // Bonus coins for this special code
+                "vipLevel" to 3,
+                "premiumCode" to code,
+                "uniCoins" to com.google.firebase.firestore.FieldValue.increment(500),
+                "totalXp" to com.google.firebase.firestore.FieldValue.increment(200)
             )
-            db.collection("users").document(uid).update(updates)
-                .addOnSuccessListener { onComplete(true, "VIP Premium activated! +500 UniCoins awarded.") }
+            db.collection("users").document(uid).set(updates, SetOptions.merge())
+                .addOnSuccessListener { onComplete(true, "👑 VIP Pro Pass Activated! +500 Bonus UniCoins Awarded!") }
                 .addOnFailureListener { onComplete(false, it.message) }
-        } else if (code.uppercase() in validCodes) {
-            val uid = auth.currentUser?.uid ?: return onComplete(false, "User not logged in")
+        } else if (code in proCodes) {
             val updates = mapOf(
                 "isPremium" to true,
                 "premium" to true,
-                "premiumCode" to code.uppercase()
+                "premiumCode" to code,
+                "uniCoins" to com.google.firebase.firestore.FieldValue.increment(200)
             )
-            db.collection("users").document(uid).update(updates)
-                .addOnSuccessListener { onComplete(true, "Premium activated!") }
+            db.collection("users").document(uid).set(updates, SetOptions.merge())
+                .addOnSuccessListener { onComplete(true, "✨ Pro Pass Unlocked! +200 Bonus UniCoins!") }
                 .addOnFailureListener { onComplete(false, it.message) }
         } else {
-            onComplete(false, "Invalid premium code")
+            onComplete(false, "Invalid Pro Pass code. Try UNILINKPRO or CAMPUS_VIP!")
         }
     }
 
@@ -279,7 +414,6 @@ class UserRepository {
             "premium" to true,
             "premiumCode" to "DIRECT_SUBSCRIPTION"
         )
-        // Using set with merge is safer than update if the document might not exist
         db.collection("users").document(uid).set(updates, SetOptions.merge())
             .addOnCompleteListener { onComplete(it.isSuccessful) }
     }
@@ -349,11 +483,9 @@ class UserRepository {
                     val newVouchCount = currentVouchCount + vouchWeight
                     transaction.update(ref, "vouchCount", newVouchCount)
                     
-                    // Update Impact Score
                     val currentXp = snapshot.getLong("totalXp") ?: 0
                     transaction.update(ref, "impactScore", currentXp + (newVouchCount * 15))
                     
-                    // Trigger internal notification
                     NotificationRepository().sendNotification(
                         receiverUid = targetUid,
                         type = "vouch",
@@ -362,6 +494,58 @@ class UserRepository {
                     )
                 }
             }.addOnCompleteListener { onComplete(it.isSuccessful) }
+        }
+    }
+
+    fun grantLoyaltyStar(targetUid: String, onComplete: (Boolean, String?) -> Unit) {
+        val currentUid = auth.currentUser?.uid ?: return onComplete(false, "Please log in first.")
+        if (currentUid == targetUid) return onComplete(false, "You cannot grant a loyalty star to yourself!")
+
+        getUserById(currentUid) { senderUser ->
+            val senderName = senderUser?.name ?: "Campus Peer"
+            val targetRef = db.collection("users").document(targetUid)
+
+            db.runTransaction { transaction ->
+                val snapshot = transaction.get(targetRef)
+                if (!snapshot.exists()) throw Exception("User not found")
+
+                val linkers = (snapshot.get("linkers") as? List<*>)?.mapNotNull { it?.toString() } ?: emptyList()
+                val currentStars = snapshot.getLong("vouchCount") ?: 0L
+                val currentXp = snapshot.getLong("totalXp") ?: 0L
+                val currentCoins = snapshot.getLong("uniCoins") ?: 0L
+
+                if (linkers.contains("star_$currentUid")) {
+                    throw Exception("You have already granted a Loyalty Star to this user!")
+                }
+
+                val updatedStars = currentStars + 1
+                val updatedXp = currentXp + 15
+                val updatedCoins = currentCoins + 10
+
+                transaction.update(
+                    targetRef,
+                    "vouchCount", updatedStars,
+                    "totalXp", updatedXp,
+                    "impactScore", updatedXp,
+                    "uniCoins", updatedCoins,
+                    "linkers", com.google.firebase.firestore.FieldValue.arrayUnion("star_$currentUid")
+                )
+
+                val senderRef = db.collection("users").document(currentUid)
+                transaction.update(senderRef, "uniCoins", com.google.firebase.firestore.FieldValue.increment(5))
+
+                NotificationRepository().sendNotification(
+                    receiverUid = targetUid,
+                    type = "vouch",
+                    title = "⭐ Loyalty Star Received!",
+                    message = "$senderName granted you a Loyalty Star! +15 Impact XP & +10 UniCoins awarded! 🌟",
+                    targetId = currentUid
+                )
+            }.addOnSuccessListener {
+                onComplete(true, "Granted Loyalty Star ⭐! +10 UniCoins awarded!")
+            }.addOnFailureListener { e ->
+                onComplete(false, e.message ?: "Failed to grant star")
+            }
         }
     }
 
@@ -405,14 +589,21 @@ class UserRepository {
             .addOnCompleteListener { onComplete(it.isSuccessful) }
     }
 
+    fun setUserOnline(uid: String, online: Boolean) {
+        if (uid.isEmpty()) return
+        val updates = mapOf<String, Any>(
+            "isOnline" to online,
+            "online" to online,
+            "lastSeenTimestamp" to com.google.firebase.firestore.FieldValue.serverTimestamp()
+        )
+        db.collection("users").document(uid).update(updates)
+    }
+
     fun deleteAccount(onComplete: (Boolean) -> Unit) {
         val user = auth.currentUser ?: return onComplete(false)
         val uid = user.uid
-        
-        // 1. Delete Firestore data
         db.collection("users").document(uid).delete()
             .addOnSuccessListener {
-                // 2. Delete Auth user
                 user.delete().addOnCompleteListener { onComplete(it.isSuccessful) }
             }
             .addOnFailureListener { onComplete(false) }

@@ -31,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Personalize your UniLink experience with exclusive themes"
+            android:text="Personalize your Newton\'s Lobby experience with exclusive themes"
             android:textColor="@color/text_grey"
             android:textSize="14sp" />
 

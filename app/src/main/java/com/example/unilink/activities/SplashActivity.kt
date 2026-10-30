@@ -26,15 +26,13 @@ class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         try { ThemeUtils.applyTheme(this) } catch (_: Exception) {}
         super.onCreate(savedInstanceState)
-        
-        // Edge-to-edge
+
         androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, false)
         window.statusBarColor = android.graphics.Color.TRANSPARENT
 
         _binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Check for Google Play Services
         val gApi = com.google.android.gms.common.GoogleApiAvailability.getInstance()
         val status = gApi.isGooglePlayServicesAvailable(this)
         if (status != com.google.android.gms.common.ConnectionResult.SUCCESS) {
@@ -46,31 +44,25 @@ class SplashActivity : AppCompatActivity() {
         }
 
         try {
-            // Liquid Entrance Animations
             val fadeIn = AnimationUtils.loadAnimation(this, android.R.anim.fade_in)
             fadeIn.duration = 1000
-            
+
             binding.cardLogo.startAnimation(fadeIn)
             binding.tvLogo.startAnimation(fadeIn)
             binding.tvBranding.startAnimation(fadeIn)
 
-            val pulse = AnimationUtils.loadAnimation(this, R.anim.pulse)
-            binding.cardLogo.startAnimation(pulse)
-
-            // Animated Progress
             binding.splashProgress.alpha = 0f
             binding.splashProgress.animate()?.alpha(1f)?.setDuration(500)?.setStartDelay(500)?.start()
         } catch (e: Exception) {
             Log.e("SplashActivity", "Animation error", e)
         }
 
-        // Delay then check login status
         Handler(Looper.getMainLooper()).postDelayed({
             if (isFinishing || isDestroyed) return@postDelayed
-            
+
             val currentUser = auth.currentUser
             if (currentUser != null) {
-                if (ThemeUtils.isAppLockEnabled(this)) {
+                if (ThemeUtils.isAppLockEnabled(this) && !ThemeUtils.isBiometricSessionPassed() && ThemeUtils.canAuthenticateBiometrics(this)) {
                     showBiometricPromptForLock()
                 } else {
                     navigateToMain()
@@ -79,7 +71,7 @@ class SplashActivity : AppCompatActivity() {
                 startActivity(Intent(this, LoginActivity::class.java))
                 finish()
             }
-        }, 2500)
+        }, 2000)
     }
 
     private fun showBiometricPromptForLock() {
@@ -88,10 +80,11 @@ class SplashActivity : AppCompatActivity() {
             object : BiometricPrompt.AuthenticationCallback() {
                 override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                     super.onAuthenticationError(errorCode, errString)
-                    finish() // Exit if auth fails or is cancelled
+                    navigateToMain()
                 }
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                     super.onAuthenticationSucceeded(result)
+                    ThemeUtils.setBiometricSessionPassed(true)
                     navigateToMain()
                 }
                 override fun onAuthenticationFailed() {
@@ -100,9 +93,9 @@ class SplashActivity : AppCompatActivity() {
             })
 
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle("UniLink Locked")
-            .setSubtitle("Authenticate to continue")
-            .setNegativeButtonText("Exit App")
+            .setTitle("UniLink Lock")
+            .setSubtitle("Authenticate to access your workspace")
+            .setNegativeButtonText("Cancel")
             .build()
 
         biometricPrompt.authenticate(promptInfo)

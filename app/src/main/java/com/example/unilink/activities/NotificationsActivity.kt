@@ -1,6 +1,7 @@
 package com.example.unilink.activities
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -33,7 +34,7 @@ class NotificationsActivity : AppCompatActivity() {
             
             // Handle navigation
             when (notification.type) {
-                "chat" -> {
+                "chat", "duel", "token" -> {
                     notification.targetId?.let { cid ->
                         val intent = Intent(this, ChatActivity::class.java).apply {
                             putExtra("chatId", cid)
@@ -49,12 +50,36 @@ class NotificationsActivity : AppCompatActivity() {
                         startActivity(intent)
                     }
                 }
+                "video_call" -> {
+                    notification.targetId?.let { cid ->
+                        val intent = Intent(this, VideoCallActivity::class.java).apply {
+                            putExtra("channelId", cid)
+                            putExtra("partnerId", notification.senderId ?: "")
+                            putExtra("partnerName", notification.senderName ?: "Peer")
+                            putExtra("isOffer", false)
+                        }
+                        startActivity(intent)
+                    }
+                }
+                "system_update" -> {
+                    val url = notification.targetId?.ifEmpty { "https://drive.google.com" } ?: "https://drive.google.com"
+                    try {
+                        android.widget.Toast.makeText(this, "Opening update download link... 🚀", android.widget.Toast.LENGTH_SHORT).show()
+                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                    } catch (_: Exception) {
+                        android.widget.Toast.makeText(this, "Opening browser for update...", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
         }
         binding.rvNotifications.adapter = adapter
         
         notificationListener = notificationRepository.observeNotifications { notifications ->
+            if (isFinishing || isDestroyed) return@observeNotifications
             adapter.submitList(notifications)
+            if (notifications.any { !it.isRead }) {
+                notificationRepository.markAllAsRead()
+            }
         }
 
         binding.toolbar.inflateMenu(R.menu.notifications_menu)

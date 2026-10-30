@@ -36,7 +36,13 @@ data class ChatMessage(
     
     var duelWager: Int? = null,
     var duelSubject: String? = null,
-    var duelStatus: String? = null // pending, active, finished
+    var duelStatus: String? = null, // pending, active, finished
+
+    // Newton's Lobby compatibility
+    @get:PropertyName("text") @set:PropertyName("text")
+    var webText: String? = null,
+    @get:PropertyName("senderName") @set:PropertyName("senderName")
+    var webSenderName: String? = null
 ) {
     @get:Exclude
     val timestampDate: Date?
@@ -46,4 +52,12 @@ data class ChatMessage(
             is Long -> Date(timestamp as Long)
             else -> null
         }
+
+    @get:Exclude
+    val displayMessageText: String
+        get() = webText ?: messageText
+
+    @get:Exclude
+    val displaySenderName: String
+        get() = webSenderName ?: senderUsername
 }

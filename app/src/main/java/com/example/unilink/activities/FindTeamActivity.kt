@@ -86,7 +86,7 @@ class FindTeamActivity : AppCompatActivity() {
         com.example.unilink.repository.UserRepository().getUserById(uid) { user ->
             if (user == null) return@getUserById
             
-            val projectsContext = allProjects.take(15).joinToString(" | ") { "${it.title}: ${it.skillsRequired.joinToString()}" }
+            val projectsContext = allProjects.take(15).joinToString(" | ") { "${it.displayTitle}: ${it.skillsRequired?.joinToString() ?: ""}" }
             val userContext = "Name: ${user.name}, Skills: ${user.skills.joinToString()}, Goals: ${user.goals}"
             
             val prompt = "Based on this user context: $userContext, which of these projects best fit them? Projects: $projectsContext. Just give me the names of top 2 projects separated by a comma."
@@ -98,7 +98,7 @@ class FindTeamActivity : AppCompatActivity() {
                 if (response != null) {
                     val recommendedNames = response.split(",").map { it.trim() }
                     val recommendedProjects = allProjects.filter { p -> 
-                        recommendedNames.any { p.title.contains(it, ignoreCase = true) }
+                        recommendedNames.any { p.displayTitle.contains(it, ignoreCase = true) }
                     }
                     
                     if (recommendedProjects.isNotEmpty()) {
@@ -124,10 +124,15 @@ class FindTeamActivity : AppCompatActivity() {
 
     private fun filterProjects(query: String) {
         val filtered = allProjects.filter {
-            it.title.contains(query, ignoreCase = true) ||
-            it.description.contains(query, ignoreCase = true) ||
-            it.tags.any { tag -> tag.contains(query, ignoreCase = true) } ||
-            it.skillsRequired.any { skill -> skill.contains(query, ignoreCase = true) }
+            val title = it.title ?: ""
+            val desc = it.description ?: ""
+            val tags = it.tags ?: emptyList()
+            val skills = it.skillsRequired ?: emptyList()
+            
+            title.contains(query, ignoreCase = true) ||
+            desc.contains(query, ignoreCase = true) ||
+            tags.any { tag -> tag.contains(query, ignoreCase = true) } ||
+            skills.any { skill -> skill.contains(query, ignoreCase = true) }
         }
         updateRecyclerView(filtered)
     }
@@ -145,7 +150,7 @@ class FindTeamActivity : AppCompatActivity() {
             updateRecyclerView(allProjects)
         } else {
             val filtered = allProjects.filter { project ->
-                project.tags.any { it.contains(category, ignoreCase = true) }
+                project.tags?.any { it.contains(category, ignoreCase = true) } == true
             }
             updateRecyclerView(filtered)
         }

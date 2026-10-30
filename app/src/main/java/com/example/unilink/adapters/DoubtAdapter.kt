@@ -5,10 +5,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import coil.load
-import coil.transform.CircleCropTransformation
+import com.example.unilink.R
 import com.example.unilink.databinding.ItemDoubtBinding
 import com.example.unilink.models.Doubt
+import com.example.unilink.utils.ImageLoaderUtils
 
 class DoubtAdapter(
     private val onAnswerClick: (Doubt) -> Unit
@@ -27,14 +27,16 @@ class DoubtAdapter(
         holder.binding.tvUserName.text = doubt.userName
         holder.binding.tvQuestion.text = doubt.question
         holder.binding.tvRewardCoins.text = doubt.rewardCoins.toString()
-        holder.binding.tvAnswerCount.text = holder.itemView.context.getString(android.R.string.ok) + " ${doubt.answerCount} answers"
+        holder.binding.tvAnswerCount.text = "💬 ${doubt.answerCount} answers"
         
-        // Load User Avatar
-        holder.binding.ivUserAvatar.load(doubt.userAvatarUrl ?: com.example.unilink.R.drawable.ic_profile_placeholder) {
-            transformations(CircleCropTransformation())
-            placeholder(com.example.unilink.R.drawable.ic_profile_placeholder)
-            error(com.example.unilink.R.drawable.ic_profile_placeholder)
-        }
+        // Load User Avatar with personalized fallback
+        ImageLoaderUtils.loadSmartImage(
+            imageView = holder.binding.ivUserAvatar,
+            url = doubt.userAvatarUrl,
+            placeholderRes = R.drawable.ic_profile_placeholder,
+            isCircle = true,
+            fallbackName = doubt.userName
+        )
 
         holder.binding.viewOnlineStatus.visibility = if (doubt.isOnline) android.view.View.VISIBLE else android.view.View.GONE
         holder.binding.viewOnlineStatus.backgroundTintList = android.content.res.ColorStateList.valueOf(

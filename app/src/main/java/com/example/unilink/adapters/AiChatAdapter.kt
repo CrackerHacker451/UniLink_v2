@@ -33,7 +33,7 @@ class AiChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         if (holder is SentViewHolder) {
             holder.binding.tvMessage.text = msg.text
             holder.binding.tvTimestamp.visibility = android.view.View.GONE
-            holder.binding.ivStatus.visibility = android.view.View.GONE
+            holder.binding.tvReadStatus.visibility = android.view.View.GONE
         } else if (holder is ReceivedViewHolder) {
             holder.binding.tvMessage.text = msg.text
             holder.binding.tvTimestamp.visibility = android.view.View.GONE

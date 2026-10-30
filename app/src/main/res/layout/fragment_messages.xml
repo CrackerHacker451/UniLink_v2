@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/transparent">
+    android:background="?attr/appBackgroundColor">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,61 +14,64 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingHorizontal="24dp"
-            android:paddingTop="48dp"
+            android:paddingTop="56dp"
             android:paddingBottom="12dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Conversations"
+                android:text="@string/conversations"
                 android:textColor="?attr/textPrimaryColor"
-                android:textSize="28sp"
+                android:textSize="32sp"
                 android:textStyle="bold"
-                android:letterSpacing="-0.02" />
+                android:letterSpacing="-0.03" />
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/btnNewChat"
-                android:layout_width="49dp"
-                android:layout_height="50dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_alignParentEnd="true"
+                android:layout_marginEnd="31dp"
                 android:clickable="true"
                 android:focusable="true"
-                app:cardBackgroundColor="#0DFFFFFF"
-                app:cardCornerRadius="22dp"
+                android:stateListAnimator="@animator/btn_press_scale"
+                app:cardBackgroundColor="@color/glass_bg_low"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="0dp"
-                app:strokeColor="#1AFFFFFF"
+                app:strokeColor="@color/glass_stroke"
                 app:strokeWidth="1dp">
 
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
                     android:layout_gravity="center"
+                    android:contentDescription="@null"
                     android:src="@android:drawable/ic_menu_edit"
                     app:tint="?attr/accentColor" />
             </com.google.android.material.card.MaterialCardView>
         </RelativeLayout>
 
-        <!-- Search bar -->
+        <!-- Glassy Search bar -->
         <com.google.android.material.card.MaterialCardView
             style="@style/GlassCard"
-            android:layout_width="361dp"
-            android:layout_height="44dp"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
             android:layout_marginHorizontal="24dp"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="16dp"
             app:cardCornerRadius="26dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="37dp"
+                android:layout_height="match_parent"
                 android:gravity="center_vertical"
-                android:paddingLeft="18dp"
-                android:paddingRight="18dp">
+                android:paddingHorizontal="18dp">
 
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:src="@android:drawable/ic_menu_search"
-                    app:tint="?attr/textSecondaryColor" />
+                    app:tint="?attr/textSecondaryColor"
+                    android:contentDescription="@null" />
 
                 <EditText
                     android:id="@+id/etSearchMessages"
@@ -77,10 +80,10 @@
                     android:background="@null"
                     android:hint="@string/search_chats_hint"
                     android:inputType="textPersonName"
-                    android:paddingStart="12dp"
+                    android:paddingStart="14dp"
                     android:textColor="?attr/textPrimaryColor"
                     android:textColorHint="?attr/textSecondaryColor"
-                    android:textSize="14sp" />
+                    android:textSize="15sp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -88,9 +91,9 @@
             android:id="@+id/rvChats"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="20dp"
             android:clipToPadding="false"
-            android:paddingBottom="100dp" />
+            android:paddingBottom="160dp" />
 
     </LinearLayout>
 
@@ -101,7 +104,8 @@
         android:layout_gravity="center"
         android:text="@string/no_messages_yet"
         android:textColor="?attr/textSecondaryColor"
-        android:textSize="16sp"
+        android:textSize="15sp"
+        android:textStyle="bold"
         android:visibility="gone" />
 
 </FrameLayout>

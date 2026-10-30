@@ -1,0 +1,359 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model & Schemas
+    // ===============================================================
+    //
+    // Collection: users/{userId}
+    // Document ID: Firebase Auth UID
+    // Fields:
+    //   - uid: string (required)
+    //   - name: string (required, 1-100 chars)
+    //   - username: string (required, 2-30 chars)
+    //   - email: string (required, valid email)
+    //   - userType: string (required)
+    //   - uniCoins: number (required, >= 0)
+    //   - totalXp: number (optional, >= 0)
+    //   - impactScore: number (optional, >= 0)
+    //   - isOnline: boolean (required)
+    //   - isPremium: boolean (required)
+    //   - isVip: boolean (required)
+    //   - isAdmin: boolean (optional)
+    //   - isBanned: boolean (optional)
+    //   - createdAt: timestamp (required)
+    //
+    // Subcollections:
+    //   - users/{userId}/notifications/{notificationId}
+    //   - posts/{postId}/comments/{commentId}
+    //   - chats/{chatId}/messages/{messageId}
+    //   - live_streams/{streamId}/chat/{messageId}
+    //   - live_streams/{streamId}/reactions/{reactionId}
+    //   - doubts/{doubtId}/answers/{answerId}
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.uid;
+    }
+
+    function uidUnchanged() {
+      return !('uid' in request.resource.data) || request.resource.data.uid == request.auth.uid;
+    }
+
+    function uidNotModified() {
+      return !('uid' in request.resource.data) || request.resource.data.uid == resource.data.uid;
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidUrl(url) {
+      return url == null || (url is string && (url.matches("^https://.*") || url.matches("^http://.*") || url.matches("^data:image/.*")));
+    }
+
+    function isParticipant(chatData) {
+      return isAuthenticated() && ('participants' in chatData) && (request.auth.uid in chatData.participants);
+    }
+
+    // Check if user is an Admin
+    function isAdmin() {
+      return isAuthenticated() &&
+        (
+          (request.auth.token.email != null &&
+           request.auth.token.email_verified == true &&
+           (request.auth.token.email == "laltesh@unilink.app" || request.auth.token.email == "admin@nl-lobby.app")) ||
+          (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('isAdmin', false) == true)
+        );
+    }
+
+    function isValidString(field, minLen, maxLen) {
+      return request.resource.data[field] is string &&
+             request.resource.data[field].size() >= minLen &&
+             request.resource.data[field].size() <= maxLen;
+    }
+
+    function isValidOptionalString(field, maxLen) {
+      return !(field in request.resource.data) || request.resource.data[field] == null ||
+             (request.resource.data[field] is string && request.resource.data[field].size() <= maxLen);
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidUserData(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.username is string && data.username.size() >= 2 && data.username.size() <= 30 &&
+             isValidEmail(data.email) &&
+             isValidOptionalString('bio', 500) &&
+             isValidUrl(data.profileImageUrl) &&
+             data.uniCoins is number && data.uniCoins >= 0 &&
+             data.isOnline is bool &&
+             data.isPremium is bool &&
+             data.isVip is bool;
+    }
+
+    function isValidMessageData(data) {
+      return data.senderId == request.auth.uid &&
+             data.messageText is string && data.messageText.size() <= 5000;
+    }
+
+    function isValidPostData(data) {
+      return data.authorId == request.auth.uid &&
+             data.content is string && data.content.size() <= 5000;
+    }
+
+    // ===============================================================
+    // Collection Rules
+    // ===============================================================
+
+    // Deny all by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // User Profiles & Notifications
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+
+      allow create: if (isOwner(userId) || isAdmin()) &&
+                       hasRequiredFields(['uid', 'name', 'username', 'email', 'userType', 'isOnline', 'uniCoins', 'createdAt']) &&
+                       isValidUserData(request.resource.data) &&
+                       (!('isAdmin' in request.resource.data) || request.resource.data.isAdmin == false || isAdmin()) &&
+                       (!('userType' in request.resource.data) || request.resource.data.userType != 'Admin' || isAdmin());
+
+      allow update: if (isOwner(userId) || isAdmin()) &&
+                       isValidUserData(request.resource.data) &&
+                       uidNotModified() &&
+                       (!('isAdmin' in request.resource.data) || request.resource.data.isAdmin == resource.data.get('isAdmin', false) || isAdmin()) &&
+                       (!('userType' in request.resource.data) || request.resource.data.userType == resource.data.get('userType', 'Student') || isAdmin());
+
+      // Allow authenticated peers to update social links, vouches, location sync & FCM tokens with field-level restriction
+      allow update: if isAuthenticated() &&
+                       request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+                         'linked', 'linkers', 'linkCount', 'vouchCount', 'skillVouches',
+                         'profileViews', 'latitude', 'longitude', 'city', 'state', 'status', 'isLookingForRandomMatch', 'fcmToken', 'lastSeenTimestamp'
+                       ]);
+
+      // Notifications Sub-collection
+      match /notifications/{notificationId} {
+        allow read, update, delete: if isOwner(userId) || isAdmin();
+        allow create: if isAuthenticated();
+      }
+    }
+
+    // Web / Newton's Lobby User Sync Collections
+    match /{collectionName}/{userId} {
+      allow read: if collectionName in ['web_users', 'students', 'nl_users', 'newton_users', 'newtons_lobby', 'nl_students', 'hackathon_users'] && isAuthenticated();
+      allow write: if collectionName in ['web_users', 'students', 'nl_users', 'newton_users', 'newtons_lobby', 'nl_students', 'hackathon_users'] && (isOwner(userId) || isAdmin());
+    }
+
+    // Feed Posts & Comments
+    match /posts/{postId} {
+      allow read: if isAuthenticated();
+
+      allow create: if isAuthenticated() &&
+                       isValidPostData(request.resource.data);
+
+      allow update: if isAuthenticated() &&
+                       request.resource.data.authorId == resource.data.authorId &&
+                       request.resource.data.content == resource.data.content;
+
+      allow delete: if isAuthenticated() && (resource.data.authorId == request.auth.uid || isAdmin());
+
+      match /comments/{commentId} {
+        allow read: if isAuthenticated();
+
+        allow create: if isAuthenticated() &&
+                         request.resource.data.authorId == request.auth.uid &&
+                         request.resource.data.content is string &&
+                         request.resource.data.content.size() <= 2000;
+
+        allow delete: if isAuthenticated() && (resource.data.authorId == request.auth.uid || isAdmin());
+      }
+    }
+
+    // Direct Chats & Group Chats
+    match /chats/{chatId} {
+      allow read, update: if isAuthenticated() && (isParticipant(resource.data) || isAdmin());
+
+      allow create: if isAuthenticated() &&
+                       ('participants' in request.resource.data) &&
+                       request.resource.data.participants.size() >= 2 &&
+                       (request.auth.uid in request.resource.data.participants || isAdmin());
+
+      match /messages/{messageId} {
+        allow read: if isAuthenticated() && (isParticipant(get(/databases/$(database)/documents/chats/$(chatId)).data) || isAdmin());
+
+        allow create: if isAuthenticated() &&
+                         (isParticipant(get(/databases/$(database)/documents/chats/$(chatId)).data) || isAdmin()) &&
+                         isValidMessageData(request.resource.data);
+
+        allow update, delete: if isAuthenticated() && (resource.data.senderId == request.auth.uid || isAdmin());
+      }
+    }
+
+    // Projects / Launchpad Teammate Matching
+    match /projects/{projectId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && (request.resource.data.ownerId == request.auth.uid || isAdmin());
+      allow update: if isAuthenticated();
+      allow delete: if isAuthenticated() && (resource.data.ownerId == request.auth.uid || isAdmin());
+
+      match /messages/{messageId} {
+        allow read, create: if isAuthenticated();
+        allow update, delete: if isAuthenticated() && (resource.data.senderId == request.auth.uid || isAdmin());
+      }
+    }
+
+    // Web Compatibility Teams (Newton's Lobby)
+    match /hl_teams/{teamId} {
+      allow read, create, update, delete: if isAuthenticated();
+
+      match /messages/{messageId} {
+        allow read, create, update, delete: if isAuthenticated();
+      }
+    }
+
+    match /hackathon_teams/{teamId} {
+      allow read, create, update, delete: if isAuthenticated();
+    }
+
+    match /teams/{teamId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && (request.resource.data.leaderId == request.auth.uid || isAdmin());
+      allow update: if isAuthenticated();
+      allow delete: if isAuthenticated() && (resource.data.leaderId == request.auth.uid || isAdmin());
+    }
+
+    // Doubts Board & Q&A
+    match /doubts/{doubtId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && (request.resource.data.userId == request.auth.uid || isAdmin());
+      allow update: if isAuthenticated();
+      allow delete: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+
+      match /answers/{answerId} {
+        allow read, create, update: if isAuthenticated();
+        allow delete: if isAuthenticated() && (resource.data.authorId == request.auth.uid || isAdmin());
+      }
+    }
+
+    // Campus Live Stage Streams
+    match /live_streams/{streamId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && (request.resource.data.hostUid == request.auth.uid || isAdmin());
+      allow update: if isAuthenticated();
+      allow delete: if isAuthenticated() && (resource.data.hostUid == request.auth.uid || isAdmin());
+
+      match /chat/{messageId} {
+        allow read, create: if isAuthenticated();
+        allow delete: if isAuthenticated() && (resource.data.senderUid == request.auth.uid || isAdmin());
+      }
+
+      match /reactions/{reactionId} {
+        allow read, create: if isAuthenticated();
+      }
+    }
+
+    // Barter Block Market
+    match /barter_trades/{tradeId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && (request.resource.data.authorUid == request.auth.uid || isAdmin());
+      allow update, delete: if isAuthenticated() && (resource.data.authorUid == request.auth.uid || isAdmin());
+    }
+
+    // DareDrop Proofs & Proposed Dares
+    match /dare_proofs/{proofId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && (request.resource.data.authorId == request.auth.uid || isAdmin());
+      allow update: if isAuthenticated();
+      allow delete: if isAuthenticated() && (resource.data.authorId == request.auth.uid || isAdmin());
+    }
+
+    match /dares/{dareId} {
+      allow read, create, update: if isAuthenticated();
+      allow delete: if isAuthenticated() && (resource.data.creatorUid == request.auth.uid || isAdmin());
+    }
+
+    match /proposed_dares/{dareId} {
+      allow read, create, update: if isAuthenticated();
+      allow delete: if isAuthenticated() && (resource.data.authorId == request.auth.uid || isAdmin());
+    }
+
+    // Digital Resource Vault
+    match /vaults/{vaultId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && (request.resource.data.uploaderId == request.auth.uid || isAdmin());
+      allow update, delete: if isAuthenticated() && (resource.data.uploaderId == request.auth.uid || isAdmin());
+    }
+
+    match /vault/{itemId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && (request.resource.data.uploaderId == request.auth.uid || isAdmin());
+      allow update, delete: if isAuthenticated() && (resource.data.uploaderId == request.auth.uid || isAdmin());
+    }
+
+    // WebRTC Signaling & Random Match
+    match /random_matches/{userId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /calls/{channelId} {
+      allow read, write: if isAuthenticated();
+
+      match /{subcollection=**} {
+        allow read, write: if isAuthenticated();
+      }
+    }
+
+    // Quiz Duels
+    match /duels/{duelId} {
+      allow read, create, update: if isAuthenticated();
+      allow delete: if isAuthenticated() || isAdmin();
+    }
+
+    // Global Application Config & In-App Updates
+    match /app_config/{configDoc} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // Admin Security Audit Logs
+    match /admin_audit_logs/{logId} {
+      allow read, write: if isAdmin();
+    }
+
+    // Notifications
+    match /notifications/{notificationId} {
+      allow read, update, delete: if isAuthenticated() && (resource.data.receiverUid == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated();
+    }
+
+    // Token Transfers
+    match /token_transfers/{transferId} {
+      allow read: if isAuthenticated() && (resource.data.senderId == request.auth.uid || resource.data.receiverId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && (request.resource.data.senderId == request.auth.uid || isAdmin());
+    }
+  }
+}

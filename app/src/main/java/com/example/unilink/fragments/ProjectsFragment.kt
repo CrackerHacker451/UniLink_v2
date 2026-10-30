@@ -35,9 +35,31 @@ class ProjectsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val topInset = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars()).top
+            val params = binding.tvProjectsTitle.layoutParams as? ViewGroup.MarginLayoutParams
+            if (params != null) {
+                params.topMargin = topInset + (12 * resources.displayMetrics.density).toInt()
+                binding.tvProjectsTitle.layoutParams = params
+            }
+            insets
+        }
+
         setupRecyclerView()
         setupFilters()
         fetchProjects()
+
+        binding.btnLaunchTeam.setOnClickListener {
+            startActivity(Intent(context, com.example.unilink.activities.CreateTeamActivity::class.java))
+        }
+
+        binding.btnMyTeams.setOnClickListener {
+            val myUid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return@setOnClickListener
+            val myProjects = allProjects.filter { p -> p.ownerId == myUid || p.members.contains(myUid) }
+            projectAdapter.submitList(myProjects)
+            binding.tvEmptyState.visibility = if (myProjects.isEmpty()) View.VISIBLE else View.GONE
+        }
 
         arguments?.getString("search_query")?.let { query ->
             binding.etSearchProjects.setText(query)
@@ -71,6 +93,8 @@ class ProjectsFragment : Fragment() {
     }
 
     private fun applyFilters() {
+        if (_binding == null) return
+        
         val query = binding.etSearchProjects.text.toString().lowercase().trim()
         val selectedChipId = binding.chipGroupCategories.checkedChipId
         
@@ -83,13 +107,17 @@ class ProjectsFragment : Fragment() {
         }
 
         filteredProjects = allProjects.filter { project ->
-            val matchesQuery = project.title.lowercase().contains(query) || 
-                              project.description.lowercase().contains(query) ||
-                              project.skillsRequired.any { it.lowercase().contains(query) }
+            val title = project.title?.lowercase() ?: ""
+            val description = project.description?.lowercase() ?: ""
+            val skills = project.skillsRequired ?: emptyList()
+            
+            val matchesQuery = title.contains(query) || 
+                              description.contains(query) ||
+                              skills.any { it.lowercase().contains(query) }
             
             val matchesCategory = if (category.isEmpty()) true 
-                                 else project.tags.any { it.lowercase().contains(category) } || 
-                                      project.title.lowercase().contains(category)
+                                 else project.tags?.any { it.lowercase().contains(category) } == true || 
+                                      title.contains(category)
             
             matchesQuery && matchesCategory
         }
@@ -109,12 +137,18 @@ class ProjectsFragment : Fragment() {
     }
 
     private fun showSkeleton(show: Boolean) {
+        val currentContext = context ?: return
         if (_binding == null) return
+        
         if (show) {
             binding.rvProjects.visibility = View.GONE
             binding.llSkeletonContainer.visibility = View.VISIBLE
-            val shimmer = android.view.animation.AnimationUtils.loadAnimation(context, com.example.unilink.R.anim.shimmer_alpha)
-            binding.llSkeletonContainer.startAnimation(shimmer)
+            try {
+                val shimmer = android.view.animation.AnimationUtils.loadAnimation(currentContext, com.example.unilink.R.anim.shimmer_alpha)
+                binding.llSkeletonContainer.startAnimation(shimmer)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         } else {
             binding.llSkeletonContainer.clearAnimation()
             binding.llSkeletonContainer.visibility = View.GONE
@@ -129,10 +163,11 @@ class ProjectsFragment : Fragment() {
     }
 
     private fun handleProjectAction(project: Project, action: String) {
+        val currentContext = context ?: return
         when (action) {
             "manage" -> showManageProjectDialog(project)
             else -> {
-                val intent = Intent(requireContext(), com.example.unilink.activities.ProjectDetailsActivity::class.java).apply {
+                val intent = Intent(currentContext, com.example.unilink.activities.ProjectDetailsActivity::class.java).apply {
                     putExtra("projectId", project.projectId)
                 }
                 startActivity(intent)
@@ -141,9 +176,10 @@ class ProjectsFragment : Fragment() {
     }
 
     private fun showManageProjectDialog(project: Project) {
+        val currentContext = context ?: return
         if (!isAdded) return
-        AlertDialog.Builder(requireContext())
-            .setTitle(project.title)
+        AlertDialog.Builder(currentContext)
+            .setTitle(project.displayTitle)
             .setMessage("Project Management Console")
             .setPositiveButton("Mark Completed") { _, _ ->
                 projectRepository.completeProject(project.projectId) { success ->

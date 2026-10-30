@@ -3,9 +3,9 @@ package com.example.unilink.activities
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.unilink.R
 import com.example.unilink.databinding.ActivityChatInfoBinding
 import com.example.unilink.repository.UserRepository
-import com.google.firebase.auth.FirebaseAuth
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -13,7 +13,6 @@ class ChatInfoActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityChatInfoBinding
     private val userRepository = UserRepository()
-    private val auth = FirebaseAuth.getInstance()
     private var userId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,7 +27,7 @@ class ChatInfoActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.toolbar.setNavigationOnClickListener { finish() }
 
-        binding.collapsingToolbar.title = chatName ?: "User Info"
+        binding.collapsingToolbar.title = chatName ?: getString(R.string.user_info)
 
         userId?.let { fetchUserDetails(it) }
         setupActions()
@@ -38,18 +37,18 @@ class ChatInfoActivity : AppCompatActivity() {
         userRepository.getUserById(uid) { user ->
             if (isFinishing || isDestroyed) return@getUserById
             user?.let {
-                binding.tvBio.text = if (it.bio.isNotEmpty()) it.bio else "Hey there! I am using UniLink."
+                binding.tvBio.text = it.bio.ifEmpty { getString(R.string.bio_default) }
                 
                 it.createdAt?.let { date ->
                     val sdf = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
-                    binding.tvBioDate.text = "Joined ${sdf.format(date)}"
+                    binding.tvBioDate.text = getString(R.string.joined_date_format, sdf.format(date))
                 }
 
                 // Check block status to update UI
                 userRepository.getCurrentUser { currentUser ->
                     if (isFinishing || isDestroyed) return@getCurrentUser
                     val isBlocked = currentUser?.blockedUsers?.contains(uid) == true
-                    binding.btnBlock.text = if (isBlocked) "Unblock User" else "Block User"
+                    binding.btnBlock.text = if (isBlocked) getString(R.string.unblock_user) else getString(R.string.block_user)
                 }
             }
         }
@@ -64,15 +63,15 @@ class ChatInfoActivity : AppCompatActivity() {
                     if (isBlocked) {
                         userRepository.unblockUser(uid) { success ->
                             if (success && !isFinishing && !isDestroyed) {
-                                Toast.makeText(this, "User unblocked", Toast.LENGTH_SHORT).show()
-                                binding.btnBlock.text = "Block User"
+                                Toast.makeText(this, getString(R.string.user_unblocked), Toast.LENGTH_SHORT).show()
+                                binding.btnBlock.text = getString(R.string.block_user)
                             }
                         }
                     } else {
                         userRepository.blockUser(uid) { success ->
                             if (success && !isFinishing && !isDestroyed) {
-                                Toast.makeText(this, "User blocked", Toast.LENGTH_SHORT).show()
-                                binding.btnBlock.text = "Unblock User"
+                                Toast.makeText(this, getString(R.string.user_blocked), Toast.LENGTH_SHORT).show()
+                                binding.btnBlock.text = getString(R.string.unblock_user)
                             }
                         }
                     }
@@ -81,7 +80,7 @@ class ChatInfoActivity : AppCompatActivity() {
         }
 
         binding.btnReport.setOnClickListener {
-            Toast.makeText(this, "User reported", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.user_reported), Toast.LENGTH_SHORT).show()
         }
     }
 }

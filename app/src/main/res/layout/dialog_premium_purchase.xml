@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="16dp"
-            android:text="UniLink Pro"
+            android:text="Newton\'s Lobby Pro"
             android:textColor="?attr/textPrimaryColor"
             android:textSize="24sp"
             android:textStyle="bold" />
@@ -40,7 +40,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="8dp"
-            android:text="Unlock the full potential of UniLink"
+            android:text="Unlock the full potential of Newton\'s Lobby"
             android:textColor="?attr/textSecondaryColor"
             android:textSize="14sp" />
 

@@ -1,16 +1,16 @@
 package com.example.unilink.activities
 
 import android.os.Bundle
-import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import coil.load
 import coil.imageLoader
 import coil.request.ImageRequest
 import coil.request.SuccessResult
+import com.example.unilink.R
 import com.example.unilink.databinding.ActivityMediaViewerBinding
 import com.example.unilink.repository.GeminiRepository
+import com.example.unilink.utils.ImageLoaderUtils
 import kotlinx.coroutines.launch
 
 class MediaViewerActivity : AppCompatActivity() {
@@ -34,18 +34,19 @@ class MediaViewerActivity : AppCompatActivity() {
         binding.tvMediaTitle.text = title
         binding.tvMediaSub.text = subtitle
 
-        url?.let { mediaUrl ->
-            binding.ivFullscreenMedia.load(mediaUrl) {
-                crossfade(true)
-            }
+        if (!url.isNullOrEmpty()) {
+            ImageLoaderUtils.loadSmartImage(
+                binding.ivFullscreenMedia,
+                url,
+                R.drawable.bg_chat_img_placeholder
+            )
 
             binding.btnAiAnalyze.setOnClickListener {
-                analyzeWithAi(mediaUrl)
+                analyzeWithAi(url)
             }
+        } else {
+            Toast.makeText(this, "No media content available", Toast.LENGTH_SHORT).show()
         }
-        
-        // Block screenshots in media viewer too
-        window.setFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE, android.view.WindowManager.LayoutParams.FLAG_SECURE)
     }
 
     private fun analyzeWithAi(url: String) {
@@ -54,13 +55,19 @@ class MediaViewerActivity : AppCompatActivity() {
         
         lifecycleScope.launch {
             try {
-                val request = ImageRequest.Builder(this@MediaViewerActivity)
-                    .data(url)
-                    .allowHardware(false) 
-                    .build()
-                
-                val result = (imageLoader.execute(request) as? SuccessResult)?.drawable
-                val bitmap = (result as? android.graphics.drawable.BitmapDrawable)?.bitmap
+                val bitmap: android.graphics.Bitmap? = if (url.startsWith("data:image/") || url.startsWith("data:")) {
+                    val base64Data = if (url.contains("base64,")) url.substringAfter("base64,") else url
+                    val bytes = android.util.Base64.decode(base64Data, android.util.Base64.NO_WRAP)
+                    android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                } else {
+                    val request = ImageRequest.Builder(this@MediaViewerActivity)
+                        .data(url)
+                        .allowHardware(false) 
+                        .build()
+                    
+                    val result = (imageLoader.execute(request) as? SuccessResult)?.drawable
+                    (result as? android.graphics.drawable.BitmapDrawable)?.bitmap
+                }
 
                 if (bitmap != null) {
                     val response = geminiRepository.analyzeImage(bitmap)

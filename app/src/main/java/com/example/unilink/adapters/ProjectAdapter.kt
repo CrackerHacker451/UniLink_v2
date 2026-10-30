@@ -26,24 +26,32 @@ class ProjectAdapter(
         val project = getItem(position)
         val currentUid = FirebaseAuth.getInstance().currentUser?.uid
         
-        holder.binding.tvProjectTitle.text = project.title
-        holder.binding.tvProjectDescription.text = project.description
-        holder.binding.tvProjectStatus.text = project.status
+        holder.binding.tvProjectTitle.text = project.displayTitle
+        holder.binding.tvProjectDescription.text = project.description ?: ""
+        holder.binding.tvProjectStatus.text = project.status ?: "Open"
         holder.binding.tvProgressPercent.text = "Progress: ${project.progress}%"
         holder.binding.projectProgress.progress = project.progress
-        holder.binding.tvTeamCount.text = "${project.members.size}/${project.maxTeamSize}"
+        holder.binding.tvTeamCount.text = "${project.members.size}/${project.effectiveMaxMembers}"
+        
+        // Website Source Badge
+        if (project.source == "newtonslobby") {
+            holder.binding.tvSourceBadge.visibility = View.VISIBLE
+        } else {
+            holder.binding.tvSourceBadge.visibility = View.GONE
+        }
         
         // Show Skills
-        if (project.skillsRequired.isNotEmpty()) {
+        val skills = project.skillsRequired
+        if (!skills.isNullOrEmpty()) {
             holder.binding.tvProjectSkills.visibility = android.view.View.VISIBLE
-            holder.binding.tvProjectSkills.text = "Skills: ${project.skillsRequired.joinToString(", ")}"
+            holder.binding.tvProjectSkills.text = "Skills: ${skills.joinToString(", ")}"
         } else {
             holder.binding.tvProjectSkills.visibility = android.view.View.GONE
         }
         
         val context = holder.itemView.context
         
-        // Boosted Badge logic (simplified)
+        // Boosted Badge logic
         val isBoosted = project.boostUntil != null && project.boostUntil!!.after(java.util.Date())
         if (isBoosted) {
             holder.binding.tvProjectStatus.setBackgroundResource(com.example.unilink.R.drawable.bg_tag)
@@ -53,12 +61,13 @@ class ProjectAdapter(
         } else {
             holder.binding.tvProjectStatus.setBackgroundResource(com.example.unilink.R.drawable.bg_tag)
             holder.binding.tvProjectStatus.backgroundTintList = null
-            holder.binding.tvProjectStatus.text = project.status
+            holder.binding.tvProjectStatus.text = project.status ?: "Open"
             holder.binding.tvProjectStatus.setTextColor(androidx.core.content.ContextCompat.getColor(context, android.R.color.holo_blue_bright))
         }
 
         val isOwner = project.ownerId == currentUid
         val isMember = project.members.contains(currentUid)
+        val memberCount = project.members.size
 
         when {
             project.status == "Completed" -> {
@@ -74,7 +83,7 @@ class ProjectAdapter(
                 holder.binding.btnOpen.text = "Open Workspace"
                 holder.binding.btnOpen.isEnabled = true
             }
-            project.members.size >= project.maxTeamSize -> {
+            memberCount >= project.effectiveMaxMembers -> {
                 holder.binding.btnOpen.text = "Team Full"
                 holder.binding.btnOpen.isEnabled = false
                 holder.binding.btnOpen.alpha = 0.5f

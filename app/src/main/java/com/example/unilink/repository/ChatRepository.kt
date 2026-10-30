@@ -7,9 +7,11 @@ import com.example.unilink.utils.EncryptionUtils
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.SetOptions
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class ChatRepository {
 
@@ -24,6 +26,7 @@ class ChatRepository {
         receiverId: String? = null,
         replyToId: String? = null,
         replyToText: String? = null,
+        isProjectSync: Boolean = false,
         onComplete: (Boolean) -> Unit
     ) {
         val currentUserId = auth.currentUser?.uid ?: run {
@@ -32,8 +35,27 @@ class ChatRepository {
             return
         }
 
+        if (isProjectSync) {
+            val messageData = hashMapOf(
+                "text" to text,
+                "messageText" to text,
+                "senderId" to currentUserId,
+                "senderName" to senderUsername,
+                "senderUsername" to senderUsername,
+                "timestamp" to FieldValue.serverTimestamp()
+            )
+            val batch = db.batch()
+            val msgRef = db.collection("projects").document(chatId).collection("messages").document()
+            batch.set(msgRef, messageData)
+            batch.set(db.collection("hl_teams").document(chatId).collection("messages").document(msgRef.id), messageData)
+            batch.commit().addOnCompleteListener { onComplete(it.isSuccessful) }
+            return
+        }
+
         val finalReceiverId = if (!isGroup) {
-            receiverId ?: chatId.split("_").firstOrNull { it != currentUserId } ?: ""
+            val rid = receiverId ?: ""
+            if (rid.isNotEmpty()) rid
+            else chatId.split("_").firstOrNull { it != currentUserId && it.isNotEmpty() } ?: ""
         } else ""
 
         if (!isGroup && finalReceiverId.isEmpty()) {
@@ -42,7 +64,6 @@ class ChatRepository {
             return
         }
 
-        // Optimized block check: Skip if it's a group
         if (!isGroup) {
             db.collection("users").document(finalReceiverId).get()
                 .addOnSuccessListener { doc ->
@@ -55,7 +76,6 @@ class ChatRepository {
                     }
                 }
                 .addOnFailureListener {
-                    // Proceed if fetch fails to avoid blocking legitimate users due to temporary network issues
                     proceedWithSendMessage(chatId, text, senderUsername, isGroup, finalReceiverId, replyToId, replyToText, onComplete)
                 }
         } else {
@@ -63,36 +83,148 @@ class ChatRepository {
         }
     }
 
+    fun sendDoubtMessage(chatId: String, question: String, rewardCoins: Int, senderUsername: String, isGroup: Boolean, receiverId: String, onComplete: (Boolean) -> Unit) {
+        val currentUserId = auth.currentUser?.uid ?: return
+        val receiverUid = if (!isGroup) {
+            if (receiverId.isNotEmpty()) receiverId
+            else chatId.split("_").firstOrNull { it != currentUserId && it.isNotEmpty() } ?: ""
+        } else ""
+
+        val chatRoomRef = db.collection("chats").document(chatId)
+        val messageRef = chatRoomRef.collection("messages").document()
+
+        val doubtData = hashMapOf(
+            "messageId" to messageRef.id,
+            "senderId" to currentUserId,
+            "senderUsername" to senderUsername,
+            "receiverId" to receiverUid,
+            "messageText" to "🧠 Doubt: $question",
+            "type" to "doubt",
+            "doubtReward" to rewardCoins,
+            "timestamp" to FieldValue.serverTimestamp(),
+            "status" to "sent"
+        )
+
+        val chatRoomUpdate = hashMapOf<String, Any>(
+            "chatId" to chatId,
+            "lastMessage" to "🧠 Doubt: $question",
+            "lastTimestamp" to FieldValue.serverTimestamp(),
+            "isGroup" to isGroup
+        )
+
+        if (!isGroup && receiverUid.isNotEmpty()) {
+            chatRoomUpdate["participants"] = listOf(currentUserId, receiverUid)
+        }
+
+        val batch = db.batch()
+        batch.set(chatRoomRef, chatRoomUpdate, SetOptions.merge())
+        batch.set(messageRef, doubtData)
+
+        batch.commit().addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                GlobalScope.launch(Dispatchers.IO) {
+                    val solution = GeminiRepository().getAiHint(question, true)
+                    if (solution.isNotEmpty()) {
+                        val aiMsgRef = chatRoomRef.collection("messages").document()
+                        val aiMsgData = hashMapOf(
+                            "messageId" to aiMsgRef.id,
+                            "senderId" to "uniai_genius",
+                            "senderUsername" to "✨ UniAI Genius Assistant",
+                            "receiverId" to currentUserId,
+                            "messageText" to solution,
+                            "type" to "text",
+                            "timestamp" to FieldValue.serverTimestamp(),
+                            "status" to "seen"
+                        )
+                        chatRoomRef.collection("messages").document(aiMsgRef.id).set(aiMsgData)
+                    }
+                }
+            }
+            onComplete(task.isSuccessful)
+        }
+    }
+
+    fun sendPollMessage(chatId: String, question: String, options: Map<String, Int>, senderUsername: String, onComplete: (Boolean) -> Unit) {
+        val currentUserId = auth.currentUser?.uid ?: return
+        val chatRoomRef = db.collection("chats").document(chatId)
+        val messageRef = chatRoomRef.collection("messages").document()
+
+        val pollData = hashMapOf(
+            "messageId" to messageRef.id,
+            "senderId" to currentUserId,
+            "senderUsername" to senderUsername,
+            "pollQuestion" to question,
+            "pollOptions" to options,
+            "userVotes" to mapOf<String, String>(),
+            "type" to "poll",
+            "timestamp" to FieldValue.serverTimestamp(),
+            "status" to "sent"
+        )
+
+        val batch = db.batch()
+        batch.set(chatRoomRef, mapOf(
+            "chatId" to chatId,
+            "lastMessage" to "📊 Poll: $question",
+            "lastTimestamp" to FieldValue.serverTimestamp(),
+            "isGroup" to true
+        ), SetOptions.merge())
+        batch.set(messageRef, pollData)
+        batch.commit().addOnCompleteListener { onComplete(it.isSuccessful) }
+    }
+
     fun sendVoiceMessage(chatId: String, receiverId: String, onComplete: (Boolean) -> Unit) {
         val currentUserId = auth.currentUser?.uid ?: return
-        val messageRef = db.collection("chats").document(chatId).collection("messages").document()
-        
+        val receiverUid = if (receiverId.isNotEmpty()) receiverId
+                          else chatId.split("_").firstOrNull { it != currentUserId && it.isNotEmpty() } ?: ""
+
+        val chatRoomRef = db.collection("chats").document(chatId)
+        val messageRef = chatRoomRef.collection("messages").document()
+
         val voiceData = hashMapOf(
             "messageId" to messageRef.id,
             "senderId" to currentUserId,
-            "receiverId" to receiverId,
+            "receiverId" to receiverUid,
             "messageText" to "🎙️ Voice Message",
             "type" to "voice",
             "timestamp" to FieldValue.serverTimestamp(),
             "status" to "sent"
         )
-        
-        messageRef.set(voiceData).addOnCompleteListener { 
+
+        val chatRoomUpdate = hashMapOf<String, Any>(
+            "chatId" to chatId,
+            "lastMessage" to "🎙️ Voice Message",
+            "lastTimestamp" to FieldValue.serverTimestamp(),
+            "isGroup" to false,
+            "participants" to listOf(currentUserId, receiverUid)
+        )
+
+        val batch = db.batch()
+        batch.set(chatRoomRef, chatRoomUpdate, SetOptions.merge())
+        if (receiverUid.isNotEmpty()) {
+            batch.set(chatRoomRef, mapOf("unreadCounts" to mapOf(receiverUid to FieldValue.increment(1))), SetOptions.merge())
+        }
+        batch.set(messageRef, voiceData)
+
+        batch.commit().addOnCompleteListener { 
             onComplete(it.isSuccessful)
-            if (it.isSuccessful) {
-                NotificationRepository().sendNotification(receiverId, "chat", "New Voice Message", "🎙️ Listen now", chatId)
+            if (it.isSuccessful && receiverUid.isNotEmpty()) {
+                NotificationRepository().sendNotification(receiverUid, "chat", "New Voice Message", "🎙️ Listen now", chatId)
             }
         }
     }
 
     fun sendDuelRequest(chatId: String, receiverId: String, wager: Int, subject: String, onComplete: (Boolean) -> Unit) {
         val currentUserId = auth.currentUser?.uid ?: return
-        val messageRef = db.collection("chats").document(chatId).collection("messages").document()
-        
+        val receiverUid = if (receiverId.isNotEmpty()) receiverId
+                          else chatId.split("_").firstOrNull { it != currentUserId && it.isNotEmpty() } ?: ""
+
+        val chatRoomRef = db.collection("chats").document(chatId)
+        val messageRef = chatRoomRef.collection("messages").document()
+
         val duelData = hashMapOf(
             "messageId" to messageRef.id,
             "senderId" to currentUserId,
-            "receiverId" to receiverId,
+            "receiverId" to receiverUid,
             "messageText" to "⚔️ Challenged you to a $subject Duel!",
             "type" to "duel",
             "duelWager" to wager,
@@ -100,21 +232,27 @@ class ChatRepository {
             "timestamp" to FieldValue.serverTimestamp(),
             "status" to "sent"
         )
-        
-        val chatRoomUpdate = mapOf(
+
+        val chatRoomUpdate = hashMapOf<String, Any>(
+            "chatId" to chatId,
             "lastMessage" to "⚔️ Duel Challenge!",
-            "lastTimestamp" to FieldValue.serverTimestamp()
+            "lastTimestamp" to FieldValue.serverTimestamp(),
+            "isGroup" to false,
+            "participants" to listOf(currentUserId, receiverUid)
         )
-        
+
         val batch = db.batch()
+        batch.set(chatRoomRef, chatRoomUpdate, SetOptions.merge())
+        if (receiverUid.isNotEmpty()) {
+            batch.set(chatRoomRef, mapOf("unreadCounts" to mapOf(receiverUid to FieldValue.increment(1))), SetOptions.merge())
+        }
         batch.set(messageRef, duelData)
-        batch.update(db.collection("chats").document(chatId), chatRoomUpdate)
-        
+
         batch.commit().addOnCompleteListener { 
             onComplete(it.isSuccessful)
-            if (it.isSuccessful) {
+            if (it.isSuccessful && receiverUid.isNotEmpty()) {
                 NotificationRepository().sendNotification(
-                    receiverUid = receiverId,
+                    receiverUid = receiverUid,
                     type = "duel",
                     title = "⚔️ Duel Challenge!",
                     message = "$subject challenge received!",
@@ -126,60 +264,58 @@ class ChatRepository {
 
     fun sendTokenTransfer(chatId: String, receiverId: String, amount: Int, note: String, onComplete: (Boolean) -> Unit) {
         val currentUserId = auth.currentUser?.uid ?: return
-        
-        // 1. Transaction to deduct from sender and add to receiver
+        val receiverUid = if (receiverId.isNotEmpty()) receiverId
+                          else chatId.split("_").firstOrNull { it != currentUserId && it.isNotEmpty() } ?: ""
+
         val senderRef = db.collection("users").document(currentUserId)
-        val receiverRef = db.collection("users").document(receiverId)
-        
+        val receiverRef = db.collection("users").document(receiverUid)
+        val chatRoomRef = db.collection("chats").document(chatId)
+
         db.runTransaction { transaction ->
-            val sender = transaction.get(senderRef)
-            val currentBalance = sender.getLong("uniCoins") ?: 0L
-            if (currentBalance < amount) {
-                throw Exception("Insufficient UniCoins")
+            val senderSnap = transaction.get(senderRef)
+            val currentCoins = senderSnap.getLong("uniCoins") ?: 0L
+            if (currentCoins < amount) {
+                throw Exception("Insufficient UniCoins balance")
             }
-            
-            transaction.update(senderRef, "uniCoins", currentBalance - amount)
-            transaction.update(receiverRef, "uniCoins", com.google.firebase.firestore.FieldValue.increment(amount.toLong()))
-            
-            // Create Receipt Log
-            val logRef = db.collection("token_transfers").document()
-            val logData = hashMapOf(
-                "transferId" to logRef.id,
-                "senderId" to currentUserId,
-                "receiverId" to receiverId,
-                "amount" to amount,
-                "timestamp" to FieldValue.serverTimestamp(),
-                "note" to note
-            )
-            transaction.set(logRef, logData)
-            
-            null
-        }.addOnSuccessListener {
-            // 2. Create message in chat
-            val messageRef = db.collection("chats").document(chatId).collection("messages").document()
+
+            transaction.update(senderRef, "uniCoins", currentCoins - amount)
+            transaction.update(receiverRef, "uniCoins", FieldValue.increment(amount.toLong()))
+
+            val messageRef = chatRoomRef.collection("messages").document()
             val tokenData = hashMapOf(
                 "messageId" to messageRef.id,
                 "senderId" to currentUserId,
-                "receiverId" to receiverId,
-                "messageText" to "💰 Sent $amount UniCoins",
+                "receiverId" to receiverUid,
+                "messageText" to "💰 Sent $amount UniCoins: $note",
                 "type" to "token",
                 "uniCoinAmount" to amount,
                 "tokenReason" to note,
                 "timestamp" to FieldValue.serverTimestamp(),
                 "status" to "sent"
             )
-            
-            messageRef.set(tokenData).addOnCompleteListener { 
-                onComplete(it.isSuccessful)
-                if (it.isSuccessful) {
-                    NotificationRepository().sendNotification(
-                        receiverUid = receiverId,
-                        type = "chat",
-                        title = "Received UniCoins! 💰",
-                        message = "You received $amount coins from a fellow student.",
-                        targetId = chatId
-                    )
-                }
+            transaction.set(messageRef, tokenData)
+
+            val chatRoomUpdate = hashMapOf<String, Any>(
+                "chatId" to chatId,
+                "lastMessage" to "💰 Sent $amount UniCoins",
+                "lastTimestamp" to FieldValue.serverTimestamp(),
+                "isGroup" to false,
+                "participants" to listOf(currentUserId, receiverUid)
+            )
+            transaction.set(chatRoomRef, chatRoomUpdate, SetOptions.merge())
+            if (receiverUid.isNotEmpty()) {
+                transaction.set(chatRoomRef, mapOf("unreadCounts" to mapOf(receiverUid to FieldValue.increment(1))), SetOptions.merge())
+            }
+        }.addOnSuccessListener {
+            onComplete(true)
+            if (receiverUid.isNotEmpty()) {
+                NotificationRepository().sendNotification(
+                    receiverUid = receiverUid,
+                    type = "token",
+                    title = "💰 UniCoins Received!",
+                    message = "You received $amount UniCoins: $note",
+                    targetId = chatId
+                )
             }
         }.addOnFailureListener {
             onComplete(false)
@@ -192,118 +328,18 @@ class ChatRepository {
         senderUsername: String,
         isGroup: Boolean,
         finalReceiverId: String,
-        replyToId: String? = null,
-        replyToText: String? = null,
+        replyToId: String?,
+        replyToText: String?,
         onComplete: (Boolean) -> Unit
     ) {
-        val currentUserId = auth.currentUser?.uid ?: return
-        
-        // Encrypt message text (E2EE)
+        val currentUserId = auth.currentUser?.uid ?: return onComplete(false)
         val encryptedText = EncryptionUtils.encrypt(text, chatId)
 
-        // Fetch current user avatar
-        db.collection("users").document(currentUserId).get().addOnSuccessListener { userDoc ->
-            val senderAvatar = userDoc.getString("profileImageUrl")
-            
-            val chatRoomRef = db.collection("chats").document(chatId)
-            val messageRef = chatRoomRef.collection("messages").document()
-            val msgId = messageRef.id
+        val receiverUid = if (!isGroup) {
+            if (finalReceiverId.isNotEmpty()) finalReceiverId
+            else chatId.split("_").firstOrNull { it != currentUserId && it.isNotEmpty() } ?: ""
+        } else ""
 
-            val messageData = hashMapOf(
-                "messageId" to msgId,
-                "senderId" to currentUserId,
-                "senderUsername" to senderUsername.ifBlank { "User" },
-                "senderAvatarUrl" to senderAvatar,
-                "receiverId" to finalReceiverId,
-                "messageText" to encryptedText,
-                "timestamp" to FieldValue.serverTimestamp(),
-                "status" to "sent",
-                "type" to "text",
-                "replyToId" to replyToId,
-                "replyToText" to replyToText
-            )
-
-        val chatRoomUpdate = mutableMapOf<String, Any>(
-            "chatId" to chatId,
-            "lastMessage" to encryptedText,
-            "lastMessageSenderId" to currentUserId,
-            "lastTimestamp" to FieldValue.serverTimestamp(),
-            "isGroup" to isGroup
-        )
-
-        if (isGroup) {
-            chatRoomUpdate["participants"] = FieldValue.arrayUnion(currentUserId)
-        } else {
-            chatRoomUpdate["participants"] = listOf(currentUserId, finalReceiverId)
-        }
-
-        val batch = db.batch()
-        // Using set with merge everywhere ensures the document is created if it's a new chat
-        batch.set(chatRoomRef, chatRoomUpdate, SetOptions.merge())
-        
-        // Use set with merge for unread count to handle non-existent documents or fields
-        if (!isGroup) {
-            batch.set(chatRoomRef, mapOf("unreadCounts" to mapOf(finalReceiverId to com.google.firebase.firestore.FieldValue.increment(1))), SetOptions.merge())
-        } else {
-            // For groups, we need to increment for all participants except sender
-            // Note: In a batch, we can't easily fetch participants first. 
-            // So we rely on the client-side sendNotification loop below to handle group members.
-            // But we can try to update unreadCounts if we had the list. 
-            // Since we don't have the list here without a fetch, we'll ensure the unreadCounts map 
-            // is updated in the commit success listener for groups if needed, 
-            // or just rely on the existing logic which is better suited for a Cloud Function.
-        }
-        batch.set(messageRef, messageData)
-
-        batch.commit()
-            .addOnSuccessListener { 
-                onComplete(true) 
-                // Send internal notification and update unread counts
-                if (isGroup) {
-                    db.collection("chats").document(chatId).get().addOnSuccessListener { roomDoc ->
-                        val participants = roomDoc.get("participants") as? List<String> ?: emptyList()
-                        val groupName = roomDoc.getString("groupName") ?: "Group"
-                        
-                        val unreadUpdates = mutableMapOf<String, Any>()
-                        participants.forEach { pUid ->
-                            if (pUid != currentUserId) {
-                                // Trigger simulated push notification
-                                NotificationRepository().sendNotification(
-                                    receiverUid = pUid,
-                                    type = "chat",
-                                    title = "$groupName: $senderUsername",
-                                    message = text,
-                                    targetId = chatId
-                                )
-                                // Increment unread count in Firestore
-                                unreadUpdates["unreadCounts.$pUid"] = com.google.firebase.firestore.FieldValue.increment(1)
-                            }
-                        }
-                        if (unreadUpdates.isNotEmpty()) {
-                            db.collection("chats").document(chatId).update(unreadUpdates)
-                        }
-                    }
-                } else {
-                    NotificationRepository().sendNotification(
-                        receiverUid = finalReceiverId,
-                        type = "chat",
-                        title = "New Message from $senderUsername",
-                        message = text,
-                        targetId = chatId
-                    )
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.e("ChatRepo", "Batch commit failed: ${e.message}")
-                onComplete(false)
-            }
-        }.addOnFailureListener {
-            onComplete(false)
-        }
-    }
-
-    fun sendImageMessage(chatId: String, imageUrl: String, senderUsername: String, isGroup: Boolean, receiverId: String, onComplete: (Boolean) -> Unit) {
-        val currentUserId = auth.currentUser?.uid ?: return
         val chatRoomRef = db.collection("chats").document(chatId)
         val messageRef = chatRoomRef.collection("messages").document()
 
@@ -311,132 +347,169 @@ class ChatRepository {
             "messageId" to messageRef.id,
             "senderId" to currentUserId,
             "senderUsername" to senderUsername,
-            "receiverId" to receiverId,
+            "receiverId" to receiverUid,
+            "messageText" to encryptedText,
+            "type" to "text",
+            "timestamp" to FieldValue.serverTimestamp(),
+            "status" to "sent",
+            "replyToId" to replyToId,
+            "replyToText" to replyToText
+        )
+
+        val chatRoomUpdate = hashMapOf<String, Any>(
+            "chatId" to chatId,
+            "lastMessage" to encryptedText,
+            "lastTimestamp" to FieldValue.serverTimestamp(),
+            "isGroup" to isGroup
+        )
+
+        if (!isGroup && receiverUid.isNotEmpty()) {
+            chatRoomUpdate["participants"] = listOf(currentUserId, receiverUid)
+        }
+
+        val batch = db.batch()
+        batch.set(chatRoomRef, chatRoomUpdate, SetOptions.merge())
+
+        if (!isGroup && receiverUid.isNotEmpty()) {
+            batch.set(chatRoomRef, mapOf("unreadCounts" to mapOf(receiverUid to FieldValue.increment(1))), SetOptions.merge())
+        }
+
+        batch.set(messageRef, messageData)
+
+        batch.commit().addOnSuccessListener { 
+            onComplete(true) 
+            if (isGroup) {
+                db.collection("chats").document(chatId).get().addOnSuccessListener { roomDoc ->
+                    val participants = roomDoc.get("participants") as? List<String> ?: emptyList()
+                    val groupName = roomDoc.getString("groupName") ?: "Group"
+                    val unreadUpdates = mutableMapOf<String, Any>()
+                    participants.forEach { pUid ->
+                        if (pUid != currentUserId) {
+                            NotificationRepository().sendNotification(pUid, "chat", "$groupName: $senderUsername", text, chatId)
+                            unreadUpdates["unreadCounts.$pUid"] = FieldValue.increment(1)
+                        }
+                    }
+                    if (unreadUpdates.isNotEmpty()) db.collection("chats").document(chatId).update(unreadUpdates)
+                }
+            } else if (receiverUid.isNotEmpty()) {
+                NotificationRepository().sendNotification(receiverUid, "chat", "New Message from $senderUsername", text, chatId)
+            }
+        }.addOnFailureListener { onComplete(false) }
+    }
+
+    fun sendImageMessage(chatId: String, imageUrl: String, senderUsername: String, isGroup: Boolean, receiverId: String, onComplete: (Boolean) -> Unit) {
+        val currentUserId = auth.currentUser?.uid ?: return
+        val receiverUid = if (!isGroup) {
+            if (receiverId.isNotEmpty()) receiverId
+            else chatId.split("_").firstOrNull { it != currentUserId && it.isNotEmpty() } ?: ""
+        } else ""
+
+        val chatRoomRef = db.collection("chats").document(chatId)
+        val messageRef = chatRoomRef.collection("messages").document()
+
+        val messageData = hashMapOf(
+            "messageId" to messageRef.id,
+            "senderId" to currentUserId,
+            "senderUsername" to senderUsername,
+            "receiverId" to receiverUid,
             "messageText" to "📷 Image",
             "type" to "image",
             "mediaUrl" to imageUrl,
-            "timestamp" to com.google.firebase.firestore.FieldValue.serverTimestamp(),
+            "timestamp" to FieldValue.serverTimestamp(),
             "status" to "sent"
         )
 
-        val batch = db.batch()
-        batch.set(chatRoomRef, mapOf(
+        val chatRoomUpdate = hashMapOf<String, Any>(
+            "chatId" to chatId,
             "lastMessage" to "📷 Image",
-            "lastTimestamp" to com.google.firebase.firestore.FieldValue.serverTimestamp()
-        ), SetOptions.merge())
+            "lastTimestamp" to FieldValue.serverTimestamp(),
+            "isGroup" to isGroup
+        )
+
+        if (!isGroup && receiverUid.isNotEmpty()) {
+            chatRoomUpdate["participants"] = listOf(currentUserId, receiverUid)
+        }
+
+        val batch = db.batch()
+        batch.set(chatRoomRef, chatRoomUpdate, SetOptions.merge())
+        if (!isGroup && receiverUid.isNotEmpty()) {
+            batch.set(chatRoomRef, mapOf("unreadCounts" to mapOf(receiverUid to FieldValue.increment(1))), SetOptions.merge())
+        }
         batch.set(messageRef, messageData)
+
         batch.commit().addOnCompleteListener { 
             onComplete(it.isSuccessful)
-            if (it.isSuccessful) {
-                NotificationRepository().sendNotification(receiverId, "chat", "New Image from $senderUsername", "📷 Photo", chatId)
+            if (it.isSuccessful && receiverUid.isNotEmpty()) {
+                NotificationRepository().sendNotification(receiverUid, "chat", "New Image from $senderUsername", "📷 Photo", chatId)
             }
         }
     }
 
-    fun listenForMessages(chatId: String, onMessagesUpdate: (List<ChatMessage>) -> Unit): ListenerRegistration {
-        return db.collection("chats").document(chatId).collection("messages")
-            .limit(100)
-            .addSnapshotListener { snapshots, e ->
-                if (e != null) return@addSnapshotListener
-                val messages = snapshots?.mapNotNull { it.toObject(ChatMessage::class.java) } ?: emptyList()
-                val sortedMessages = messages.sortedBy { it.timestampDate?.time ?: System.currentTimeMillis() }
-                onMessagesUpdate(sortedMessages)
-            }
-    }
-
-    fun getRecentChats(onChatsUpdate: (List<ChatRoom>) -> Unit): com.google.firebase.firestore.ListenerRegistration? {
-        val currentUserId = auth.currentUser?.uid ?: return null
-        return db.collection("chats")
-            .whereArrayContains("participants", currentUserId)
-            .addSnapshotListener { snapshots, e ->
-                if (e != null) {
-                    Log.e("ChatRepo", "Listen failed: ${e.message}")
-                    return@addSnapshotListener
-                }
-                val chats = snapshots?.mapNotNull { it.toObject(ChatRoom::class.java) } ?: emptyList()
-                // Sort in memory to avoid indexing requirement for now
-                val sortedChats = chats.sortedByDescending { it.timestampDate?.
-                time ?: 0L }
-                onChatsUpdate(sortedChats)
-            }
-    }
-
-    fun markChatAsRead(chatId: String) {
-        val currentUserId = auth.currentUser?.uid ?: return
-        val roomRef = db.collection("chats").document(chatId)
+    fun listenForMessages(chatId: String, isProjectSync: Boolean = false, onMessagesUpdate: (List<ChatMessage>) -> Unit): ListenerRegistration {
+        val ref = if (isProjectSync) db.collection("hl_teams").document(chatId).collection("messages")
+                  else db.collection("chats").document(chatId).collection("messages")
         
-        // Use set with merge to handle cases where the room document might not exist yet (e.g. newly joined focus room)
-        roomRef.set(mapOf("unreadCounts" to mapOf(currentUserId to 0)), SetOptions.merge())
-            .addOnFailureListener { Log.e("ChatRepo", "Mark as read failed: ${it.message}") }
-            
-        // Mark all received messages in this chat as 'seen'
-        db.collection("chats").document(chatId).collection("messages")
-            .whereEqualTo("receiverId", currentUserId)
-            .get()
-            .addOnSuccessListener { snapshots ->
-                val batch = db.batch()
-                var hasUpdates = false
-                snapshots.documents.forEach { doc ->
-                    val currentStatus = doc.getString("status")
-                    if (currentStatus != "seen") {
-                        batch.update(doc.reference, "status", "seen")
-                        hasUpdates = true
+        return ref.addSnapshotListener { snapshots, e ->
+            if (e != null) {
+                Log.e("ChatRepo", "Error listening for messages", e)
+                return@addSnapshotListener
+            }
+            val messages = snapshots?.mapNotNull { doc ->
+                doc.toObject(ChatMessage::class.java).apply {
+                    if (this.messageId.isEmpty()) {
+                        this.messageId = doc.id
                     }
                 }
-                if (hasUpdates) {
-                    batch.commit().addOnSuccessListener {
-                        Log.d("ChatRepo", "Messages marked as seen successfully")
-                    }
-                }
+            }?.sortedBy { msg ->
+                msg.timestampDate?.time ?: Long.MAX_VALUE
+            } ?: emptyList()
+
+            onMessagesUpdate(messages)
+        }
+    }
+
+    fun observeChatRoom(chatId: String, onUpdate: (ChatRoom?) -> Unit): ListenerRegistration {
+        return db.collection("chats").document(chatId).addSnapshotListener { snapshot, e ->
+            if (e != null || snapshot == null || !snapshot.exists()) {
+                onUpdate(null)
+                return@addSnapshotListener
             }
-    }
-
-    fun getChatId(id1: String, id2: String): String {
-        return if (id1 < id2) "${id1}_${id2}" else "${id2}_${id1}"
-    }
-
-    fun forwardMessage(chatId: String, text: String, senderUsername: String, isGroup: Boolean, receiverId: String?, onComplete: (Boolean) -> Unit) {
-        sendMessage(chatId, text, senderUsername, isGroup, receiverId, null, null, onComplete)
-    }
-
-    fun editMessage(chatId: String, messageId: String, newText: String, isLastMessage: Boolean = false, onComplete: (Boolean) -> Unit) {
-        val batch = db.batch()
-        val msgRef = db.collection("chats").document(chatId).collection("messages").document(messageId)
-        
-        batch.update(msgRef, mapOf(
-            "messageText" to newText,
-            "isEdited" to true
-        ))
-
-        if (isLastMessage) {
-            val roomRef = db.collection("chats").document(chatId)
-            batch.update(roomRef, "lastMessage", newText)
+            onUpdate(snapshot.toObject(ChatRoom::class.java))
         }
-
-        batch.commit().addOnCompleteListener { onComplete(it.isSuccessful) }
     }
 
-    fun deleteMessage(chatId: String, messageId: String, isLastMessage: Boolean = false, onComplete: (Boolean) -> Unit) {
-        val batch = db.batch()
-        val msgRef = db.collection("chats").document(chatId).collection("messages").document(messageId)
+    fun editMessage(chatId: String, messageId: String, newText: String, isGroup: Boolean = false, onComplete: (Boolean) -> Unit) {
+        val encryptedText = EncryptionUtils.encrypt(newText, chatId)
+        val docRef = db.collection("chats").document(chatId).collection("messages").document(messageId)
         
-        batch.delete(msgRef)
-
-        if (isLastMessage) {
-            val roomRef = db.collection("chats").document(chatId)
-            batch.update(roomRef, "lastMessage", "🚫 Message deleted")
-        }
-
-        batch.commit().addOnCompleteListener { onComplete(it.isSuccessful) }
+        docRef.update(
+            "messageText", encryptedText,
+            "isEdited", true
+        ).addOnCompleteListener { onComplete(it.isSuccessful) }
     }
 
     fun toggleReaction(chatId: String, messageId: String, emoji: String) {
         val currentUserId = auth.currentUser?.uid ?: return
-        val msgRef = db.collection("chats").document(chatId).collection("messages").document(messageId)
-        
-        // In a real app, you'd check if user already reacted with this emoji to remove it
-        // For simplicity, we'll just add it here
-        msgRef.update("reactions.$emoji", FieldValue.arrayUnion(currentUserId))
+        val docRef = db.collection("chats").document(chatId).collection("messages").document(messageId)
+
+        docRef.get().addOnSuccessListener { doc ->
+            val reactions = (doc.get("reactions") as? Map<*, *>)?.mapKeys { it.key.toString() }?.mapValues { (it.value as? List<*>)?.mapNotNull { item -> item?.toString() } ?: emptyList() }?.toMutableMap() ?: mutableMapOf()
+            val currentUsers = reactions[emoji]?.toMutableList() ?: mutableListOf()
+
+            if (currentUsers.contains(currentUserId)) {
+                currentUsers.remove(currentUserId)
+            } else {
+                currentUsers.add(currentUserId)
+            }
+
+            if (currentUsers.isEmpty()) {
+                reactions.remove(emoji)
+            } else {
+                reactions[emoji] = currentUsers
+            }
+
+            docRef.update("reactions", reactions)
+        }
     }
 
     fun updateDuelStatus(chatId: String, messageId: String, status: String) {
@@ -444,36 +517,102 @@ class ChatRepository {
             .update("duelStatus", status)
     }
 
-    fun setTypingStatus(chatId: String, isTyping: Boolean) {
-        val currentUserId = auth.currentUser?.uid ?: return
-        db.collection("chats").document(chatId)
-            .update("typingStatus.$currentUserId", isTyping)
+    fun deleteMessage(chatId: String, messageId: String, isGroup: Boolean = false, onComplete: (Boolean) -> Unit = {}) {
+        db.collection("chats").document(chatId).collection("messages").document(messageId)
+            .delete().addOnCompleteListener { onComplete(it.isSuccessful) }
     }
 
-    fun observeChatRoom(chatId: String, onUpdate: (ChatRoom?) -> Unit): com.google.firebase.firestore.ListenerRegistration {
-        return db.collection("chats").document(chatId).addSnapshotListener { snapshot, _ ->
-            onUpdate(snapshot?.toObject(ChatRoom::class.java))
-        }
+    fun forwardMessage(targetChatId: String, text: String, senderUsername: String, isGroup: Boolean, receiverId: String? = null, onComplete: (Boolean) -> Unit = {}) {
+        sendMessage(targetChatId, text, senderUsername, isGroup, receiverId, onComplete = onComplete)
     }
 
-    fun createGroup(name: String, description: String, memberIds: List<String>, onComplete: (Boolean, String?) -> Unit) {
-        val currentUserId = auth.currentUser?.uid ?: return
-        val groupId = db.collection("chats").document().id
-        val allMembers = memberIds.toMutableList().apply { if (!contains(currentUserId)) add(currentUserId) }
-
-        val chatRoomData = hashMapOf(
-            "chatId" to groupId,
-            "participants" to allMembers,
-            "lastMessage" to "Group created",
-            "isGroup" to true,
-            "groupName" to name,
-            "lastTimestamp" to FieldValue.serverTimestamp(),
-            "unreadCounts" to allMembers.associateWith { 0 }
-        )
-
-        db.collection("chats").document(groupId).set(chatRoomData)
-            .addOnCompleteListener { task ->
-                onComplete(task.isSuccessful, if (task.isSuccessful) groupId else null)
+    fun getRecentChats(onChatsUpdate: (List<ChatRoom>) -> Unit): ListenerRegistration? {
+        val currentUserId = auth.currentUser?.uid ?: return null
+        return db.collection("chats")
+            .whereArrayContains("participants", currentUserId)
+            .addSnapshotListener { snapshots, e ->
+                if (e != null) return@addSnapshotListener
+                val chats = snapshots?.mapNotNull { doc ->
+                    doc.toObject(ChatRoom::class.java).apply {
+                        if (this.chatId.isEmpty()) {
+                            this.chatId = doc.id
+                        }
+                    }
+                } ?: emptyList()
+                onChatsUpdate(chats.sortedByDescending { it.timestampDate?.time ?: 0L })
             }
     }
+
+    fun observeTotalUnreadChatCount(onUpdate: (Int) -> Unit): ListenerRegistration? {
+        val currentUserId = auth.currentUser?.uid ?: return null
+        return db.collection("chats")
+            .whereArrayContains("participants", currentUserId)
+            .addSnapshotListener { snapshot, e ->
+                if (e != null || snapshot == null) {
+                    onUpdate(0)
+                    return@addSnapshotListener
+                }
+
+                var totalUnread = 0
+                snapshot.documents.forEach { doc ->
+                    val unreadMap = doc.get("unreadCounts") as? Map<*, *>
+                    val count = (unreadMap?.get(currentUserId) as? Long ?: 0L).toInt()
+                    totalUnread += count
+                }
+
+                onUpdate(totalUnread)
+            }
+    }
+
+    fun markChatAsRead(chatId: String) {
+        val currentUserId = auth.currentUser?.uid ?: return
+        db.collection("chats").document(chatId).set(mapOf("unreadCounts" to mapOf(currentUserId to 0)), SetOptions.merge())
+
+        db.collection("chats").document(chatId).collection("messages")
+            .whereEqualTo("status", "sent")
+            .get()
+            .addOnSuccessListener { snapshots ->
+                if (snapshots == null || snapshots.isEmpty) return@addOnSuccessListener
+                val batch = db.batch()
+                snapshots.documents.forEach { doc ->
+                    if (doc.getString("senderId") != currentUserId) {
+                        batch.update(doc.reference, "status", "seen")
+                    }
+                }
+                batch.commit()
+            }
+    }
+
+    fun createGroup(groupName: String, memberIds: List<String>, onComplete: (String?) -> Unit) {
+        val currentUserId = auth.currentUser?.uid ?: return onComplete(null)
+        val groupChatId = db.collection("chats").document().id
+        val allParticipants = (memberIds + currentUserId).distinct()
+
+        val groupData = hashMapOf(
+            "chatId" to groupChatId,
+            "groupName" to groupName,
+            "isGroup" to true,
+            "participants" to allParticipants,
+            "lastMessage" to "Group '$groupName' created 🎉",
+            "lastTimestamp" to FieldValue.serverTimestamp(),
+            "unreadCounts" to allParticipants.associateWith { 0 }
+        )
+
+        db.collection("chats").document(groupChatId).set(groupData)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    onComplete(groupChatId)
+                } else {
+                    onComplete(null)
+                }
+            }
+    }
+
+    fun setTypingStatus(chatId: String, isTyping: Boolean) {
+        val currentUserId = auth.currentUser?.uid ?: return
+        val docRef = db.collection("chats").document(chatId)
+        docRef.set(mapOf("typingStatus" to mapOf(currentUserId to isTyping)), SetOptions.merge())
+    }
+
+    fun getChatId(id1: String, id2: String): String = if (id1 < id2) "${id1}_${id2}" else "${id2}_${id1}"
 }

@@ -3,12 +3,10 @@ package com.example.unilink.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.unilink.R
 import com.example.unilink.databinding.ItemUserBinding
 import com.example.unilink.models.User
-
-import coil.load
-import coil.transform.CircleCropTransformation
-import com.example.unilink.R
+import com.example.unilink.utils.ImageLoaderUtils
 
 class UserAdapter(
     private var users: List<User>,
@@ -32,11 +30,13 @@ class UserAdapter(
         }
         holder.binding.tvUserTypeTag.text = user.userType.split(" ")[0]
         
-        holder.binding.ivUserImage.load(user.profileImageUrl ?: R.drawable.ic_profile_placeholder) {
-            transformations(CircleCropTransformation())
-            placeholder(R.drawable.ic_profile_placeholder)
-            error(R.drawable.ic_profile_placeholder)
-        }
+        ImageLoaderUtils.loadSmartImage(
+            imageView = holder.binding.ivUserImage,
+            url = user.profileImageUrl,
+            placeholderRes = R.drawable.ic_profile_placeholder,
+            isCircle = true,
+            fallbackName = user.name
+        )
 
         if (user.isPremium) {
             holder.binding.ivUserImage.setBackgroundResource(R.drawable.bg_pro_pulse)

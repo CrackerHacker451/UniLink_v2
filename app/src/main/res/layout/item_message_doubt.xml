@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -10,10 +11,10 @@
     <com.google.android.material.card.MaterialCardView
         android:layout_width="280dp"
         android:layout_height="wrap_content"
-        app:cardBackgroundColor="#1F1B24"
+        app:cardBackgroundColor="?attr/cardBackgroundColor"
         app:cardCornerRadius="16dp"
-        app:cardElevation="4dp"
-        app:strokeColor="@color/neon_purple"
+        app:cardElevation="2dp"
+        app:strokeColor="?attr/accentColor"
         app:strokeWidth="1dp">
 
         <LinearLayout
@@ -26,8 +27,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="🧠 DOUBT DROP"
-                android:textColor="@color/neon_purple"
-                android:textSize="10sp"
+                android:textColor="?attr/accentColor"
+                android:textSize="11sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -35,9 +36,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Can anyone help with Firebase security rules for private chats?"
-                android:textColor="@color/text_white"
-                android:textSize="14sp" />
+                android:textColor="?attr/textPrimaryColor"
+                android:textSize="15sp"
+                tools:text="Doubt question goes here?" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -51,20 +52,22 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="💰 20 Tokens Reward"
-                    android:textColor="#FFD700"
+                    android:textColor="?attr/accentColor"
                     android:textSize="12sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    tools:text="💰 20 Tokens" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnAnswer"
                     android:layout_width="wrap_content"
-                    android:layout_height="32dp"
+                    android:layout_height="36dp"
                     android:text="Answer"
                     android:textAllCaps="false"
-                    android:textSize="11sp"
-                    app:backgroundTint="@color/neon_purple"
-                    app:cornerRadius="16dp" />
+                    android:textSize="12sp"
+                    app:backgroundTint="?attr/accentColor"
+                    app:cornerRadius="18dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp" />
             </LinearLayout>
 
         </LinearLayout>

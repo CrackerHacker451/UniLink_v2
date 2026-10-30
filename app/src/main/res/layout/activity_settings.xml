@@ -121,6 +121,71 @@
                         android:background="?attr/borderStrokeColor"
                         android:layout_marginHorizontal="20dp" />
 
+                    <!-- Secret Unlock for Royal Developer Mode -->
+                    <LinearLayout
+                        android:id="@+id/rlSecretUnlock"
+                        android:layout_width="match_parent"
+                        android:layout_height="64dp"
+                        android:background="@drawable/bg_quick_action"
+                        android:paddingHorizontal="20dp"
+                        android:gravity="center_vertical"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="👑 Developer &amp; Admin Options"
+                            android:textColor="?attr/accentColor"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@android:drawable/ic_lock_lock"
+                            app:tint="?attr/accentColor" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="?attr/borderStrokeColor"
+                        android:layout_marginHorizontal="20dp" />
+
+                    <!-- Hidden Royal Global Broadcast Panel (Unlocked with code "Royal") -->
+                    <LinearLayout
+                        android:id="@+id/rlRoyalAdminPanel"
+                        android:layout_width="match_parent"
+                        android:layout_height="64dp"
+                        android:background="@drawable/bg_quick_action"
+                        android:paddingHorizontal="20dp"
+                        android:gravity="center_vertical"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:visibility="gone"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="🚀 Broadcast Global Update to ALL Users"
+                            android:textColor="#FFD700"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@android:drawable/ic_menu_send"
+                            app:tint="#FFD700" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="?attr/borderStrokeColor"
+                        android:layout_marginHorizontal="20dp" />
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="64dp"

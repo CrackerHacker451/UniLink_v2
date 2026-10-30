@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/llImageRoot"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:paddingHorizontal="16dp"
-    android:paddingVertical="6dp">
+    android:paddingVertical="8dp">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardImage"
-        android:layout_width="260dp"
-        android:layout_height="320dp"
-        app:cardCornerRadius="22dp"
+        android:layout_width="240dp"
+        android:layout_height="240dp"
+        app:cardBackgroundColor="#1A1A1A"
+        app:cardCornerRadius="16dp"
         app:cardElevation="0dp"
         app:strokeWidth="1dp"
         app:strokeColor="?attr/borderStrokeColor">
@@ -22,7 +24,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            android:src="@drawable/bg_chat_img_placeholder" />
+            android:src="@drawable/bg_chat_img_placeholder"
+            android:contentDescription="Shared Media" />
 
     </com.google.android.material.card.MaterialCardView>
 
@@ -30,9 +33,9 @@
         android:id="@+id/tvTimestamp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:text="12:00 PM"
+        android:layout_marginTop="4dp"
         android:textColor="?attr/textSecondaryColor"
-        android:textSize="9sp" />
+        android:textSize="10sp"
+        tools:text="12:00 PM" />
 
 </LinearLayout>

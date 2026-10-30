@@ -8,29 +8,37 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.transform.CircleCropTransformation
 import com.example.unilink.R
 import com.example.unilink.databinding.*
 import com.example.unilink.models.ChatMessage
-import com.example.unilink.utils.ThemeUtils
 import com.example.unilink.utils.EncryptionUtils
+import com.example.unilink.utils.HapticUtils
+import com.example.unilink.utils.ThemeUtils
 import com.google.firebase.auth.FirebaseAuth
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
+sealed class ChatItem {
+    data class DateHeader(val date: String) : ChatItem()
+    data class Message(val message: ChatMessage) : ChatItem()
+}
+
 class ChatAdapter(
-    private var messages: List<ChatMessage>,
     private val currentUserId: String,
     private val chatId: String,
     private val onMessageClick: (ChatMessage, View) -> Unit,
     private val onMessageDoubleTap: (ChatMessage) -> Unit,
     private val onPollVote: (ChatMessage, String) -> Unit,
     private val onDuelAccept: (ChatMessage) -> Unit
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+) : ListAdapter<ChatItem, RecyclerView.ViewHolder>(ChatDiffCallback()) {
 
     companion object {
         const val TYPE_SENT = 0
@@ -41,49 +49,47 @@ class ChatAdapter(
         const val TYPE_DUEL = 5
         const val TYPE_DATE_HEADER = 6
         const val TYPE_IMAGE = 7
+
+        private val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
+        private val timeFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
     }
 
-    private val displayList = mutableListOf<Any>()
+    private val decryptionCache = mutableMapOf<String, String>()
 
-    init {
-        processMessages()
-    }
-
-    fun updateMessages(newMessages: List<ChatMessage>) {
-        this.messages = newMessages
-        processMessages()
-        notifyDataSetChanged()
-    }
-
-    private fun processMessages() {
-        displayList.clear()
-        if (messages.isEmpty()) return
+    fun updateMessages(newMessages: List<ChatMessage>, onCommitted: (() -> Unit)? = null) {
+        val displayList = mutableListOf<ChatItem>()
+        if (newMessages.isEmpty()) {
+            submitList(displayList, onCommitted)
+            return
+        }
 
         var lastDate = ""
-        val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
 
-        messages.forEach { msg ->
-            val msgDate = msg.timestampDate?.let { dateFormat.format(it) } ?: ""
+        newMessages.forEach { msg ->
+            val msgDate = msg.timestampDate?.let { dateFormat.format(it) } ?: "Today"
             if (msgDate != lastDate) {
-                displayList.add(msgDate)
+                displayList.add(ChatItem.DateHeader(msgDate))
                 lastDate = msgDate
             }
-            displayList.add(msg)
+            displayList.add(ChatItem.Message(msg))
         }
+        submitList(displayList, onCommitted)
     }
 
     override fun getItemViewType(position: Int): Int {
-        val item = displayList[position]
-        if (item is String) return TYPE_DATE_HEADER
-        
-        val msg = item as ChatMessage
-        return when (msg.type) {
-            "poll" -> TYPE_POLL
-            "doubt" -> TYPE_DOUBT
-            "token" -> TYPE_TOKEN
-            "duel" -> TYPE_DUEL
-            "image" -> TYPE_IMAGE
-            else -> if (msg.senderId == currentUserId) TYPE_SENT else TYPE_RECEIVED
+        return when (val item = getItem(position)) {
+            is ChatItem.DateHeader -> TYPE_DATE_HEADER
+            is ChatItem.Message -> {
+                val msg = item.message
+                when (msg.type) {
+                    "poll" -> TYPE_POLL
+                    "doubt" -> TYPE_DOUBT
+                    "token" -> TYPE_TOKEN
+                    "duel" -> TYPE_DUEL
+                    "image" -> TYPE_IMAGE
+                    else -> if (msg.senderId == currentUserId) TYPE_SENT else TYPE_RECEIVED
+                }
+            }
         }
     }
 
@@ -103,91 +109,58 @@ class ChatAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val item = displayList[position]
+        val item = getItem(position)
         
-        if (holder is DateHeaderViewHolder) {
-            val dateStr = item as String
-            holder.binding.tvDateHeader.text = formatDateHeader(dateStr)
+        if (holder is DateHeaderViewHolder && item is ChatItem.DateHeader) {
+            holder.binding.tvDateHeader.text = formatDateHeader(item.date)
             return
         }
 
-        val msg = item as ChatMessage
+        if (item !is ChatItem.Message) return
+        val msg = item.message
         
-        // Decrypt message (E2EE)
-        val decryptedText = EncryptionUtils.decrypt(msg.messageText, chatId)
-        val decryptedReply = msg.replyToText?.let { EncryptionUtils.decrypt(it, chatId) }
+        val cacheKey = "${msg.messageId}_${msg.messageText.hashCode()}"
+        val decryptedText = decryptionCache.getOrPut(cacheKey) {
+            if (msg.webText != null) msg.webText!! 
+            else EncryptionUtils.decrypt(msg.messageText, chatId)
+        }
+        
+        val decryptedReply = msg.replyToText?.let { reply ->
+            val replyCacheKey = "${msg.messageId}_reply_${reply.hashCode()}"
+            decryptionCache.getOrPut(replyCacheKey) {
+                if (msg.webText != null) reply 
+                else EncryptionUtils.decrypt(reply, chatId)
+            }
+        }
 
-        val timeFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
-        val time = msg.timestampDate?.let { timeFormat.format(it) } ?: ""
+        val time = msg.timestampDate?.let { timeFormat.format(it) } ?: "Just now"
 
         if (holder !is DuelViewHolder) {
             setupCommonListeners(holder.itemView, msg)
         }
 
         val context = holder.itemView.context
-        val currentTheme = ThemeUtils.getSelectedTheme(context)
-        val isLightTheme = currentTheme == "Ars White" || currentTheme == "Classic theme"
-        val isArsWhite = currentTheme == "Ars White"
-
-        // Check if next message is from same sender (for grouping)
-        val isLastInGroup = position + 1 == displayList.size || 
-                           displayList[position + 1] is String || 
-                           (displayList[position + 1] as ChatMessage).senderId != msg.senderId
 
         when (holder) {
             is SentViewHolder -> {
                 holder.binding.tvMessage.text = decryptedText
                 holder.binding.tvTimestamp.text = time
                 
-                if (!isLastInGroup) {
-                    holder.binding.llMessageBubble.setBackgroundResource(R.drawable.bg_chat_bubble_sent_premium)
-                }
-
                 if (decryptedReply != null) {
                     holder.binding.llReplyQuote.visibility = View.VISIBLE
                     holder.binding.tvReplyText.text = decryptedReply
-                    if (isLightTheme) {
-                        holder.binding.llReplyQuote.setBackgroundColor(Color.parseColor(if (isArsWhite) "#F1F2F6" else "#E1F5FE"))
-                        holder.binding.tvReplyText.setTextColor(Color.parseColor("#2D3436"))
-                    } else {
-                        holder.binding.llReplyQuote.setBackgroundColor(Color.parseColor("#1A000000"))
-                        holder.binding.tvReplyText.setTextColor(Color.parseColor("#B0B0B0"))
-                    }
                 } else {
                     holder.binding.llReplyQuote.visibility = View.GONE
                 }
 
                 holder.binding.tvEdited.visibility = if (msg.isEdited) View.VISIBLE else View.GONE
 
-                if (currentTheme == "Classic theme") {
-                    holder.binding.llMessageBubble.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#D9FDD3"))
-                    holder.binding.tvMessage.setTextColor(Color.parseColor("#111B21"))
-                    holder.binding.tvTimestamp.setTextColor(Color.parseColor("#667781"))
-                    
-                    // Standard check icons tinted for Classic theme
-                    holder.binding.ivStatus.setImageResource(android.R.drawable.checkbox_on_background)
-                    holder.binding.ivStatus.imageTintList = ColorStateList.valueOf(Color.parseColor(if (msg.status == "seen") "#34B7F1" else "#8696A0"))
-                } else if (isArsWhite) {
-                    holder.binding.llMessageBubble.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#007AFF"))
-                    holder.binding.tvMessage.setTextColor(Color.WHITE)
-                    holder.binding.tvTimestamp.setTextColor(Color.parseColor("#B3FFFFFF"))
-                    holder.binding.ivStatus.imageTintList = ColorStateList.valueOf(Color.WHITE)
+                if (msg.status == "seen") {
+                    holder.binding.tvReadStatus.text = "• Seen"
+                    holder.binding.tvReadStatus.setTextColor(Color.parseColor("#22D3EE"))
                 } else {
-                    // Transparent glass for Aura and other dark themes
-                    holder.binding.llMessageBubble.backgroundTintList = null
-                    holder.binding.tvMessage.setTextColor(Color.WHITE)
-                    holder.binding.tvTimestamp.setTextColor(Color.parseColor("#B0FFFFFF"))
-                    holder.binding.ivStatus.imageTintList = ColorStateList.valueOf(Color.WHITE)
-                }
-
-                if (currentTheme != "Classic theme") {
-                    if (msg.status == "seen") {
-                        holder.binding.ivStatus.setImageResource(android.R.drawable.presence_online)
-                        holder.binding.ivStatus.imageTintList = ColorStateList.valueOf(Color.parseColor("#22D3EE"))
-                    } else {
-                        holder.binding.ivStatus.setImageResource(android.R.drawable.checkbox_on_background)
-                        holder.binding.ivStatus.imageTintList = ColorStateList.valueOf(Color.parseColor("#94A3B8"))
-                    }
+                    holder.binding.tvReadStatus.text = "• Sent"
+                    holder.binding.tvReadStatus.setTextColor(Color.parseColor("#94A3B8"))
                 }
 
                 renderReactions(holder.binding.llReactions, msg.reactions)
@@ -196,18 +169,15 @@ class ChatAdapter(
                 holder.binding.tvMessage.text = decryptedText
                 holder.binding.tvTimestamp.text = time
                 
-                val isFirstInGroup = position == 0 || 
-                                   displayList[position - 1] is String || 
-                                   (displayList[position - 1] as ChatMessage).senderId != msg.senderId
+                val prevItem = if (position > 0) getItem(position - 1) else null
+                val isFirstInGroup = prevItem !is ChatItem.Message || prevItem.message.senderId != msg.senderId
 
-                holder.binding.tvSenderUsername.text = msg.senderUsername
-                holder.binding.tvSenderUsername.visibility = if (isFirstInGroup && msg.senderUsername.isNotEmpty()) View.VISIBLE else View.GONE
+                holder.binding.tvSenderUsername.text = msg.displaySenderName
+                holder.binding.tvSenderUsername.visibility = if (isFirstInGroup && msg.displaySenderName.isNotEmpty()) View.VISIBLE else View.GONE
                 
-                // Show avatar for the first message in a group or always for received
                 holder.binding.ivSenderAvatar.visibility = if (isFirstInGroup) View.VISIBLE else View.INVISIBLE
-                
-                // Load Avatar
                 holder.binding.ivSenderAvatar.load(msg.senderAvatarUrl ?: R.drawable.ic_profile_placeholder) {
+                    crossfade(true)
                     transformations(CircleCropTransformation())
                 }
 
@@ -218,23 +188,6 @@ class ChatAdapter(
                     holder.binding.llReplyQuote.visibility = View.GONE
                 }
 
-                if (currentTheme == "Classic theme") {
-                    holder.binding.llMessageBubble.backgroundTintList = ColorStateList.valueOf(Color.WHITE)
-                    holder.binding.tvMessage.setTextColor(Color.parseColor("#111B21"))
-                    holder.binding.tvSenderUsername.setTextColor(Color.parseColor("#075E54"))
-                    holder.binding.tvTimestamp.setTextColor(Color.parseColor("#667781"))
-                } else if (isArsWhite) {
-                    holder.binding.llMessageBubble.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#F1F2F6"))
-                    holder.binding.tvMessage.setTextColor(Color.BLACK)
-                    holder.binding.tvSenderUsername.setTextColor(Color.parseColor("#007AFF"))
-                    holder.binding.tvTimestamp.setTextColor(Color.parseColor("#667781"))
-                } else {
-                    holder.binding.llMessageBubble.backgroundTintList = null
-                    holder.binding.tvMessage.setTextColor(Color.WHITE)
-                    holder.binding.tvSenderUsername.setTextColor(Color.parseColor("#22D3EE"))
-                    holder.binding.tvTimestamp.setTextColor(Color.parseColor("#B0FFFFFF"))
-                }
-
                 holder.binding.tvEdited.visibility = if (msg.isEdited) View.VISIBLE else View.GONE
                 renderReactions(holder.binding.llReactions, msg.reactions)
             }
@@ -243,7 +196,7 @@ class ChatAdapter(
                 renderPollOptions(holder.binding.pollOptionsContainer, msg)
             }
             is DoubtViewHolder -> {
-                holder.binding.tvDoubtText.text = msg.messageText
+                holder.binding.tvDoubtText.text = msg.displayMessageText
                 holder.binding.tvTokenReward.text = context.getString(R.string.token_reward_format, msg.doubtReward ?: 0)
                 holder.binding.btnAnswer.setOnClickListener { }
             }
@@ -278,16 +231,15 @@ class ChatAdapter(
             }
             is ImageViewHolder -> {
                 holder.binding.tvTimestamp.text = time
-                
                 val gravity = if (msg.senderId == currentUserId) android.view.Gravity.END else android.view.Gravity.START
                 holder.binding.llImageRoot.gravity = gravity
                 
                 if (!msg.mediaUrl.isNullOrEmpty()) {
-                    holder.binding.ivMessageImage.load(msg.mediaUrl) {
-                        crossfade(enable = true)
-                        placeholder(R.drawable.bg_chat_img_placeholder)
-                        error(R.drawable.bg_chat_img_placeholder)
-                    }
+                    com.example.unilink.utils.ImageLoaderUtils.loadSmartImage(
+                        holder.binding.ivMessageImage,
+                        msg.mediaUrl,
+                        R.drawable.bg_chat_img_placeholder
+                    )
 
                     holder.binding.ivMessageImage.setOnClickListener {
                         val intent = android.content.Intent(context, com.example.unilink.activities.MediaViewerActivity::class.java).apply {
@@ -325,8 +277,7 @@ class ChatAdapter(
                 return true
             }
             override fun onLongPress(e: MotionEvent) {
-                // Tactical Heartbeat
-                com.example.unilink.utils.HapticUtils.playHeavy(view)
+                HapticUtils.playHeavy(view)
                 onMessageClick(msg, view)
             }
         })
@@ -349,22 +300,18 @@ class ChatAdapter(
         container.removeAllViews()
         
         val context = container.context
-        val currentTheme = ThemeUtils.getSelectedTheme(context)
-        val isLightTheme = currentTheme == "Ars White" || currentTheme == "Classic theme"
+        val isLightTheme = ThemeUtils.getSelectedTheme(context) == "Light"
 
         reactions.forEach { (emoji, userIds) ->
             if (userIds.isNotEmpty()) {
-                val tv = android.widget.TextView(context)
+                val tv = TextView(context)
                 tv.text = "$emoji ${userIds.size}"
                 tv.textSize = 10f
                 tv.setPadding(12, 4, 12, 4)
                 tv.setTextColor(if (isLightTheme) Color.parseColor("#2D3436") else Color.WHITE)
                 tv.background = context.getDrawable(R.drawable.bg_tag)
                 
-                val params = LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                )
+                val params = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                 params.setMargins(0, 0, 8, 0)
                 tv.layoutParams = params
                 container.addView(tv)
@@ -380,35 +327,24 @@ class ChatAdapter(
         msg.pollOptions.forEach { (option, count) ->
             val binding = ItemPollOptionBinding.inflate(LayoutInflater.from(context), container, false)
             binding.tvOptionText.text = option
-            
             val percent = if (totalVotes > 0) (count.toFloat() / totalVotes * 100).toInt() else 0
             binding.tvOptionPercent.text = "$percent%"
             
-            // Adjust progress background width
             binding.optionProgress.post {
-                val totalWidth = binding.root.width
-                val progressWidth = (totalWidth * percent) / 100
                 val params = binding.optionProgress.layoutParams
-                params.width = progressWidth
+                params.width = (binding.root.width * percent) / 100
                 binding.optionProgress.layoutParams = params
             }
             
             val currentUid = FirebaseAuth.getInstance().currentUser?.uid
-            if (msg.userVotes[currentUid] == option) {
-                binding.root.setBackgroundResource(R.drawable.bg_poll_option_selected)
-            } else {
-                binding.root.setBackgroundResource(R.drawable.bg_poll_option)
-            }
-            
+            binding.root.setBackgroundResource(if (msg.userVotes[currentUid] == option) R.drawable.bg_poll_option_selected else R.drawable.bg_poll_option)
             binding.root.setOnClickListener { onPollVote(msg, option) }
             container.addView(binding.root)
         }
     }
 
-    override fun getItemCount(): Int = displayList.size
-
     fun getMessageAt(position: Int): ChatMessage? {
-        return displayList.getOrNull(position) as? ChatMessage
+        return (getItem(position) as? ChatItem.Message)?.message
     }
 
     class SentViewHolder(val binding: ItemMessageSentBinding) : RecyclerView.ViewHolder(binding.root)
@@ -419,4 +355,18 @@ class ChatAdapter(
     class DuelViewHolder(val binding: ItemMessageDuelBinding) : RecyclerView.ViewHolder(binding.root)
     class DateHeaderViewHolder(val binding: ItemChatDateHeaderBinding) : RecyclerView.ViewHolder(binding.root)
     class ImageViewHolder(val binding: ItemMessageImageBinding) : RecyclerView.ViewHolder(binding.root)
+
+    class ChatDiffCallback : DiffUtil.ItemCallback<ChatItem>() {
+        override fun areItemsTheSame(oldItem: ChatItem, newItem: ChatItem): Boolean {
+            return when {
+                oldItem is ChatItem.DateHeader && newItem is ChatItem.DateHeader -> oldItem.date == newItem.date
+                oldItem is ChatItem.Message && newItem is ChatItem.Message -> oldItem.message.messageId == newItem.message.messageId
+                else -> false
+            }
+        }
+
+        override fun areContentsTheSame(oldItem: ChatItem, newItem: ChatItem): Boolean {
+            return oldItem == newItem
+        }
+    }
 }

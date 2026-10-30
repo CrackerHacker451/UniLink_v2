@@ -2,16 +2,17 @@ package com.example.unilink.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import coil.load
-import coil.transform.CircleCropTransformation
 import com.example.unilink.R
 import com.example.unilink.databinding.ItemCommentBinding
 import com.example.unilink.models.Comment
+import com.example.unilink.utils.ImageLoaderUtils
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class CommentAdapter(private val comments: List<Comment>) : RecyclerView.Adapter<CommentAdapter.CommentViewHolder>() {
+class CommentAdapter : ListAdapter<Comment, CommentAdapter.CommentViewHolder>(CommentDiffCallback()) {
 
     class CommentViewHolder(val binding: ItemCommentBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -21,17 +22,24 @@ class CommentAdapter(private val comments: List<Comment>) : RecyclerView.Adapter
     }
 
     override fun onBindViewHolder(holder: CommentViewHolder, position: Int) {
-        val comment = comments[position]
+        val comment = getItem(position)
         holder.binding.tvCommentAuthor.text = comment.authorName
         holder.binding.tvCommentContent.text = comment.content
         
         val sdf = SimpleDateFormat("h:mm a", Locale.getDefault())
         holder.binding.tvCommentTime.text = comment.timestampDate?.let { sdf.format(it) } ?: "Just now"
 
-        holder.binding.ivCommentAvatar.load(comment.authorAvatarUrl ?: R.drawable.ic_profile_placeholder) {
-            transformations(CircleCropTransformation())
-        }
+        ImageLoaderUtils.loadSmartImage(
+            imageView = holder.binding.ivCommentAvatar,
+            url = comment.authorAvatarUrl,
+            placeholderRes = R.drawable.ic_profile_placeholder,
+            isCircle = true,
+            fallbackName = comment.authorName
+        )
     }
 
-    override fun getItemCount(): Int = comments.size
+    class CommentDiffCallback : DiffUtil.ItemCallback<Comment>() {
+        override fun areItemsTheSame(oldItem: Comment, newItem: Comment): Boolean = oldItem.commentId == newItem.commentId
+        override fun areContentsTheSame(oldItem: Comment, newItem: Comment): Boolean = oldItem == newItem
+    }
 }

@@ -5,14 +5,14 @@
     style="@style/GlassCard"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="20dp"
+    android:layout_marginHorizontal="0dp"
     android:layout_marginVertical="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:padding="16dp">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -79,79 +79,96 @@
             android:id="@+id/tvQuestion"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:lineSpacingExtra="4dp"
+            android:layout_marginTop="12dp"
+            android:lineSpacingExtra="3dp"
             android:textColor="?attr/textPrimaryColor"
-            android:textSize="16sp"
+            android:textSize="15sp"
             android:textStyle="bold"
             tools:text="How do I implement E2EE for a React Native chat application effectively?" />
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:layout_marginTop="16dp">
 
-            <TextView
-                android:id="@+id/tvTag1"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_tag"
-                android:backgroundTint="#0DFFFFFF"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="4dp"
-                android:textColor="?attr/accentColor"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:textAllCaps="true"
-                tools:text="SECURITY" />
+                android:layout_centerVertical="true"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@id/llAnswerGroup"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-            <TextView
-                android:id="@+id/tvTag2"
+                <TextView
+                    android:id="@+id/tvTag1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_tag"
+                    android:backgroundTint="#0DFFFFFF"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="4dp"
+                    android:textColor="?attr/accentColor"
+                    android:textSize="9sp"
+                    android:textStyle="bold"
+                    android:textAllCaps="true"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    tools:text="SECURITY" />
+
+                <TextView
+                    android:id="@+id/tvTag2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/bg_tag"
+                    android:backgroundTint="#0DFFFFFF"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="4dp"
+                    android:textColor="?attr/accentColor"
+                    android:textSize="9sp"
+                    android:textStyle="bold"
+                    android:textAllCaps="true"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    tools:text="REACT NATIVE" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llAnswerGroup"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/bg_tag"
-                android:backgroundTint="#0DFFFFFF"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="4dp"
-                android:textColor="?attr/accentColor"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:textAllCaps="true"
-                tools:text="REACT NATIVE" />
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-            <View
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1" />
+                <TextView
+                    android:id="@+id/tvAnswerCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:textColor="@color/status_online"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    tools:text="💬 3 answers" />
 
-            <TextView
-                android:id="@+id/tvAnswerCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="12dp"
-                android:textColor="@color/status_online"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                tools:text="✅ 3 solutions" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnAnswer"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:text="Answer"
-                android:textAllCaps="false"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                app:backgroundTint="?attr/accentColor"
-                app:cornerRadius="18dp"
-                android:textColor="@color/bg_dark"
-                android:paddingHorizontal="16dp"
-                android:minWidth="0dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp" />
-        </LinearLayout>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAnswer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="Answer"
+                    android:textAllCaps="false"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="?attr/accentColor"
+                    app:cornerRadius="18dp"
+                    android:textColor="@color/white"
+                    android:paddingHorizontal="14dp"
+                    android:minWidth="0dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp" />
+            </LinearLayout>
+        </RelativeLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.google.services)
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 android {
@@ -34,6 +35,7 @@ android {
     buildFeatures {
         viewBinding = true
         buildConfig = true
+        compose = true
     }
 }
 
@@ -49,10 +51,23 @@ dependencies {
     implementation(libs.googleid)
     implementation(libs.material)
     implementation(libs.coil)
+    implementation("io.coil-kt:coil-compose:2.7.0")
     implementation(libs.biometric)
     implementation(libs.play.services.maps)
     implementation(libs.swiperefreshlayout)
-    
+
+    // Jetpack Compose
+    val composeBom = platform("androidx.compose:compose-bom:2024.06.00")
+    implementation(composeBom)
+    androidTestImplementation(composeBom)
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-graphics")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.activity:activity-compose")
+    debugImplementation("androidx.compose.ui:ui-tooling")
+
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
@@ -72,6 +87,12 @@ dependencies {
     implementation(libs.play.services.location)
     implementation(libs.webrtc)
     implementation(libs.googleai)
+
+    // Retrofit & Gson Networking
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    implementation("com.google.code.gson:gson:2.11.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)

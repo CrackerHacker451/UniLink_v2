@@ -3,7 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/transparent">
+    android:background="?attr/appBackgroundColor">
+
+    <com.example.unilink.utils.AuraParticlesView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.4" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -11,52 +16,92 @@
         android:orientation="vertical">
 
         <TextView
+            android:id="@+id/tvProjectsTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
-            android:layout_marginTop="48dp"
-            android:text="Project Hub"
+            android:layout_marginTop="56dp"
+            android:text="@string/hub_projects"
             android:textColor="?attr/textPrimaryColor"
-            android:textSize="28sp"
+            android:textSize="32sp"
             android:textStyle="bold"
-            android:letterSpacing="-0.02" />
+            android:letterSpacing="-0.03" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
             android:layout_marginTop="4dp"
-            android:text="Find study partners and project teams"
+            android:text="@string/sync_innovators"
             android:textColor="?attr/accentColor"
-            android:textSize="12sp"
+            android:textSize="11sp"
             android:textStyle="bold"
             android:textAllCaps="true"
-            android:letterSpacing="0.05" />
+            android:letterSpacing="0.1" />
 
-        <!-- Search bar -->
+        <!-- Launchpad Quick Action Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLaunchTeam"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:text="🚀 Launch Team"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                app:backgroundTint="?attr/accentColor"
+                app:cornerRadius="16dp"
+                android:textColor="@color/white" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnMyTeams"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="👥 My Teams"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                app:strokeColor="?attr/borderStrokeColor"
+                app:strokeWidth="1.2dp"
+                android:textColor="?attr/textPrimaryColor"
+                app:cornerRadius="16dp" />
+        </LinearLayout>
+
+        <!-- Glassy Search Bar -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="52dp"
             android:layout_marginHorizontal="24dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="14dp"
             style="@style/GlassCard"
             app:cardCornerRadius="26dp">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
-                android:paddingHorizontal="16dp">
+                android:paddingHorizontal="20dp">
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:src="@android:drawable/ic_menu_search"
-                    app:tint="?attr/textSecondaryColor" />
+                    app:tint="?attr/accentColor"
+                    android:contentDescription="@null" />
                 <EditText
                     android:id="@+id/etSearchProjects"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@null"
-                    android:hint="Search projects or skills..."
+                    android:hint="@string/search_stacks_hint"
                     android:paddingStart="12dp"
                     android:textColor="?attr/textPrimaryColor"
                     android:textColorHint="?attr/textSecondaryColor"
@@ -65,7 +110,7 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Categories -->
+        <!-- Categories Scroll -->
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -78,6 +123,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:singleLine="true"
+                app:selectionRequired="true"
                 app:singleSelection="true">
 
                 <com.google.android.material.chip.Chip
@@ -86,65 +132,70 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checked="true"
-                    android:text="All Projects"
-                    app:chipBackgroundColor="?attr/tagBackgroundColor"
-                    app:chipStrokeColor="?attr/borderStrokeColor"
-                    android:textColor="?attr/textPrimaryColor" />
+                    android:text="@string/all_projects"
+                    app:chipBackgroundColor="@color/glass_bg_low"
+                    app:chipStrokeColor="@color/glass_stroke"
+                    android:textColor="?attr/textPrimaryColor"
+                    app:chipCornerRadius="16dp" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipAI"
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="AI / ML"
-                    app:chipBackgroundColor="?attr/tagBackgroundColor"
-                    app:chipStrokeColor="?attr/borderStrokeColor"
-                    android:textColor="?attr/textPrimaryColor" />
+                    android:text="@string/ai_data"
+                    app:chipBackgroundColor="@color/glass_bg_low"
+                    app:chipStrokeColor="@color/glass_stroke"
+                    android:textColor="?attr/textPrimaryColor"
+                    app:chipCornerRadius="16dp" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipDev"
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="App Dev"
-                    app:chipBackgroundColor="?attr/tagBackgroundColor"
-                    app:chipStrokeColor="?attr/borderStrokeColor"
-                    android:textColor="?attr/textPrimaryColor" />
+                    android:text="@string/full_stack"
+                    app:chipBackgroundColor="@color/glass_bg_low"
+                    app:chipStrokeColor="@color/glass_stroke"
+                    android:textColor="?attr/textPrimaryColor"
+                    app:chipCornerRadius="16dp" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipDesign"
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="UI/UX"
-                    app:chipBackgroundColor="?attr/tagBackgroundColor"
-                    app:chipStrokeColor="?attr/borderStrokeColor"
-                    android:textColor="?attr/textPrimaryColor" />
+                    android:text="@string/design"
+                    app:chipBackgroundColor="@color/glass_bg_low"
+                    app:chipStrokeColor="@color/glass_stroke"
+                    android:textColor="?attr/textPrimaryColor"
+                    app:chipCornerRadius="16dp" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipResearch"
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Research"
-                    app:chipBackgroundColor="?attr/tagBackgroundColor"
-                    app:chipStrokeColor="?attr/borderStrokeColor"
-                    android:textColor="?attr/textPrimaryColor" />
+                    android:text="@string/research"
+                    app:chipBackgroundColor="@color/glass_bg_low"
+                    app:chipStrokeColor="@color/glass_stroke"
+                    android:textColor="?attr/textPrimaryColor"
+                    app:chipCornerRadius="16dp" />
             </com.google.android.material.chip.ChipGroup>
         </HorizontalScrollView>
 
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="12dp">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvProjects"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
-                android:paddingHorizontal="24dp"
-                android:paddingBottom="100dp" />
+                android:paddingHorizontal="12dp"
+                android:paddingBottom="160dp" />
 
             <!-- Project Skeleton -->
             <LinearLayout
@@ -152,6 +203,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
+                android:paddingHorizontal="24dp"
                 android:visibility="gone">
                 <include layout="@layout/skeleton_list_item" />
                 <include layout="@layout/skeleton_list_item" />
@@ -165,7 +217,8 @@
                 android:layout_gravity="center"
                 android:text="@string/no_projects_found"
                 android:textColor="?attr/textSecondaryColor"
-                android:textSize="16sp"
+                android:textSize="15sp"
+                android:textStyle="bold"
                 android:visibility="gone" />
         </FrameLayout>
 

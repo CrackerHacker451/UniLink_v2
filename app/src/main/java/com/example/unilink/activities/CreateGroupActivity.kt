@@ -69,9 +69,9 @@ class CreateGroupActivity : AppCompatActivity() {
             return
         }
 
-        chatRepository.createGroup(groupName, "", selectedMembers) { success, groupId ->
+        chatRepository.createGroup(groupName, selectedMembers) { groupId ->
             if (isFinishing || isDestroyed) return@createGroup
-            if (success) {
+            if (groupId != null) {
                 Toast.makeText(this, "Group created successfully", Toast.LENGTH_SHORT).show()
                 finish()
             } else {

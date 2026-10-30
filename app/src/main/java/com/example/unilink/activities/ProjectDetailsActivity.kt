@@ -5,7 +5,10 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.coroutines.launch
+import coil.load
 import com.example.unilink.R
 import com.example.unilink.adapters.LeaderboardAdapter
 import com.example.unilink.databinding.ActivityProjectDetailsBinding
@@ -21,10 +24,24 @@ class ProjectDetailsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityProjectDetailsBinding
     private val projectRepository = ProjectRepository()
     private val userRepository = UserRepository()
+    private val storageRepository = com.example.unilink.repository.StorageRepository()
     private val auth = FirebaseAuth.getInstance()
     
     private var projectId: String? = null
     private var project: Project? = null
+
+    private val pickBannerLauncher = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.GetContent()) { uri ->
+        uri?.let {
+            val id = projectId ?: return@let
+            Toast.makeText(this, "Uploading banner...", Toast.LENGTH_SHORT).show()
+            storageRepository.uploadTeamBanner(id, it) { url ->
+                if (url != null) {
+                    binding.ivProjectBanner.load(url)
+                    Toast.makeText(this, "Banner updated!", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeUtils.applyTheme(this)
@@ -39,11 +56,72 @@ class ProjectDetailsActivity : AppCompatActivity() {
         projectId = intent.getStringExtra("projectId")
         
         loadProjectDetails()
+
+        binding.btnShare.setOnClickListener {
+            val id = projectId ?: return@setOnClickListener
+            val shareUrl = "https://uni-link-b7f2c.web.app/#team/$id"
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, "Join my project team on Newton's Lobby: $shareUrl")
+            }
+            startActivity(Intent.createChooser(intent, "Share Team"))
+        }
+
+        binding.btnWorldIdBoost.setOnClickListener {
+            val id = projectId ?: return@setOnClickListener
+            val title = project?.displayTitle ?: "Student Prototype"
+            showWorldIdTrustSheet(id, title)
+        }
+
+        binding.btnChainlinkCre.setOnClickListener {
+            val id = projectId ?: return@setOnClickListener
+            val title = project?.displayTitle ?: "Student Prototype"
+            val author = project?.ownerId ?: "author_uid"
+
+            Toast.makeText(this, "⬡ Initiating Chainlink CRE Runtime Environment...", Toast.LENGTH_SHORT).show()
+            lifecycleScope.launch {
+                val creService = com.example.unilink.chainlink.ChainlinkCreService()
+                val response = creService.triggerCreWorkflow(
+                    com.example.unilink.chainlink.CreWorkflowTriggerRequest(id, title, author)
+                )
+                val msg = "⬡ CRE Workflow Success!\nCode Score: ${response.aiCodeScore}/100\nGrant: \$${response.grantAmountUsdc} USDC (${response.grantWeight})\nTx: ${response.evmTxHash.take(18)}..."
+                androidx.appcompat.app.AlertDialog.Builder(this@ProjectDetailsActivity)
+                    .setTitle("Chainlink CRE Workflow Executed ⬡")
+                    .setMessage(msg)
+                    .setPositiveButton("OK") { d, _ -> d.dismiss() }
+                    .show()
+            }
+        }
+    }
+
+    private fun showWorldIdTrustSheet(id: String, title: String) {
+        val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
+        val composeView = androidx.compose.ui.platform.ComposeView(this).apply {
+            setContent {
+                val viewModel = com.example.unilink.worldid.NewtonsLobbyTrustViewModel(application)
+                com.example.unilink.worldid.NewtonsLobbyTrustSheet(
+                    projectId = id,
+                    projectTitle = title,
+                    viewModel = viewModel,
+                    onClose = { dialog.dismiss() }
+                )
+            }
+        }
+        dialog.setContentView(composeView)
+        dialog.show()
     }
 
     private fun loadProjectDetails() {
         val id = projectId ?: return
         
+        // Load Banner from Storage (Newton's Lobby Path)
+        val storageRef = com.google.firebase.storage.FirebaseStorage.getInstance().reference.child("teams/$id/banner/cover.jpg")
+        storageRef.downloadUrl.addOnSuccessListener { uri ->
+            if (!isFinishing && !isDestroyed) {
+                binding.ivProjectBanner.load(uri)
+            }
+        }
+
         projectRepository.getProjectById(id) { foundProject ->
             if (isFinishing || isDestroyed) return@getProjectById
             if (foundProject != null) {
@@ -57,19 +135,19 @@ class ProjectDetailsActivity : AppCompatActivity() {
     }
 
     private fun updateUI(project: Project) {
-        binding.tvTitle.text = project.title
-        binding.tvDescription.text = project.description
-        binding.tvStatus.text = project.status
-        binding.tvTeamSize.text = "${project.members.size} / ${project.maxTeamSize} members"
+        binding.tvTitle.text = project.displayTitle
+        binding.tvDescription.text = project.description ?: ""
+        binding.tvStatus.text = project.status ?: "Open"
+        binding.tvTeamSize.text = "${project.members.size} / ${project.effectiveMaxMembers} members"
 
         // Skills
         binding.cgSkills.removeAllViews()
-        project.skillsRequired.forEach { skill ->
+        project.skillsRequired?.forEach { skill ->
             val chip = Chip(this).apply {
                 text = skill
                 isClickable = false
                 setChipBackgroundColorResource(R.color.bg_card)
-                setTextColor(ThemeUtils.getTextPrimaryColor(this@ProjectDetailsActivity)) // Assuming helper exists or using theme primary
+                setTextColor(ThemeUtils.getTextPrimaryColor(this@ProjectDetailsActivity))
             }
             binding.cgSkills.addView(chip)
         }
@@ -77,17 +155,22 @@ class ProjectDetailsActivity : AppCompatActivity() {
         // Members List
         binding.rvMembers.layoutManager = LinearLayoutManager(this)
         val memberList = mutableListOf<com.example.unilink.models.User>()
-        var loadedCount = 0
-        project.members.forEach { memberId ->
-            userRepository.getUserById(memberId) { user ->
-                user?.let { memberList.add(it) }
-                loadedCount++
-                if (loadedCount == project.members.size) {
-                    binding.rvMembers.adapter = LeaderboardAdapter(memberList) { clickedMember ->
-                        val intent = Intent(this, ProfileActivity::class.java).apply {
-                            putExtra("userId", clickedMember.uid)
+        val members = project.members
+        if (members.isEmpty()) {
+            binding.rvMembers.adapter = null
+        } else {
+            var loadedCount = 0
+            members.forEach { memberId ->
+                userRepository.getUserById(memberId) { user ->
+                    user?.let { memberList.add(it) }
+                    loadedCount++
+                    if (loadedCount == members.size) {
+                        binding.rvMembers.adapter = LeaderboardAdapter(memberList) { clickedMember ->
+                            val intent = Intent(this, ProfileActivity::class.java).apply {
+                                putExtra("userId", clickedMember.uid)
+                            }
+                            startActivity(intent)
                         }
-                        startActivity(intent)
                     }
                 }
             }
@@ -102,13 +185,14 @@ class ProjectDetailsActivity : AppCompatActivity() {
         if (isOwner) {
             binding.btnMainAction.text = "Project Dashboard (Owner)"
             binding.btnMainAction.setOnClickListener {
-                // Show owner options: Mark as complete, Edit description, Delete
-                val options = arrayOf("Mark as Completed", "Edit Details", "Delete Project")
+                // Show owner options
+                val options = arrayOf("Mark as Completed", "Edit Details", "Change Team Banner", "Delete Project")
                 androidx.appcompat.app.AlertDialog.Builder(this)
                     .setTitle("Owner Controls")
                     .setItems(options) { _, which ->
                         when (which) {
                             0 -> projectRepository.completeProject(project.projectId) { loadProjectDetails() }
+                            2 -> pickBannerLauncher.launch("image/*")
                             else -> Toast.makeText(this, "Coming soon", Toast.LENGTH_SHORT).show()
                         }
                     }
@@ -117,16 +201,15 @@ class ProjectDetailsActivity : AppCompatActivity() {
         } else if (isMember) {
             binding.btnMainAction.text = "Open Workspace Chat"
             binding.btnMainAction.setOnClickListener {
-                project.chatGroupId?.let { groupId ->
-                    val intent = Intent(this, ChatActivity::class.java).apply {
-                        putExtra("chatId", groupId)
-                        putExtra("chatName", project.title)
-                        putExtra("isGroup", true)
-                    }
-                    startActivity(intent)
+                val intent = Intent(this, ChatActivity::class.java).apply {
+                    putExtra("chatId", project.projectId)
+                    putExtra("chatName", project.displayTitle)
+                    putExtra("isGroup", true)
+                    putExtra("isProjectSync", true)
                 }
+                startActivity(intent)
             }
-        } else if (project.members.size >= project.maxTeamSize) {
+        } else if (project.members.size >= project.effectiveMaxMembers) {
             binding.btnMainAction.text = "Team Full"
             binding.btnMainAction.isEnabled = false
         } else {

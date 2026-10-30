@@ -14,21 +14,24 @@ class PostRepository {
         val uid = auth.currentUser?.uid ?: return
         val postId = db.collection("posts").document().id
         
-        // Fetch user name for the post
         db.collection("users").document(uid).get().addOnSuccessListener { doc ->
             val name = doc.getString("name") ?: "User"
             val major = doc.getString("branch") ?: ""
+            val avatar = doc.getString("profileImageUrl")
             
             val postData = hashMapOf(
                 "postId" to postId,
                 "authorId" to uid,
                 "authorName" to name,
+                "authorAvatarUrl" to avatar,
                 "authorMajor" to major,
                 "content" to content,
                 "imageUrl" to imageUrl,
                 "timestamp" to com.google.firebase.firestore.FieldValue.serverTimestamp(),
                 "likes" to 0,
-                "likedBy" to emptyList<String>()
+                "commentCount" to 0,
+                "likedBy" to emptyList<String>(),
+                "reactions" to emptyMap<String, List<String>>()
             )
 
             db.collection("posts").document(postId).set(postData)
@@ -45,6 +48,7 @@ class PostRepository {
 
     fun getFeed(onResult: (List<Post>) -> Unit): com.google.firebase.firestore.ListenerRegistration {
         return db.collection("posts")
+            .orderBy("timestamp", Query.Direction.DESCENDING)
             .limit(50)
             .addSnapshotListener { snapshot, e ->
                 if (e != null) {
@@ -52,13 +56,8 @@ class PostRepository {
                     return@addSnapshotListener
                 }
                 val posts = snapshot?.mapNotNull { it.toObject(Post::class.java) } ?: emptyList()
-                val sortedPosts = posts.sortedByDescending { it.timestampDate?.time ?: 0L }
-                onResult(sortedPosts)
+                onResult(posts)
             }
-    }
-
-    fun likePost(postId: String, onComplete: (Boolean) -> Unit) {
-        reactToPost(postId, "❤️", onComplete)
     }
 
     fun reactToPost(postId: String, emoji: String, onComplete: (Boolean) -> Unit) {
@@ -70,34 +69,34 @@ class PostRepository {
             val reactions = snapshot.get("reactions") as? Map<String, List<String>> ?: emptyMap()
             val newReactions = reactions.toMutableMap()
             
-            // Remove user from all other reactions first (optional, standard for feed apps)
-            newReactions.forEach { (key, uids) ->
-                if (uids.contains(uid)) {
+            // Toggle logic
+            if (emoji == "REMOVE") {
+                newReactions.forEach { (key, uids) ->
+                    if (uids.contains(uid)) {
+                        newReactions[key] = uids.filter { it != uid }
+                    }
+                }
+                val likedBy = snapshot.get("likedBy") as? List<String> ?: emptyList()
+                if (likedBy.contains(uid)) {
+                    transaction.update(postRef, "likedBy", likedBy.filter { it != uid })
+                    transaction.update(postRef, "likes", ((snapshot.getLong("likes") ?: 1) - 1).coerceAtLeast(0))
+                }
+            } else {
+                // Clear other reactions from this user
+                newReactions.forEach { (key, uids) ->
                     newReactions[key] = uids.filter { it != uid }
                 }
-            }
-            
-            val uidsForEmoji = newReactions[emoji]?.toMutableList() ?: mutableListOf()
-            if (!uidsForEmoji.contains(uid)) {
+                
+                val uidsForEmoji = newReactions[emoji]?.toMutableList() ?: mutableListOf()
                 uidsForEmoji.add(uid)
                 newReactions[emoji] = uidsForEmoji
                 
-                // Update legacy like fields for backward compatibility
                 if (emoji == "❤️") {
                     val likedBy = snapshot.get("likedBy") as? List<String> ?: emptyList()
                     if (!likedBy.contains(uid)) {
                         transaction.update(postRef, "likedBy", likedBy + uid)
                         transaction.update(postRef, "likes", (snapshot.getLong("likes") ?: 0) + 1)
                     }
-                }
-            } else {
-                // Toggle off if clicking same emoji
-                uidsForEmoji.remove(uid)
-                newReactions[emoji] = uidsForEmoji
-                if (emoji == "❤️") {
-                    val likedBy = snapshot.get("likedBy") as? List<String> ?: emptyList()
-                    transaction.update(postRef, "likedBy", likedBy.filter { it != uid })
-                    transaction.update(postRef, "likes", ((snapshot.getLong("likes") ?: 1) - 1).coerceAtLeast(0))
                 }
             }
             

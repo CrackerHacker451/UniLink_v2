@@ -39,6 +39,14 @@ class DoubtBoardActivity : AppCompatActivity() {
         setupSearch()
         loadDoubts()
 
+        // Restore state if needed
+        savedInstanceState?.getString("search_query")?.let {
+            binding.etSearchDoubt.setText(it)
+        }
+        savedInstanceState?.getInt("selected_tab")?.let {
+            binding.tabLayout.getTabAt(it)?.select()
+        }
+
         binding.swipeRefreshDoubts.setOnRefreshListener {
             loadDoubts()
             binding.swipeRefreshDoubts.postDelayed({
@@ -56,6 +64,12 @@ class DoubtBoardActivity : AppCompatActivity() {
             override fun onTabUnselected(tab: com.google.android.material.tabs.TabLayout.Tab?) {}
             override fun onTabReselected(tab: com.google.android.material.tabs.TabLayout.Tab?) {}
         })
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("search_query", binding.etSearchDoubt.text.toString())
+        outState.putInt("selected_tab", binding.tabLayout.selectedTabPosition)
     }
 
     private fun setupSearch() {
@@ -91,8 +105,12 @@ class DoubtBoardActivity : AppCompatActivity() {
 
     private fun setupRecyclerView() {
         doubtAdapter = DoubtAdapter { doubt -> answerDoubt(doubt) }
-        binding.rvDoubts.layoutManager = LinearLayoutManager(this)
-        binding.rvDoubts.adapter = doubtAdapter
+        binding.rvDoubts.apply {
+            layoutManager = LinearLayoutManager(this@DoubtBoardActivity)
+            adapter = doubtAdapter
+            setHasFixedSize(true)
+            setItemViewCacheSize(25)
+        }
     }
 
     private fun loadDoubts() {
@@ -125,7 +143,9 @@ class DoubtBoardActivity : AppCompatActivity() {
             Toast.makeText(this, "You cannot answer your own doubt", Toast.LENGTH_SHORT).show()
             return
         }
-        
+
+        doubtRepository.incrementAnswerCount(doubt.doubtId)
+
         val chatId = chatRepository.getChatId(currentUid, doubt.userId)
         val intent = Intent(this, ChatActivity::class.java).apply {
             putExtra("chatId", chatId)

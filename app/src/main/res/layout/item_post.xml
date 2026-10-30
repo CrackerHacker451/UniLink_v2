@@ -2,45 +2,41 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/llPostMain"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
-    android:layout_marginVertical="10dp"
-    app:cardBackgroundColor="?attr/cardBackgroundColor"
-    app:cardCornerRadius="28dp"
-    app:cardElevation="2dp"
-    app:strokeColor="?attr/borderStrokeColor"
-    app:strokeWidth="1dp">
+    android:layout_marginVertical="8dp"
+    style="@style/CardView.Professional">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/llPostMain"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="18dp">
+        android:padding="20dp">
 
-        <!-- Author Identity -->
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/ivPostAvatar"
             android:layout_width="48dp"
             android:layout_height="48dp"
+            android:scaleType="centerCrop"
             android:src="@drawable/ic_profile_placeholder"
-            app:shapeAppearanceOverlay="@style/CircleImage"
-            android:background="@drawable/bg_tag"
-            android:padding="1.5dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/CircleImage"
+            app:strokeColor="?attr/borderStrokeColor"
+            app:strokeWidth="1dp" />
 
         <TextView
             android:id="@+id/tvPostAuthor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="14dp"
-            android:textColor="?attr/textPrimaryColor"
+            style="@style/TextHeading"
             android:textSize="16sp"
-            android:textStyle="bold"
-            android:letterSpacing="-0.02"
             app:layout_constraintStart_toEndOf="@id/ivPostAvatar"
             app:layout_constraintTop_toTopOf="@id/ivPostAvatar"
+            app:layout_constraintVertical_chainStyle="packed"
+            app:layout_constraintBottom_toTopOf="@id/tvPostTime"
             tools:text="Lalit Mohan" />
 
         <ImageView
@@ -49,169 +45,146 @@
             android:layout_height="16dp"
             android:layout_marginStart="6dp"
             android:src="@android:drawable/btn_star_big_on"
-            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@id/tvPostAuthor"
             app:layout_constraintStart_toEndOf="@id/tvPostAuthor"
             app:layout_constraintTop_toTopOf="@id/tvPostAuthor"
-            app:tint="#FACC15" />
+            app:tint="#FACC15"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/tvPostTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="?attr/textSecondaryColor"
-            android:textSize="11sp"
-            android:textStyle="bold"
-            android:letterSpacing="0.05"
+            style="@style/TextSubheading"
+            android:textSize="12sp"
             app:layout_constraintStart_toStartOf="@id/tvPostAuthor"
             app:layout_constraintTop_toBottomOf="@id/tvPostAuthor"
-            tools:text="2H AGO" />
+            app:layout_constraintBottom_toBottomOf="@id/ivPostAvatar"
+            tools:text="2 hours ago" />
 
         <ImageView
             android:id="@+id/ivPostMenu"
-            android:layout_width="22dp"
-            android:layout_height="22dp"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:padding="4dp"
             android:src="@android:drawable/ic_menu_more"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/ivPostAvatar"
-            app:tint="?attr/textSecondaryColor" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="?attr/textSecondaryColor"
+            android:background="?attr/selectableItemBackgroundBorderless" />
 
-        <!-- Content -->
         <TextView
             android:id="@+id/tvPostContent"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:lineSpacingExtra="6dp"
-            android:textColor="?attr/textPrimaryColor"
-            android:textSize="15sp"
+            style="@style/TextBody"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/ivPostAvatar"
-            tools:text="Exploring the new Aura Glass UI components for UniLink. The transparency and layering feel so premium!" />
+            tools:text="Post content goes here with professional typography and better line spacing for readability." />
 
-        <!-- Media -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cvPostImage"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:visibility="gone"
-            app:cardCornerRadius="22dp"
+            app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
-            app:strokeColor="#1AFFFFFF"
             app:strokeWidth="1dp"
+            app:strokeColor="?attr/borderStrokeColor"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvPostContent">
-
             <ImageView
                 android:id="@+id/ivPostImage"
                 android:layout_width="match_parent"
-                android:layout_height="280dp"
-                android:scaleType="centerCrop"
-                tools:src="@drawable/bg_mesh_gradient" />
+                android:layout_height="260dp"
+                android:scaleType="centerCrop" />
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Interaction Bar -->
         <LinearLayout
             android:id="@+id/llActions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:gravity="center_vertical"
             android:orientation="horizontal"
+            android:gravity="center_vertical"
             app:layout_constraintTop_toBottomOf="@id/cvPostImage">
 
-            <!-- Like Pill -->
             <LinearLayout
                 android:id="@+id/btnLikeContainer"
                 android:layout_width="wrap_content"
-                android:layout_height="42dp"
-                android:background="@drawable/bg_tag"
-                android:paddingHorizontal="16dp"
+                android:layout_height="40dp"
+                android:orientation="horizontal"
                 android:gravity="center_vertical"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:background="@drawable/bg_tag"
                 android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground">
-
+                android:focusable="true">
                 <ImageView
                     android:id="@+id/btnLike"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:src="@android:drawable/btn_star_big_off"
                     app:tint="?attr/accentColor" />
-
                 <TextView
                     android:id="@+id/tvPostLikes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:textColor="?attr/textPrimaryColor"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    tools:text="1.2k" />
+                    android:text="0"
+                    style="@style/TextHeading"
+                    android:textSize="13sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/llReactionsDisplay"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
+                android:layout_marginStart="10dp"
                 android:orientation="horizontal" />
+
+            <LinearLayout
+                android:id="@+id/btnComment"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginStart="16dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@android:drawable/ic_menu_send"
+                    app:tint="?attr/textSecondaryColor" />
+                <TextView
+                    android:id="@+id/tvCommentCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="0"
+                    style="@style/TextSubheading"
+                    android:textSize="13sp" />
+            </LinearLayout>
 
             <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
 
-            <!-- Comment Icon -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btnComment"
-                android:layout_width="42dp"
-                android:layout_height="42dp"
-                app:cardBackgroundColor="#0DFFFFFF"
-                app:cardCornerRadius="21dp"
-                app:cardElevation="0dp"
-                app:strokeColor="#1AFFFFFF"
-                app:strokeWidth="1dp"
-                android:clickable="true"
-                android:focusable="true">
-                <ImageView
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:layout_gravity="center"
-                    android:src="@android:drawable/ic_menu_send"
-                    app:tint="?attr/textSecondaryColor" />
-            </com.google.android.material.card.MaterialCardView>
-
-            <TextView
-                android:id="@+id/tvCommentCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:textColor="?attr/textPrimaryColor"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                tools:text="42" />
-
-            <!-- Share Icon -->
-            <com.google.android.material.card.MaterialCardView
+            <ImageView
                 android:id="@+id/btnShare"
-                android:layout_width="42dp"
-                android:layout_height="42dp"
-                android:layout_marginStart="16dp"
-                app:cardBackgroundColor="#0DFFFFFF"
-                app:cardCornerRadius="21dp"
-                app:cardElevation="0dp"
-                app:strokeColor="#1AFFFFFF"
-                app:strokeWidth="1dp"
-                android:clickable="true"
-                android:focusable="true">
-                <ImageView
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:layout_gravity="center"
-                    android:src="@android:drawable/ic_menu_share"
-                    app:tint="?attr/textSecondaryColor" />
-            </com.google.android.material.card.MaterialCardView>
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:padding="10dp"
+                android:src="@android:drawable/ic_menu_share"
+                app:tint="?attr/textSecondaryColor"
+                android:background="?attr/selectableItemBackgroundBorderless" />
+
         </LinearLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

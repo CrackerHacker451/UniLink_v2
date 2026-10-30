@@ -12,6 +12,7 @@ import com.example.unilink.R
 import com.example.unilink.databinding.ActivityProfileSetupBinding
 import com.example.unilink.models.User
 import com.example.unilink.repository.UserRepository
+import com.example.unilink.utils.ImageLoaderUtils
 import com.example.unilink.utils.ThemeUtils
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -33,9 +34,12 @@ class ProfileSetupActivity : AppCompatActivity() {
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let {
             selectedImageUri = it
-            binding.ivSetupAvatar.load(it) {
-                transformations(CircleCropTransformation())
-            }
+            ImageLoaderUtils.loadSmartImage(
+                imageView = binding.ivSetupAvatar,
+                url = it.toString(),
+                placeholderRes = R.drawable.ic_profile_placeholder,
+                isCircle = true
+            )
         }
     }
 
@@ -134,6 +138,7 @@ class ProfileSetupActivity : AppCompatActivity() {
         val uid = auth.currentUser?.uid ?: return
         binding.progressBar.visibility = View.VISIBLE
         userRepository.getUserById(uid) { user ->
+            if (isFinishing || isDestroyed) return@getUserById
             binding.progressBar.visibility = View.GONE
             if (user != null) {
                 existingUser = user
@@ -164,9 +169,13 @@ class ProfileSetupActivity : AppCompatActivity() {
             binding.etYear.setText(user.yearOrSemester)
         }
         
-        binding.ivSetupAvatar.load(user.profileImageUrl ?: R.drawable.ic_profile_placeholder) {
-            transformations(CircleCropTransformation())
-        }
+        ImageLoaderUtils.loadSmartImage(
+            imageView = binding.ivSetupAvatar,
+            url = user.profileImageUrl,
+            placeholderRes = R.drawable.ic_profile_placeholder,
+            isCircle = true,
+            fallbackName = user.name
+        )
     }
 
     private fun saveProfile() {

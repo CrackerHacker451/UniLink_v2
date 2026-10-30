@@ -3,8 +3,8 @@ package com.example.unilink.activities
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
@@ -46,14 +46,6 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
-        binding.switchDarkMode.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            } else {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            }
-        }
-
         binding.switchIncognito.setOnCheckedChangeListener { _, isChecked ->
             userRepository.getCurrentUser { user ->
                 if (user?.isPremium == true) {
@@ -95,7 +87,15 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         binding.rlTestNotification.setOnClickListener {
-            NotificationHelper.showNotification(this, "Uni Link", "This is a test notification!")
+            NotificationHelper.showNotification(this, "Newton's Lobby 🔔", "This is a test notification with sound!")
+        }
+
+        binding.rlSecretUnlock.setOnClickListener {
+            showRoyalUnlockDialog()
+        }
+
+        binding.rlRoyalAdminPanel.setOnClickListener {
+            startActivity(Intent(this, AdminDashboardActivity::class.java))
         }
 
         binding.rlCopyToken.setOnClickListener {
@@ -116,19 +116,19 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         binding.rlDeleteAccount.setOnClickListener {
-            androidx.appcompat.app.AlertDialog.Builder(this)
+            AlertDialog.Builder(this)
                 .setTitle("Delete Account?")
                 .setMessage("This action is permanent and will delete all your data.")
-                .setPositiveButton("Delete") { _, _ ->
-                    userRepository.deleteAccount { success ->
-                        if (success) {
-                            Toast.makeText(this, "Account deleted", Toast.LENGTH_SHORT).show()
+                .setPositiveButton("Delete Permanently") { _, _ ->
+                    val user = auth.currentUser
+                    if (user != null) {
+                        userRepository.deleteAccount { success ->
+                            auth.signOut()
+                            Toast.makeText(this, "Account deleted successfully", Toast.LENGTH_SHORT).show()
                             val intent = Intent(this, LoginActivity::class.java)
                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                             startActivity(intent)
                             finish()
-                        } else {
-                            Toast.makeText(this, "Failed to delete. Try logging in again.", Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
@@ -141,8 +141,22 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         binding.rlPrivacy.setOnClickListener {
-            Toast.makeText(this, "Privacy Policy coming soon", Toast.LENGTH_SHORT).show()
+            showPrivacyPolicyDialog()
         }
+    }
+
+    private fun showPrivacyPolicyDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Newton's Lobby Privacy Policy 🛡️")
+            .setMessage(
+                "Your privacy and security are Newton's Lobby's top priorities.\n\n" +
+                "1. Data Security: Your profile, messages, and campus data are encrypted in transit and at rest.\n" +
+                "2. Location Controls: Location features (Radar & Nearby) are opt-in and can be hidden anytime using Incognito Mode.\n" +
+                "3. Account Sovereignty: You have full control to edit or permanently delete your account and data at any time.\n" +
+                "4. Zero Selling: We do not sell your personal information or university records to third parties."
+            )
+            .setPositiveButton("I Understand", null)
+            .show()
     }
 
     private fun showBiometricPrompt(onResult: (Boolean) -> Unit) {
@@ -173,84 +187,105 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun setupThemeSelectors() {
-        val currentTheme = ThemeUtils.getSelectedTheme(this)
-        
-        // Helper to update selection UI
-        fun updateSelection() {
-            val activeTheme = ThemeUtils.getSelectedTheme(this)
-            val selectionColor = getColor(R.color.neon_cyan)
-            val inactiveColor = android.graphics.Color.TRANSPARENT
-            
-            binding.themeCyber.cardThemeColor.strokeColor = if (activeTheme == "Cyber") selectionColor else inactiveColor
-            binding.themeIndigo.cardThemeColor.strokeColor = if (activeTheme == "Indigo Liquid") selectionColor else inactiveColor
-            binding.themeTeal.cardThemeColor.strokeColor = if (activeTheme == "Ocean Glass") selectionColor else inactiveColor
-            binding.themeRose.cardThemeColor.strokeColor = if (activeTheme == "Rose Crystal") selectionColor else inactiveColor
-            binding.themeAmber.cardThemeColor.strokeColor = if (activeTheme == "Amber Glow") selectionColor else inactiveColor
-            binding.themeWhite.cardThemeColor.strokeColor = if (activeTheme == "Ars White") selectionColor else inactiveColor
-            binding.themeGlass.cardThemeColor.strokeColor = if (activeTheme == "Aura Glass") selectionColor else inactiveColor
-        }
+        val activeTheme = ThemeUtils.getSelectedTheme(this)
 
-        // Theme Cyber (Default Pink/Cyan)
+        val selectionColor = getColor(R.color.neon_cyan)
+        val inactiveColor = android.graphics.Color.TRANSPARENT
+
         binding.themeCyber.apply {
-            viewColor.setBackgroundResource(R.drawable.grad_cyber)
-            root.setOnClickListener { applyThemeAndRestart("Cyber") }
-        }
-        
-        // Theme Indigo
-        binding.themeIndigo.apply {
-            viewColor.setBackgroundColor(getColor(R.color.liquid_indigo))
-            root.setOnClickListener { applyThemeAndRestart("Indigo Liquid") }
-        }
-        
-        // Theme Teal
-        binding.themeTeal.apply {
-            viewColor.setBackgroundColor(getColor(R.color.liquid_teal))
-            root.setOnClickListener { applyThemeAndRestart("Ocean Glass") }
-        }
-        
-        // Theme Rose
-        binding.themeRose.apply {
-            viewColor.setBackgroundColor(getColor(R.color.liquid_rose))
-            root.setOnClickListener { applyThemeAndRestart("Rose Crystal") }
-        }
-        
-        // Theme Amber
-        binding.themeAmber.apply {
-            viewColor.setBackgroundColor(getColor(R.color.liquid_amber))
-            root.setOnClickListener { applyThemeAndRestart("Amber Glow") }
+            root.visibility = android.view.View.VISIBLE
+            viewColor.setBackgroundColor(getColor(R.color.bg_dark))
+            cardThemeColor.strokeColor = if (activeTheme == "Dark") selectionColor else inactiveColor
+            root.setOnClickListener { applyThemeAndRestart("Dark") }
         }
 
-        // Theme White
         binding.themeWhite.apply {
+            root.visibility = android.view.View.VISIBLE
             viewColor.setBackgroundColor(getColor(R.color.white))
-            root.setOnClickListener { applyThemeAndRestart("Ars White") }
+            cardThemeColor.strokeColor = if (activeTheme == "Light") selectionColor else inactiveColor
+            root.setOnClickListener { applyThemeAndRestart("Light") }
         }
 
-        // Theme Aura Glass
-        binding.themeGlass.apply {
-            viewColor.setBackgroundResource(R.drawable.bg_glass_cluster)
-            root.setOnClickListener { applyThemeAndRestart("Aura Glass") }
+        binding.themeTeal.apply {
+            root.visibility = android.view.View.VISIBLE
+            viewColor.setBackgroundColor(getColor(R.color.liquid_teal))
+            cardThemeColor.strokeColor = if (activeTheme == "Teal") selectionColor else inactiveColor
+            root.setOnClickListener { applyThemeAndRestart("Teal") }
         }
-        
-        updateSelection()
+
+        binding.themeIndigo.apply {
+            root.visibility = android.view.View.VISIBLE
+            viewColor.setBackgroundColor(getColor(R.color.liquid_indigo))
+            cardThemeColor.strokeColor = if (activeTheme == "Indigo") selectionColor else inactiveColor
+            root.setOnClickListener { applyThemeAndRestart("Indigo") }
+        }
+
+        binding.themeRose.apply {
+            root.visibility = android.view.View.VISIBLE
+            viewColor.setBackgroundColor(getColor(R.color.liquid_rose))
+            cardThemeColor.strokeColor = if (activeTheme == "Rose") selectionColor else inactiveColor
+            root.setOnClickListener { applyThemeAndRestart("Rose") }
+        }
+
+        binding.themeAmber.apply {
+            root.visibility = android.view.View.VISIBLE
+            viewColor.setBackgroundColor(getColor(R.color.liquid_amber))
+            cardThemeColor.strokeColor = if (activeTheme == "Amber") selectionColor else inactiveColor
+            root.setOnClickListener { applyThemeAndRestart("Amber") }
+        }
+
+        binding.switchDarkMode.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (!buttonView.isPressed) return@setOnCheckedChangeListener
+            val targetTheme = if (isChecked) "Dark" else "Light"
+            applyThemeAndRestart(targetTheme)
+        }
     }
 
     private fun applyThemeAndRestart(themeName: String) {
         if (ThemeUtils.getSelectedTheme(this) == themeName) return
-        
+
         ThemeUtils.saveTheme(this, themeName)
         Toast.makeText(this, "Applied $themeName Theme!", Toast.LENGTH_SHORT).show()
-        
-        // Restart activity to apply theme
-        recreate()
+
+        val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        startActivity(intent)
+        finish()
+    }
+
+    private fun showRoyalUnlockDialog() {
+        val input = android.widget.EditText(this).apply {
+            hint = "Enter Secret Code"
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+            setPadding(40, 30, 40, 30)
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("👑 Unlock Royal Admin Portal")
+            .setMessage("Enter the secret unlock code to access system administration controls:")
+            .setView(input)
+            .setPositiveButton("Unlock") { _, _ ->
+                val code = input.text.toString().trim()
+                if (code.equals("Royal", ignoreCase = true)) {
+                    binding.rlRoyalAdminPanel.visibility = android.view.View.VISIBLE
+                    com.example.unilink.utils.HapticUtils.playHeavy(binding.root)
+                    Toast.makeText(this, "👑 Royal Admin Mode Unlocked!", Toast.LENGTH_LONG).show()
+                    startActivity(Intent(this, AdminDashboardActivity::class.java))
+                } else {
+                    Toast.makeText(this, "Incorrect unlock code!", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun loadPreferences() {
-        val isNightMode = AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
-        binding.switchDarkMode.isChecked = isNightMode
+        val currentTheme = ThemeUtils.getSelectedTheme(this)
+        binding.switchDarkMode.isChecked = (currentTheme == "Dark")
         binding.switchAppLock.isChecked = ThemeUtils.isAppLockEnabled(this)
         binding.switchAuraParticles.isChecked = com.example.unilink.utils.PrefsUtils.isAuraEnabled(this)
-        
+
         userRepository.getCurrentUser { user ->
             binding.switchIncognito.isChecked = user?.isIncognito ?: false
         }

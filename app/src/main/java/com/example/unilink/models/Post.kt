@@ -9,9 +9,12 @@ data class Post(
     val postId: String = "",
     val authorId: String = "",
     val authorName: String = "",
+    val authorAvatarUrl: String? = null,
     val authorMajor: String = "",
     val content: String = "",
     val imageUrl: String? = null,
+    val postType: String = "post", // "post", "twite", "system_update"
+    val tag: String = "#General", // #Events, #Placement, #Food, #Sports, #General
     @get:PropertyName("timestamp") @set:PropertyName("timestamp")
     var timestamp: Any? = null,
     val likes: Int = 0,

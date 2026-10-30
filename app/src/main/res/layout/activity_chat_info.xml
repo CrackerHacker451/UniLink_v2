@@ -19,12 +19,13 @@
             app:expandedTitleMarginEnd="64dp"
             app:expandedTitleMarginStart="48dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:title="User Name">
+            app:title="@string/user_info">
 
             <ImageView
                 android:id="@+id/ivProfileHeader"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:contentDescription="@null"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_profile_placeholder"
                 app:layout_collapseMode="parallax" />
@@ -69,7 +70,7 @@
                         android:id="@+id/tvBio"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Status/Bio"
+                        android:text="@string/status_bio"
                         android:textColor="?attr/textPrimaryColor"
                         android:textSize="16sp" />
 
@@ -78,7 +79,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="Joined July 2024"
+                        android:text="@string/joined_date_format"
                         android:textColor="?attr/textSecondaryColor"
                         android:textSize="12sp" />
                 </LinearLayout>
@@ -90,8 +91,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
                 android:layout_marginTop="24dp"
-                android:text="Media, links, and docs"
-                android:textColor="@color/neon_cyan"
+                android:text="@string/media_links_docs"
+                android:textColor="#1783D5"
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
@@ -104,26 +105,15 @@
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp">
 
-                <LinearLayout
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="70dp"
                     android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="16dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="None"
-                        android:textColor="?attr/textSecondaryColor" />
-
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@android:drawable/ic_media_play"
-                        app:tint="?attr/textSecondaryColor" />
-                </LinearLayout>
+                    android:paddingHorizontal="16dp"
+                    android:text="@string/none"
+                    android:textColor="?attr/textSecondaryColor"
+                    app:drawableEndCompat="@android:drawable/ic_media_play"
+                    app:drawableTint="?attr/textSecondaryColor" />
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Settings Section -->
@@ -149,9 +139,12 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerVertical="true"
-                            android:text="Mute notifications"
+                            android:layout_alignParentStart="true"
+                            android:layout_toStartOf="@id/switchMute"
+                            android:text="@string/mute_notifications"
                             android:textColor="?attr/textPrimaryColor" />
                         <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switchMute"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
@@ -171,7 +164,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerVertical="true"
-                            android:text="Custom notifications"
+                            android:text="@string/custom_notifications"
                             android:textColor="?attr/textPrimaryColor" />
                     </RelativeLayout>
                 </LinearLayout>
@@ -197,7 +190,7 @@
                         android:layout_height="56dp"
                         android:gravity="center_vertical"
                         android:paddingHorizontal="16dp"
-                        android:text="Block User"
+                        android:text="@string/block_user"
                         android:textColor="@color/error"
                         android:textStyle="bold" />
 
@@ -212,7 +205,7 @@
                         android:layout_height="56dp"
                         android:gravity="center_vertical"
                         android:paddingHorizontal="16dp"
-                        android:text="Report User"
+                        android:text="@string/report_user"
                         android:textColor="@color/error"
                         android:textStyle="bold" />
                 </LinearLayout>

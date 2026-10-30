@@ -1,0 +1,42 @@
+{
+  "workflow": {
+    "name": "newtons-lobby-cre-grant-orchestrator",
+    "version": "1.0.0",
+    "description": "Chainlink Runtime Environment Workflow orchestrating AI code audit, World ID liveness, and on-chain grant distribution for student prototypes.",
+    "triggers": [
+      {
+        "type": "HTTP_WEBHOOK",
+        "endpoint": "/api/cre/trigger-workflow"
+      }
+    ],
+    "capabilities": {
+      "http": {
+        "allowedHosts": [
+          "newtonslobby.app",
+          "api.openai.com",
+          "generativelanguage.googleapis.com",
+          "developer.worldcoin.org"
+        ]
+      },
+      "evm": {
+        "chains": [
+          {
+            "name": "ethereum-sepolia",
+            "chainId": 11155111,
+            "contractAddress": "0x1159M0192A0129B88109121A823B190000000000"
+          },
+          {
+            "name": "base-sepolia",
+            "chainId": 84532,
+            "contractAddress": "0x845320192A0129B88109121A823B190000000000"
+          }
+        ]
+      }
+    },
+    "secrets": [
+      "CRE_OPERATOR_KEY",
+      "NEWTON_AI_LLM_KEY",
+      "WORLD_ID_RP_KEY"
+    ]
+  }
+}

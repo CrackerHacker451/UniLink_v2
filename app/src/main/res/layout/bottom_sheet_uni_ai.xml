@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="500dp"
+    android:layout_height="520dp"
     android:background="@drawable/bg_glass"
     android:orientation="vertical"
     android:padding="20dp">
@@ -23,7 +23,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="UniAI Assistant"
+            android:text="NewtonAI Personal Agent 🤖"
             android:textColor="?attr/textPrimaryColor"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -39,12 +39,132 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="12dp" />
+
+    <!-- Agent Quick Command Chips -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:scrollbars="none">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipStartStream"
+                style="@style/Widget.MaterialComponents.Chip.Action"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:text="🎥 Start Stream"
+                android:textColor="?attr/textPrimaryColor"
+                app:chipBackgroundColor="?attr/cardBackgroundColor"
+                app:chipStrokeColor="?attr/borderStrokeColor"
+                app:chipStrokeWidth="1dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipPostBarter"
+                style="@style/Widget.MaterialComponents.Chip.Action"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:text="📦 Post Barter"
+                android:textColor="?attr/textPrimaryColor"
+                app:chipBackgroundColor="?attr/cardBackgroundColor"
+                app:chipStrokeColor="?attr/borderStrokeColor"
+                app:chipStrokeWidth="1dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipFindTeam"
+                style="@style/Widget.MaterialComponents.Chip.Action"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:text="👥 Find Team"
+                android:textColor="?attr/textPrimaryColor"
+                app:chipBackgroundColor="?attr/cardBackgroundColor"
+                app:chipStrokeColor="?attr/borderStrokeColor"
+                app:chipStrokeWidth="1dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipPostDoubt"
+                style="@style/Widget.MaterialComponents.Chip.Action"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:text="🧠 Ask Doubt"
+                android:textColor="?attr/textPrimaryColor"
+                app:chipBackgroundColor="?attr/cardBackgroundColor"
+                app:chipStrokeColor="?attr/borderStrokeColor"
+                app:chipStrokeWidth="1dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipFocusRoom"
+                style="@style/Widget.MaterialComponents.Chip.Action"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:text="⏳ Focus Room"
+                android:textColor="?attr/textPrimaryColor"
+                app:chipBackgroundColor="?attr/cardBackgroundColor"
+                app:chipStrokeColor="?attr/borderStrokeColor"
+                app:chipStrokeWidth="1dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipNearbyRadar"
+                style="@style/Widget.MaterialComponents.Chip.Action"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:text="📡 Nearby Radar"
+                android:textColor="?attr/textPrimaryColor"
+                app:chipBackgroundColor="?attr/cardBackgroundColor"
+                app:chipStrokeColor="?attr/borderStrokeColor"
+                app:chipStrokeWidth="1dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipLeaderboard"
+                style="@style/Widget.MaterialComponents.Chip.Action"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:text="🏆 Leaderboard"
+                android:textColor="?attr/textPrimaryColor"
+                app:chipBackgroundColor="?attr/cardBackgroundColor"
+                app:chipStrokeColor="?attr/borderStrokeColor"
+                app:chipStrokeWidth="1dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipVaultNotes"
+                style="@style/Widget.MaterialComponents.Chip.Action"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:text="📚 Notes Vault"
+                android:textColor="?attr/textPrimaryColor"
+                app:chipBackgroundColor="?attr/cardBackgroundColor"
+                app:chipStrokeColor="?attr/borderStrokeColor"
+                app:chipStrokeWidth="1dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipRandomMatch"
+                style="@style/Widget.MaterialComponents.Chip.Action"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⚡ Random Match"
+                android:textColor="?attr/textPrimaryColor"
+                app:chipBackgroundColor="?attr/cardBackgroundColor"
+                app:chipStrokeColor="?attr/borderStrokeColor"
+                app:chipStrokeWidth="1dp" />
+        </LinearLayout>
+    </HorizontalScrollView>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="8dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
@@ -62,11 +182,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@null"
-                android:hint="Ask UniAI anything..."
+                android:hint="Ask or command NewtonAI (e.g. 'start a stream')..."
                 android:paddingHorizontal="16dp"
                 android:textColor="?attr/textPrimaryColor"
                 android:textColorHint="?attr/textSecondaryColor"
-                android:textSize="14sp" />
+                android:textSize="13sp" />
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton

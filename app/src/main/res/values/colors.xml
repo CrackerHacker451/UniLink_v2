@@ -1,108 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- UniLink Core Branding -->
-    <color name="bg_dark">#0F0F14</color>
-    <color name="bg_light">#1A1A24</color>
-    <color name="bg_dark_nav">#16161E</color>
-    <color name="bg_card">#1A1A24</color>
-    <color name="bg_card_glass">#261A1A24</color>
+    <color name="bg_dark">#030712</color>
+    <color name="bg_light">#F8FAFC</color>
+    <color name="bg_card">#111827</color>
 
     <color name="pink_brand">#EC4899</color>
-    <color name="cyan_brand">#22D3EE</color>
-    <color name="purple_brand">#8B5CF6</color>
+    <color name="cyan_brand">#06B6D4</color>
+    <color name="purple_brand">#A855F7</color>
+    <color name="amber_gold">#F59E0B</color>
+
+    <!-- Theme 1: Cyber Dark (Midnight Cyan) -->
+    <color name="theme_dark_bg">#030712</color>
+    <color name="theme_dark_card">#111827</color>
+    <color name="theme_dark_text_primary">#F9FAFB</color>
+    <color name="theme_dark_text_secondary">#9CA3AF</color>
+    <color name="theme_dark_accent">#06B6D4</color>
+    <color name="theme_dark_accent_variant">#0284C7</color>
+    <color name="theme_dark_border">#1F2937</color>
+    <color name="theme_dark_input">#1F2937</color>
+
+    <!-- Theme 2: Crystal Light (Pure White) -->
+    <color name="theme_light_bg">#F8FAFC</color>
+    <color name="theme_light_card">#FFFFFF</color>
+    <color name="theme_light_text_primary">#0F172A</color>
+    <color name="theme_light_text_secondary">#64748B</color>
+    <color name="theme_light_accent">#2563EB</color>
+    <color name="theme_light_accent_variant">#1D4ED8</color>
+    <color name="theme_light_border">#E2E8F0</color>
+    <color name="theme_light_input">#F1F5F9</color>
+
+    <!-- Theme 3: Emerald Cyber (Mint Green) -->
+    <color name="theme_teal_bg">#021A17</color>
+    <color name="theme_teal_card">#0A2E2A</color>
+    <color name="theme_teal_text_primary">#F0FDF4</color>
+    <color name="theme_teal_text_secondary">#86EFAC</color>
+    <color name="theme_teal_accent">#10B981</color>
+    <color name="theme_teal_accent_variant">#059669</color>
+    <color name="theme_teal_border">#154843</color>
+    <color name="theme_teal_input">#0A2E2A</color>
+
+    <!-- Theme 4: Neon Violet (Indigo Deep) -->
+    <color name="theme_indigo_bg">#0B071E</color>
+    <color name="theme_indigo_card">#160F38</color>
+    <color name="theme_indigo_text_primary">#FAF5FF</color>
+    <color name="theme_indigo_text_secondary">#D8B4FE</color>
+    <color name="theme_indigo_accent">#A855F7</color>
+    <color name="theme_indigo_accent_variant">#9333EA</color>
+    <color name="theme_indigo_border">#2B1D59</color>
+    <color name="theme_indigo_input">#160F38</color>
+
+    <!-- Theme 5: Cyber Rose (Velvet Pink) -->
+    <color name="theme_rose_bg">#180512</color>
+    <color name="theme_rose_card">#2C0A22</color>
+    <color name="theme_rose_text_primary">#FDF2F8</color>
+    <color name="theme_rose_text_secondary">#FBCFE8</color>
+    <color name="theme_rose_accent">#EC4899</color>
+    <color name="theme_rose_accent_variant">#DB2777</color>
+    <color name="theme_rose_border">#4A1239</color>
+    <color name="theme_rose_input">#2C0A22</color>
+
+    <!-- Theme 6: Flame Amber (Gold Obsidian) -->
+    <color name="theme_amber_bg">#170F03</color>
+    <color name="theme_amber_card">#2A1B07</color>
+    <color name="theme_amber_text_primary">#FFFBEB</color>
+    <color name="theme_amber_text_secondary">#FDE68A</color>
+    <color name="theme_amber_accent">#F59E0B</color>
+    <color name="theme_amber_accent_variant">#D97706</color>
+    <color name="theme_amber_border">#4A310C</color>
+    <color name="theme_amber_input">#2A1B07</color>
 
     <!-- Status Colors -->
-    <color name="status_online">#22C55E</color>
+    <color name="status_online">#10B981</color>
     <color name="status_busy">#F59E0B</color>
-    <color name="status_studying">#22D3EE</color>
-    <color name="status_urgent">#EC4899</color>
+    <color name="status_studying">#06B6D4</color>
+    <color name="status_urgent">#EF4444</color>
 
-    <color name="text_main">#FFFFFF</color>
-    <color name="text_sub">#94A3B8</color>
+    <!-- Typography -->
+    <color name="text_main">#F9FAFB</color>
+    <color name="text_sub">#9CA3AF</color>
     <color name="text_white">#FFFFFF</color>
-    <color name="text_grey">#94A3B8</color>
+    <color name="text_grey">#9CA3AF</color>
 
+    <!-- Glassmorphism -->
     <color name="glass_white">#1AFFFFFF</color>
     <color name="glass_white_heavy">#33FFFFFF</color>
     <color name="glass_border">#1AFFFFFF</color>
 
-    <!-- Legacy compatibility & System Aliases -->
+    <color name="glass_bg_low">#0DFFFFFF</color>
+    <color name="glass_bg_mid">#1AFFFFFF</color>
+    <color name="glass_stroke">#26FFFFFF</color>
+
+    <!-- Legacy & System -->
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="error">#EF4444</color>
-    <color name="primary_blue">#22D3EE</color>
+    <color name="primary_blue">#2563EB</color>
 
-    <color name="primary">@color/cyan_brand</color>
-    <color name="primary_variant">@color/bg_dark</color>
-    <color name="on_primary">@color/bg_dark</color>
-    <color name="secondary">@color/pink_brand</color>
-    <color name="secondary_variant">@color/pink_brand</color>
-    <color name="on_secondary">@color/white</color>
-    <color name="background">@color/bg_dark</color>
-    <color name="surface">@color/bg_card</color>
-    <color name="on_background">@color/white</color>
-    <color name="on_surface">@color/white</color>
+    <color name="wa_bg_light">#F8F9FA</color>
+    <color name="wa_primary">#2563EB</color>
+    <color name="wa_secondary">#A855F7</color>
 
-    <color name="neon_cyan">#22D3EE</color>
+    <color name="neon_cyan">#06B6D4</color>
     <color name="neon_pink">#EC4899</color>
-    <color name="neon_purple">#8B5CF6</color>
+    <color name="neon_purple">#A855F7</color>
     <color name="neon_orange">#F59E0B</color>
 
-    <color name="grad_cyan_start">#22D3EE</color>
-    <color name="grad_cyan_end">#00B8D4</color>
-    <color name="grad_pink_start">#EC4899</color>
-    <color name="grad_pink_end">#C51162</color>
-    <color name="grad_purple_start">#8B5CF6</color>
-    <color name="grad_purple_end">#6D28D9</color>
-
-    <!-- Liquid / Colorful Theme Colors -->
-    <color name="liquid_indigo">#6366F1</color>
-    <color name="liquid_teal">#14B8A6</color>
-    <color name="liquid_amber">#F59E0B</color>
-    <color name="liquid_rose">#F43F5E</color>
-
-    <color name="glass_primary">#4022D3EE</color>
-    <color name="glass_secondary">#40EC4899</color>
-
-    <color name="story_border">@color/neon_cyan</color>
-
-    <color name="grey_50">#FAFAFA</color>
+    <!-- Legacy / Required for build -->
     <color name="grey_100">#F1F5F9</color>
     <color name="grey_200">#E2E8F0</color>
-    <color name="grey_300">#CBD5E1</color>
-    <color name="grey_400">#94A3B8</color>
-    <color name="grey_500">#64748B</color>
-    <color name="grey_600">#475569</color>
-    <color name="grey_700">#334155</color>
-    <color name="grey_800">#1E293B</color>
-    <color name="grey_900">#0F172A</color>
-    <!-- WhatsApp Style / Light Themes -->
-    <color name="wa_bg_light">#F7F8FA</color>
-    <color name="wa_primary">#075E54</color>
-    <color name="wa_secondary">#25D366</color>
-    <color name="wa_text_primary">#111B21</color>
-    <color name="wa_text_secondary">#667781</color>
-    <color name="wa_message_sent">#D9FDD3</color>
-    <color name="wa_message_received">#FFFFFF</color>
-    <color name="wa_surface">#FFFFFF</color>
-
-    <!-- Ars White Theme Colors (Minimalist) -->
-    <color name="white_bg">#F8F9FA</color>
-    <color name="white_card">#FFFFFF</color>
-    <color name="white_text_primary">#1D1D1F</color>
-    <color name="white_text_secondary">#6E6E73</color>
-    <color name="white_border">#E5E5E7</color>
-    <color name="white_accent">#007AFF</color> <!-- iOS style blue for Ars White -->
-
-    <!-- Ars Dark Theme Colors (Obsidian & Electric Blue) -->
-    <color name="ars_dark_bg">#010101</color>
-    <color name="ars_dark_card">#0F0F12</color>
-    <color name="ars_dark_text_primary">#FFFFFF</color>
-    <color name="ars_dark_text_secondary">#9CA3AF</color>
-    <color name="ars_dark_border">#1F1F23</color>
-    <color name="ars_dark_accent">#00E5FF</color>
-
-    <color name="border_light">#F1F2F6</color>
-    <color name="accent_blue">#E3F2FD</color>
+    <color name="grad_cyan_start">#06B6D4</color>
+    <color name="grad_cyan_end">#0284C7</color>
+    <color name="grad_pink_start">#EC4899</color>
+    <color name="grad_pink_end">#BE185D</color>
+    <color name="grad_purple_start">#A855F7</color>
+    <color name="grad_purple_end">#7E22CE</color>
+    <color name="liquid_indigo">#A855F7</color>
+    <color name="liquid_teal">#10B981</color>
+    <color name="liquid_rose">#EC4899</color>
+    <color name="liquid_amber">#F59E0B</color>
+    <color name="ars_dark_accent">#06B6D4</color>
 </resources>
-

@@ -22,7 +22,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_tag"
-                android:backgroundTint="#1AFFFFFF"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="4dp"
                 android:textColor="?attr/accentColor"
@@ -77,7 +76,7 @@
             android:textStyle="bold"
             app:backgroundTint="?attr/accentColor"
             app:cornerRadius="26dp"
-            android:textColor="@color/bg_dark" />
+            android:textColor="@color/white" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

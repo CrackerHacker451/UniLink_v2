@@ -4,94 +4,65 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.RadialGradient
+import android.graphics.Shader
 import android.util.AttributeSet
 import android.view.View
-import java.util.Random
 
 class AuraParticlesView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    private val paint = Paint().apply {
-        isAntiAlias = true
-        style = Paint.Style.FILL
-    }
-    
-    private val random = Random()
-    private val particles = mutableListOf<Particle>()
-    private val particleCount = 25
+    private val gradientPaint1 = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val gradientPaint2 = Paint(Paint.ANTI_ALIAS_FLAG)
     private var isPremium = false
-    
+
     fun setPremiumMode(enabled: Boolean) {
         this.isPremium = enabled
-        // Refresh particles with premium colors if enabled
-        if (width > 0 && height > 0) {
-            onSizeChanged(width, height, width, height)
-        }
+        invalidate()
     }
-    
-    private data class Particle(
-        var x: Float,
-        var y: Float,
-        var radius: Float,
-        var speedX: Float,
-        var speedY: Float,
-        var alpha: Int,
-        val color: Int
-    )
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        particles.clear()
-        val colors = if (isPremium) {
-            intArrayOf(
-                Color.parseColor("#4D22D3EE"), // Brighter Cyan
-                Color.parseColor("#4DEC4899"), // Brighter Pink
-                Color.parseColor("#4D8B5CF6"), // Brighter Purple
-                Color.parseColor("#4DFACC15")  // Gold for Premium
-            )
-        } else {
-            intArrayOf(
-                Color.parseColor("#3322D3EE"),
-                Color.parseColor("#33EC4899"),
-                Color.parseColor("#228B5CF6")
-            )
-        }
-        for (i in 0 until (if (isPremium) 40 else 25)) {
-            particles.add(createParticle(w.toFloat(), h.toFloat(), colors))
-        }
-    }
+        if (w <= 0 || h <= 0) return
 
-    private fun createParticle(w: Float, h: Float, colors: IntArray): Particle {
-        return Particle(
-            x = random.nextFloat() * w,
-            y = random.nextFloat() * h,
-            radius = random.nextFloat() * 150f + 50f,
-            speedX = (random.nextFloat() - 0.5f) * 0.8f,
-            speedY = (random.nextFloat() - 0.5f) * 0.8f,
-            alpha = random.nextInt(40) + 10,
-            color = colors[random.nextInt(colors.size)]
+        val theme = ThemeUtils.getSelectedTheme(context)
+        val (c1, c2) = when (theme) {
+            "Light" -> Pair("#1A2563EB", "#1A6366F1")
+            "Teal" -> Pair("#2E10B981", "#2E06B6D4")
+            "Indigo" -> Pair("#2E8B5CF6", "#2E6366F1")
+            "Rose" -> Pair("#2EEC4899", "#2EF43F5E")
+            "Amber" -> Pair("#2EF59E0B", "#2EFB923C")
+            else -> Pair("#2E06B6D4", "#2E8B5CF6")
+        }
+
+        // Top-right soft ambient glow
+        val shader1 = RadialGradient(
+            w * 0.85f, -h * 0.1f, w * 0.7f,
+            intArrayOf(Color.parseColor(c1), Color.TRANSPARENT),
+            floatArrayOf(0f, 1f),
+            Shader.TileMode.CLAMP
         )
+        gradientPaint1.shader = shader1
+
+        // Bottom-left subtle ambient glow
+        val shader2 = RadialGradient(
+            w * 0.15f, h * 0.6f, w * 0.6f,
+            intArrayOf(Color.parseColor(c2), Color.TRANSPARENT),
+            floatArrayOf(0f, 1f),
+            Shader.TileMode.CLAMP
+        )
+        gradientPaint2.shader = shader2
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        
-        particles.forEach { p ->
-            p.x += p.speedX
-            p.y += p.speedY
-            
-            // Boundary bounce
-            if (p.x < -p.radius) p.x = width + p.radius
-            if (p.x > width + p.radius) p.x = -p.radius
-            if (p.y < -p.radius) p.y = height + p.radius
-            if (p.y > height + p.radius) p.y = -p.radius
-            
-            paint.color = p.color
-            paint.alpha = p.alpha
-            canvas.drawCircle(p.x, p.y, p.radius, paint)
-        }
-        
-        invalidate() // Keep animating
+        if (visibility != VISIBLE) return
+
+        val w = width.toFloat()
+        val h = height.toFloat()
+
+        canvas.drawRect(0f, 0f, w, h, gradientPaint1)
+        canvas.drawRect(0f, 0f, w, h, gradientPaint2)
     }
 }

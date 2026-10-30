@@ -21,75 +21,76 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent" >
+        app:layout_constraintTop_toTopOf="parent" />
 
-    </FrameLayout>
-
-    <!-- Floating Navigation Dock (Previous Best Design) -->
+    <!-- Enhanced Floating Navigation Dock -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/navCard"
-        android:layout_width="356dp"
-        android:layout_height="67dp"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginBottom="28dp"
-        app:cardBackgroundColor="#CC020617"
-        app:cardCornerRadius="38dp"
-        app:cardElevation="12dp"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginBottom="12dp"
+        app:cardBackgroundColor="?attr/cardBackgroundColor"
+        app:cardCornerRadius="32dp"
+        app:cardElevation="10dp"
+        app:strokeColor="?attr/borderStrokeColor"
+        app:strokeWidth="1dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:strokeColor="#33FFFFFF"
-        app:strokeWidth="1.2dp">
+        android:stateListAnimator="@animator/btn_press_scale">
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNavigation"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
             android:background="@android:color/transparent"
             app:elevation="0dp"
-            app:itemIconSize="24dp"
-            app:itemIconTint="@color/nav_item_color"
+            app:itemIconSize="22dp"
+            app:itemRippleColor="@null"
             app:itemTextAppearanceActive="@style/BottomNavText"
             app:itemTextAppearanceInactive="@style/BottomNavText"
-            app:itemTextColor="@color/nav_item_color"
             app:labelVisibilityMode="labeled"
+            app:paddingBottomSystemWindowInsets="false"
+            app:paddingTopSystemWindowInsets="false"
             app:menu="@menu/bottom_nav_menu" />
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Balanced FAB Group Sitting above Dock -->
+    <!-- Floating Action Group (Non-Overlapping) -->
     <LinearLayout
+        android:id="@+id/llFloatingActions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="12dp"
         android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         app:layout_constraintBottom_toTopOf="@id/navCard"
         app:layout_constraintEnd_toEndOf="parent">
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/fabUniAI"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
             android:layout_marginEnd="12dp"
-            app:cardBackgroundColor="#1A22D3EE"
-            app:cardCornerRadius="24dp"
-            app:cardElevation="4dp"
-            app:strokeColor="#22D3EE"
-            app:strokeWidth="1.2dp"
             android:clickable="true"
             android:focusable="true"
-            android:foreground="?attr/selectableItemBackground">
+            android:foreground="?attr/selectableItemBackground"
+            app:cardBackgroundColor="?attr/cardBackgroundColor"
+            app:cardCornerRadius="22dp"
+            app:cardElevation="6dp"
+            app:strokeColor="?attr/accentColor"
+            app:strokeWidth="1.5dp"
+            android:stateListAnimator="@animator/btn_press_scale">
 
             <ImageView
-                android:layout_width="41dp"
-                android:layout_height="42dp"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
                 android:layout_gravity="center"
-                android:background="#141313"
                 android:src="@android:drawable/ic_menu_help"
-                app:srcCompat="?android:attr/fingerprintAuthDrawable"
-                app:tint="#22D3EE"
-                tools:srcCompat="@tools:sample/backgrounds/scenic" />
+                app:tint="?attr/accentColor"
+                android:contentDescription="Ask UniAI" />
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -98,12 +99,12 @@
             android:layout_height="wrap_content"
             android:contentDescription="Create"
             android:src="@android:drawable/ic_input_add"
-            app:backgroundTint="@null"
-            android:background="@drawable/bg_fab_gradient"
-            app:tint="@color/white"
-            app:elevation="12dp"
+            app:backgroundTint="?attr/accentColor"
             app:borderWidth="0dp"
-            app:fabCustomSize="56dp" />
+            app:elevation="6dp"
+            app:fabCustomSize="48dp"
+            app:maxImageSize="24dp"
+            app:tint="@color/white" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

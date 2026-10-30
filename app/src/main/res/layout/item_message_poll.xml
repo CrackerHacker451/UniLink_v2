@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -13,7 +14,7 @@
         app:cardBackgroundColor="?attr/cardBackgroundColor"
         app:cardCornerRadius="16dp"
         app:cardElevation="2dp"
-        app:strokeColor="@color/neon_cyan"
+        app:strokeColor="?attr/accentColor"
         app:strokeWidth="1dp">
 
         <LinearLayout
@@ -26,8 +27,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="📊 LIVE POLL"
-                android:textColor="@color/neon_cyan"
-                android:textSize="10sp"
+                android:textColor="?attr/accentColor"
+                android:textSize="11sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -35,10 +36,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Poll question here?"
                 android:textColor="?attr/textPrimaryColor"
                 android:textSize="15sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                tools:text="What is your favorite topic?" />
 
             <LinearLayout
                 android:id="@+id/pollOptionsContainer"
@@ -53,9 +54,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:layout_marginTop="8dp"
-                android:text="12 votes • Ends in 2h"
                 android:textColor="?attr/textSecondaryColor"
-                android:textSize="10sp" />
+                android:textSize="11sp"
+                tools:text="12 votes • Ends in 2h" />
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>

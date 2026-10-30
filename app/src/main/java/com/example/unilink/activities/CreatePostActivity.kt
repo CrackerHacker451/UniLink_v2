@@ -16,7 +16,6 @@ class CreatePostActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCreatePostBinding
     private val postRepository = PostRepository()
     private val storyRepository = StoryRepository()
-    private val userRepository = com.example.unilink.repository.UserRepository()
     private val storageRepository = com.example.unilink.repository.StorageRepository()
     private var selectedImageUri: Uri? = null
 
@@ -45,14 +44,7 @@ class CreatePostActivity : AppCompatActivity() {
         binding.etPostContent.hint = if (type == "story") "Type your status..." else "What's on your mind?"
 
         binding.btnAddPhoto.setOnClickListener {
-            userRepository.getCurrentUser { user ->
-                if (isFinishing || isDestroyed) return@getCurrentUser
-                if (user?.isPremium == true) {
-                    pickImageLauncher.launch("image/*")
-                } else {
-                    Toast.makeText(this, "Adding photos is a Premium feature! ✨", Toast.LENGTH_LONG).show()
-                }
-            }
+            pickImageLauncher.launch("image/*")
         }
 
         binding.btnRemoveImage.setOnClickListener {
@@ -85,15 +77,23 @@ class CreatePostActivity : AppCompatActivity() {
 
     private fun performPost(type: String, content: String, imageUrl: String?) {
         if (type == "story") {
-            // For stories we use content as title/text and imageUrl if provided
-            storyRepository.uploadStory(imageUrl ?: content) { success ->
-                if (isFinishing || isDestroyed) return@uploadStory
+            val storyContent = imageUrl ?: content
+            if (storyContent.isNotEmpty()) {
+                storyRepository.uploadStory(storyContent) { success ->
+                    if (isFinishing || isDestroyed) return@uploadStory
+                    binding.btnPost.isEnabled = true
+                    binding.btnPost.text = "Post Status"
+                    if (success) {
+                        Toast.makeText(this, "Status Posted!", Toast.LENGTH_SHORT).show()
+                        finish()
+                    } else {
+                        Toast.makeText(this, "Failed to post status", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } else {
                 binding.btnPost.isEnabled = true
                 binding.btnPost.text = "Post Status"
-                if (success) {
-                    Toast.makeText(this, "Status Posted!", Toast.LENGTH_SHORT).show()
-                    finish()
-                }
+                Toast.makeText(this, "Please enter status text or attach an image", Toast.LENGTH_SHORT).show()
             }
         } else {
             postRepository.createPost(content, imageUrl) { success ->
