@@ -15,6 +15,10 @@ import kotlinx.coroutines.launch
 
 class MediaViewerActivity : AppCompatActivity() {
 
+    object MediaCache {
+        var cachedMediaUrl: String? = null
+    }
+
     private lateinit var binding: ActivityMediaViewerBinding
     private val geminiRepository = GeminiRepository()
 
@@ -27,7 +31,8 @@ class MediaViewerActivity : AppCompatActivity() {
         supportActionBar?.setDisplayShowTitleEnabled(false)
         binding.toolbar.setNavigationOnClickListener { finish() }
 
-        val url = intent.getStringExtra("mediaUrl")
+        val rawIntentUrl = intent.getStringExtra("mediaUrl")
+        val url = if (rawIntentUrl == "use_cached_media") MediaCache.cachedMediaUrl else rawIntentUrl
         val title = intent.getStringExtra("title") ?: "Shared Media"
         val subtitle = intent.getStringExtra("subtitle")
 

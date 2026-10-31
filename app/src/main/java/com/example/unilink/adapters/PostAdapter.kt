@@ -110,8 +110,14 @@ class PostAdapter : ListAdapter<Post, PostAdapter.PostViewHolder>(PostDiffCallba
                 R.drawable.bg_shimmer
             )
             holder.binding.ivPostImage.setOnClickListener {
+                val mediaUrlToPass = if (post.imageUrl.length > 50000) {
+                    com.example.unilink.activities.MediaViewerActivity.MediaCache.cachedMediaUrl = post.imageUrl
+                    "use_cached_media"
+                } else {
+                    post.imageUrl
+                }
                 val intent = Intent(context, com.example.unilink.activities.MediaViewerActivity::class.java).apply {
-                    putExtra("mediaUrl", post.imageUrl)
+                    putExtra("mediaUrl", mediaUrlToPass)
                     putExtra("title", post.authorName)
                     putExtra("subtitle", holder.binding.tvPostTime.text.toString())
                 }
