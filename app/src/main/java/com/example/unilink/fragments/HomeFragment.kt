@@ -90,7 +90,6 @@ class HomeFragment : Fragment() {
         observeNotifications()
 
         binding.tvLivePulse.isSelected = true
-        binding.root.layoutTransition = LayoutTransition()
     }
 
     private fun setupAdapters() {
@@ -99,7 +98,8 @@ class HomeFragment : Fragment() {
             layoutManager = LinearLayoutManager(context)
             adapter = postAdapter
             isNestedScrollingEnabled = false
-            itemAnimator = DefaultItemAnimator()
+            setHasFixedSize(true)
+            setItemViewCacheSize(25)
         }
 
         homeDoubtAdapter = DoubtAdapter(::answerDoubt)
@@ -107,6 +107,8 @@ class HomeFragment : Fragment() {
             layoutManager = LinearLayoutManager(context)
             adapter = homeDoubtAdapter
             isNestedScrollingEnabled = false
+            setHasFixedSize(true)
+            setItemViewCacheSize(25)
         }
 
         storyAdapter = StoryAdapter()
@@ -146,7 +148,7 @@ class HomeFragment : Fragment() {
 
     private fun animateCount(textView: TextView, target: Int, suffix: String) {
         ValueAnimator.ofInt(0, target).apply {
-            duration = 1500
+            duration = 250
             addUpdateListener { anim ->
                 _binding?.let { textView.text = "${anim.animatedValue}$suffix" }
             }
