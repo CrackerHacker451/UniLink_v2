@@ -13,9 +13,42 @@ class LiveFeedRepository {
             val firestorePosts = if (e == null && snapshot != null && !snapshot.isEmpty) {
                 snapshot.mapNotNull { doc ->
                     try {
-                        doc.toObject(Post::class.java)
+                        val p = doc.toObject(Post::class.java)
+                        if (p != null && p.postId.isNotEmpty()) p else {
+                            Post(
+                                postId = doc.id,
+                                authorId = doc.getString("authorId") ?: "system",
+                                authorName = doc.getString("authorName") ?: "Campus Live+ 📡",
+                                authorAvatarUrl = doc.getString("authorAvatarUrl"),
+                                authorMajor = doc.getString("authorMajor") ?: "Campus",
+                                content = doc.getString("content") ?: doc.getString("message") ?: "Campus update",
+                                imageUrl = doc.getString("imageUrl"),
+                                postType = doc.getString("postType") ?: "post",
+                                tag = doc.getString("tag") ?: "#General",
+                                timestamp = doc.get("timestamp"),
+                                likes = (doc.getLong("likes") ?: 0L).toInt(),
+                                commentCount = (doc.getLong("commentCount") ?: 0L).toInt()
+                            )
+                        }
                     } catch (_: Exception) {
-                        null
+                        try {
+                            Post(
+                                postId = doc.id,
+                                authorId = doc.getString("authorId") ?: "system",
+                                authorName = doc.getString("authorName") ?: "Campus Live+ 📡",
+                                authorAvatarUrl = doc.getString("authorAvatarUrl"),
+                                authorMajor = doc.getString("authorMajor") ?: "Campus",
+                                content = doc.getString("content") ?: doc.getString("message") ?: "Campus update",
+                                imageUrl = doc.getString("imageUrl"),
+                                postType = doc.getString("postType") ?: "post",
+                                tag = doc.getString("tag") ?: "#General",
+                                timestamp = doc.get("timestamp"),
+                                likes = (doc.getLong("likes") ?: 0L).toInt(),
+                                commentCount = (doc.getLong("commentCount") ?: 0L).toInt()
+                            )
+                        } catch (_: Exception) {
+                            null
+                        }
                     }
                 }
             } else {

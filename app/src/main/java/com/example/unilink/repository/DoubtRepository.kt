@@ -98,9 +98,42 @@ class DoubtRepository {
                 val firestoreDoubts = if (e == null && snapshot != null && !snapshot.isEmpty) {
                     snapshot.mapNotNull { doc ->
                         try {
-                            doc.toObject(Doubt::class.java)
+                            val d = doc.toObject(Doubt::class.java)
+                            if (d != null && d.doubtId.isNotEmpty()) d else {
+                                Doubt(
+                                    doubtId = doc.id,
+                                    userId = doc.getString("userId") ?: "",
+                                    userName = doc.getString("userName") ?: "Student",
+                                    userAvatarUrl = doc.getString("userAvatarUrl"),
+                                    question = doc.getString("question") ?: "",
+                                    rewardCoins = (doc.getLong("rewardCoins") ?: 0L).toInt(),
+                                    tags = (doc.get("tags") as? List<*>)?.mapNotNull { it as? String } ?: emptyList(),
+                                    answerCount = (doc.getLong("answerCount") ?: 0L).toInt(),
+                                    accentColor = doc.getString("accentColor") ?: "#22D3EE",
+                                    isOnline = doc.getBoolean("isOnline") ?: true,
+                                    aiResponse = doc.getString("aiResponse"),
+                                    timestamp = doc.get("timestamp")
+                                )
+                            }
                         } catch (_: Exception) {
-                            null
+                            try {
+                                Doubt(
+                                    doubtId = doc.id,
+                                    userId = doc.getString("userId") ?: "",
+                                    userName = doc.getString("userName") ?: "Student",
+                                    userAvatarUrl = doc.getString("userAvatarUrl"),
+                                    question = doc.getString("question") ?: "",
+                                    rewardCoins = (doc.getLong("rewardCoins") ?: 0L).toInt(),
+                                    tags = (doc.get("tags") as? List<*>)?.mapNotNull { it as? String } ?: emptyList(),
+                                    answerCount = (doc.getLong("answerCount") ?: 0L).toInt(),
+                                    accentColor = doc.getString("accentColor") ?: "#22D3EE",
+                                    isOnline = doc.getBoolean("isOnline") ?: true,
+                                    aiResponse = doc.getString("aiResponse"),
+                                    timestamp = doc.get("timestamp")
+                                )
+                            } catch (_: Exception) {
+                                null
+                            }
                         }
                     }
                 } else {
