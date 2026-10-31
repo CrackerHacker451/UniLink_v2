@@ -250,6 +250,10 @@ class HomeFragment : Fragment() {
         binding.actionRandomMatch.root.setOnClickListener { navigateTo(RandomMatchActivity::class.java, it) }
         binding.actionNearby.root.setOnClickListener { navigateTo(NearbyStudentsActivity::class.java, it) }
 
+        // Core Features Spotlight Hero Buttons
+        binding.btnCoreRandomMatch.setOnClickListener { navigateTo(RandomMatchActivity::class.java, it) }
+        binding.btnCoreCampusRadar.setOnClickListener { navigateTo(NearbyStudentsActivity::class.java, it) }
+
         binding.cardCampusArena.setOnClickListener { navigateTo(com.example.unilink.activities.CampusArenaActivity::class.java, it) }
         binding.btnEnterArena.setOnClickListener { navigateTo(com.example.unilink.activities.CampusArenaActivity::class.java, it) }
         binding.btnGoLiveStream.setOnClickListener { navigateTo(com.example.unilink.activities.LiveStreamActivity::class.java, it) }
