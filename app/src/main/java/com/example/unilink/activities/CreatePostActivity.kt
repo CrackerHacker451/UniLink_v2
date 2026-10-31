@@ -27,6 +27,18 @@ class CreatePostActivity : AppCompatActivity() {
         }
     }
 
+    private val editImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val editedUriString = result.data?.getStringExtra("editedImageUri")
+            if (!editedUriString.isNullOrEmpty()) {
+                val editedUri = Uri.parse(editedUriString)
+                selectedImageUri = editedUri
+                binding.ivPostImagePreview.load(editedUri)
+                Toast.makeText(this, "Enhanced photo applied! ✨", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeUtils.applyTheme(this)
         super.onCreate(savedInstanceState)
@@ -45,6 +57,15 @@ class CreatePostActivity : AppCompatActivity() {
 
         binding.btnAddPhoto.setOnClickListener {
             pickImageLauncher.launch("image/*")
+        }
+
+        binding.btnEditPhoto.setOnClickListener {
+            selectedImageUri?.let { uri ->
+                val intent = android.content.Intent(this, ImageEditorActivity::class.java).apply {
+                    putExtra("imageUri", uri.toString())
+                }
+                editImageLauncher.launch(intent)
+            }
         }
 
         binding.btnRemoveImage.setOnClickListener {

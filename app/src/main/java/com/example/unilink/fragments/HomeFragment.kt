@@ -332,7 +332,7 @@ class HomeFragment : Fragment() {
         doubtsListener = doubtRepository.observeDoubts { doubts ->
             _binding?.let { binding ->
                 binding.rvDoubtBoard.visibility = View.VISIBLE
-                homeDoubtAdapter.submitList(doubts.take(10)) {
+                homeDoubtAdapter.submitList(doubts.take(3)) {
                     try { binding.rvDoubtBoard.requestLayout() } catch (_: Exception) {}
                 }
             }

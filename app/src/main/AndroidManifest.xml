@@ -85,6 +85,7 @@
         <activity android:name=".activities.NotificationsActivity" />
         <activity android:name=".activities.ProjectDetailsActivity" />
         <activity android:name=".activities.MediaViewerActivity" />
+        <activity android:name=".activities.ImageEditorActivity" />
         <activity android:name=".activities.DuelQuizActivity" />
         <activity android:name=".activities.NearbyStudentsActivity" android:exported="true" />
 

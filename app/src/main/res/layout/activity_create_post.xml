@@ -71,16 +71,37 @@
                         android:layout_height="match_parent"
                         android:scaleType="centerCrop" />
 
-                    <ImageView
-                        android:id="@+id/btnRemoveImage"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_gravity="top|end"
                         android:layout_margin="12dp"
-                        android:background="@drawable/bg_notification_badge"
-                        android:padding="6dp"
-                        android:src="@android:drawable/ic_menu_close_clear_cancel"
-                        app:tint="@color/white" />
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnEditPhoto"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:layout_marginEnd="8dp"
+                            android:text="✨ Edit &amp; Filter"
+                            android:textAllCaps="false"
+                            android:textColor="@color/white"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            app:cornerRadius="18dp"
+                            app:backgroundTint="#B30F172A"
+                            app:strokeColor="?attr/accentColor"
+                            app:strokeWidth="1dp" />
+
+                        <ImageView
+                            android:id="@+id/btnRemoveImage"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:background="@drawable/bg_notification_badge"
+                            android:padding="8dp"
+                            android:src="@android:drawable/ic_menu_close_clear_cancel"
+                            app:tint="@color/white" />
+                    </LinearLayout>
                 </FrameLayout>
             </com.google.android.material.card.MaterialCardView>
 
