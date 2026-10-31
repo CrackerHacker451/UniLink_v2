@@ -18,12 +18,22 @@ class CreatePostActivity : AppCompatActivity() {
     private val storyRepository = StoryRepository()
     private val storageRepository = com.example.unilink.repository.StorageRepository()
     private var selectedImageUri: Uri? = null
+    private var cameraImageUri: Uri? = null
 
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let {
             selectedImageUri = it
             binding.cardPremiumPhoto.visibility = android.view.View.VISIBLE
             binding.ivPostImagePreview.load(it)
+        }
+    }
+
+    private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success && cameraImageUri != null) {
+            selectedImageUri = cameraImageUri
+            binding.cardPremiumPhoto.visibility = android.view.View.VISIBLE
+            binding.ivPostImagePreview.load(cameraImageUri)
+            Toast.makeText(this, "Photo captured! Tap Edit & Filter to enhance. ✨", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -57,6 +67,19 @@ class CreatePostActivity : AppCompatActivity() {
 
         binding.btnAddPhoto.setOnClickListener {
             pickImageLauncher.launch("image/*")
+        }
+
+        binding.btnCameraPhoto.setOnClickListener {
+            try {
+                val cacheDir = java.io.File(cacheDir, "camera_photos")
+                if (!cacheDir.exists()) cacheDir.mkdirs()
+                val tempFile = java.io.File(cacheDir, "cam_${System.currentTimeMillis()}.jpg")
+                val uri = androidx.core.content.FileProvider.getUriForFile(this, "${packageName}.fileprovider", tempFile)
+                cameraImageUri = uri
+                takePictureLauncher.launch(uri)
+            } catch (e: Exception) {
+                Toast.makeText(this, "Camera error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
         }
 
         binding.btnEditPhoto.setOnClickListener {

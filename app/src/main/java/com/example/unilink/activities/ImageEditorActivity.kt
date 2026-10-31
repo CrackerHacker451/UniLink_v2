@@ -199,7 +199,9 @@ class ImageEditorActivity : AppCompatActivity() {
         val tempUri = ImageEditorUtils.saveBitmapToTempUri(this, bitmap)
         if (tempUri != null) {
             val resultIntent = Intent().apply {
+                data = tempUri
                 putExtra("editedImageUri", tempUri.toString())
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
             setResult(Activity.RESULT_OK, resultIntent)
             Toast.makeText(this, "Photo enhanced & saved! ✨", Toast.LENGTH_SHORT).show()
