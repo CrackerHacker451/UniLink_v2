@@ -148,16 +148,33 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSkipUser"
+        android:layout_width="220dp"
+        android:layout_height="52dp"
+        android:layout_marginBottom="12dp"
+        android:text="⏭️ Skip User"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:backgroundTint="#EC4899"
+        app:cornerRadius="26dp"
+        app:layout_constraintBottom_toTopOf="@id/btnCancelMatch"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnCancelMatch"
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
         android:text="Cancel"
         android:textColor="@color/error"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnStartMatch" />
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

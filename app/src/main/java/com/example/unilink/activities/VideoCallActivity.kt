@@ -235,6 +235,19 @@ class VideoCallActivity : AppCompatActivity() {
             webRtcClient?.switchCamera()
             Toast.makeText(this, "Camera Switched 🔄", Toast.LENGTH_SHORT).show()
         }
+        binding.btnSkipPeer.setOnClickListener {
+            com.example.unilink.utils.HapticUtils.playSelection(it)
+            durationHandler.removeCallbacks(durationRunnable)
+            if (channelId.isNotEmpty()) {
+                db.collection("calls").document(channelId).update("status", "skipped")
+            }
+            Toast.makeText(this, "Skipping to next peer... ⏭️", Toast.LENGTH_SHORT).show()
+            val intent = android.content.Intent(this, RandomMatchActivity::class.java).apply {
+                putExtra("skipPartnerId", partnerId)
+            }
+            startActivity(intent)
+            finish()
+        }
     }
 
     private fun startTimer() {

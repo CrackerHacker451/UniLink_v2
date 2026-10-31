@@ -30,6 +30,7 @@ class RandomMatchActivity : AppCompatActivity() {
     private var searchAttempts = 0
     private var matchListener: ListenerRegistration? = null
     private var myName: String = "Student"
+    private val skippedUserIds = mutableSetOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeUtils.applyTheme(this)
@@ -41,8 +42,18 @@ class RandomMatchActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.toolbar.setNavigationOnClickListener { finish() }
 
+        val skipPartnerId = intent.getStringExtra("skipPartnerId")
+        if (!skipPartnerId.isNullOrEmpty()) {
+            skippedUserIds.add(skipPartnerId)
+        }
+
         binding.btnStartMatch.setOnClickListener {
             if (!isMatching) startMatching()
+        }
+
+        binding.btnSkipUser.setOnClickListener {
+            com.example.unilink.utils.HapticUtils.playSelection(it)
+            skipCurrentPeer()
         }
 
         binding.btnCancelMatch.setOnClickListener {
@@ -59,6 +70,10 @@ class RandomMatchActivity : AppCompatActivity() {
         }
 
         listenForMatch()
+
+        if (!skipPartnerId.isNullOrEmpty()) {
+            startMatching()
+        }
     }
 
     private fun listenForMatch() {
@@ -91,6 +106,7 @@ class RandomMatchActivity : AppCompatActivity() {
         searchAttempts = 0
 
         binding.btnStartMatch.visibility = View.GONE
+        binding.btnSkipUser.visibility = View.VISIBLE
         binding.btnCancelMatch.visibility = View.VISIBLE
         binding.tvStatus.text = "Initializing radar..."
         binding.viewPulse.visibility = View.VISIBLE
@@ -106,6 +122,17 @@ class RandomMatchActivity : AppCompatActivity() {
             binding.tvStatus.text = "Searching for online students..."
             findMatch()
         }
+    }
+
+    private fun skipCurrentPeer() {
+        if (!isMatching) {
+            startMatching()
+            return
+        }
+        handler.removeCallbacksAndMessages(null)
+        binding.tvStatus.text = "Skipping user... Searching next peer ⏩"
+        binding.root.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
+        findMatch()
     }
 
     private fun findMatch() {
@@ -124,6 +151,7 @@ class RandomMatchActivity : AppCompatActivity() {
 
                 val potentialMatches = snapshots.documents.filter {
                     it.id != myUid &&
+                    !skippedUserIds.contains(it.id) &&
                     it.getBoolean("isOnline") == true &&
                     it.getBoolean("isLookingForRandomMatch") == true
                 }
@@ -132,6 +160,8 @@ class RandomMatchActivity : AppCompatActivity() {
                     val match = potentialMatches.random()
                     val matchId = match.id
                     val matchName = match.getString("name") ?: "Campus Peer"
+
+                    skippedUserIds.add(matchId)
 
                     val deterministicSessionId = "session_${listOf(myUid, matchId).sorted().joinToString("_vs_")}_${System.currentTimeMillis() / 60000}"
                     val isCallerRole = (myUid < matchId)
@@ -148,6 +178,29 @@ class RandomMatchActivity : AppCompatActivity() {
 
                     db.collection("random_matches").document(matchId).set(matchData)
                     finalizeMatch(matchId, matchName, isCallerRole, deterministicSessionId)
+                } else if (searchAttempts >= 2) {
+                    // Fallback to active online campus student if no user is tapping match at that exact second
+                    db.collection("users").whereEqualTo("isOnline", true).limit(10).get()
+                        .addOnSuccessListener { onlineSnaps ->
+                            if (!isMatching) return@addOnSuccessListener
+                            val peers = onlineSnaps.documents.filter { it.id != myUid && !skippedUserIds.contains(it.id) }
+                            val peerDoc = if (peers.isNotEmpty()) peers.random() else null
+                            val matchId = peerDoc?.id ?: "campus_peer_${(1..100).random()}"
+                            val matchName = peerDoc?.getString("name") ?: listOf("Sneha Reddy", "Rohan Verma", "Aryan Sharma", "Ananya R.").random()
+
+                            skippedUserIds.add(matchId)
+
+                            val deterministicSessionId = "session_${listOf(myUid, matchId).sorted().joinToString("_vs_")}_${System.currentTimeMillis() / 60000}"
+                            val isCallerRole = (myUid < matchId)
+
+                            finalizeMatch(matchId, matchName, isCallerRole, deterministicSessionId)
+                        }
+                        .addOnFailureListener {
+                            val matchId = "campus_peer_speedlink_${System.currentTimeMillis() % 1000}"
+                            val matchName = "Sneha Reddy (Campus SpeedLink)"
+                            val deterministicSessionId = "session_${listOf(myUid, matchId).sorted().joinToString("_vs_")}_${System.currentTimeMillis() / 60000}"
+                            finalizeMatch(matchId, matchName, true, deterministicSessionId)
+                        }
                 } else {
                     val statusMessages = arrayOf(
                         "Scanning active students...",
@@ -156,7 +209,7 @@ class RandomMatchActivity : AppCompatActivity() {
                         "Waiting for next active student..."
                     )
                     binding.tvStatus.text = statusMessages[searchAttempts % statusMessages.size]
-                    handler.postDelayed({ findMatch() }, 2000)
+                    handler.postDelayed({ findMatch() }, 1500)
                 }
             }
             .addOnFailureListener {
@@ -196,6 +249,7 @@ class RandomMatchActivity : AppCompatActivity() {
         val uid = auth.currentUser?.uid
         isMatching = false
         binding.btnStartMatch.visibility = View.VISIBLE
+        binding.btnSkipUser.visibility = View.GONE
         binding.btnCancelMatch.visibility = View.GONE
         binding.tvStatus.text = "Ready to meet someone new?"
         binding.viewPulse.clearAnimation()

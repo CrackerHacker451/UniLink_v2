@@ -173,6 +173,17 @@
                 app:fabCustomSize="52dp"
                 app:tint="@color/white" />
 
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/btnSkipPeer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:src="@android:drawable/ic_media_next"
+                app:backgroundTint="#EC4899"
+                app:elevation="2dp"
+                app:fabCustomSize="52dp"
+                app:tint="@color/white" />
+
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
