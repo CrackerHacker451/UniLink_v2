@@ -64,7 +64,7 @@ class WebRtcClient(
 
     fun startLocalVideo(surfaceView: SurfaceViewRenderer, onVideoStarted: (() -> Unit)? = null) {
         try {
-            surfaceView.setEnableHardwareScaler(true)
+            surfaceView.setEnableHardwareScaler(false)
             surfaceView.setMirror(true)
 
             if (localVideoTrack != null) {
@@ -84,14 +84,18 @@ class WebRtcClient(
                 localVideoSource?.capturerObserver
             )
 
-            // High Definition 720p @ 30 FPS Capture
+            // Full High Definition 1080p @ 30 FPS Capture
             try {
-                capturer?.startCapture(1280, 720, 30)
+                capturer?.startCapture(1920, 1080, 30)
             } catch (e1: Exception) {
                 try {
-                    capturer?.startCapture(640, 480, 30)
+                    capturer?.startCapture(1280, 720, 30)
                 } catch (e2: Exception) {
-                    Log.e("WebRtcClient", "Failed to start camera capture", e2)
+                    try {
+                        capturer?.startCapture(640, 480, 30)
+                    } catch (e3: Exception) {
+                        Log.e("WebRtcClient", "Failed to start camera capture", e3)
+                    }
                 }
             }
 
@@ -103,14 +107,14 @@ class WebRtcClient(
             localAudioTrack = peerConnectionFactory?.createAudioTrack("101", localAudioSource)
             localAudioTrack?.setEnabled(true)
 
-            // Add tracks to PeerConnection using Unified Plan with 2.5 Mbps HD bitrate target
+            // Add tracks to PeerConnection using Unified Plan with 4.5 Mbps Full HD bitrate target
             if (localVideoTrack != null) {
                 val rtpSender = peerConnection?.addTrack(localVideoTrack, listOf("mediaStream"))
                 try {
                     val params = rtpSender?.parameters
                     if (params != null && params.encodings.isNotEmpty()) {
-                        params.encodings[0].maxBitrateBps = 2500 * 1000
-                        params.encodings[0].minBitrateBps = 500 * 1000
+                        params.encodings[0].maxBitrateBps = 4500 * 1000
+                        params.encodings[0].minBitrateBps = 1500 * 1000
                         rtpSender.parameters = params
                     }
                 } catch (_: Exception) {}

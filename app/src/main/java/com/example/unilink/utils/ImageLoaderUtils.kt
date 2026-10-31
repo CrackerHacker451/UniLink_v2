@@ -49,7 +49,9 @@ object ImageLoaderUtils {
         }
 
         imageView.load(targetUrl) {
-            crossfade(true)
+            crossfade(150)
+            allowHardware(true)
+            precision(coil.size.Precision.INEXACT)
             placeholder(placeholderRes)
             error(placeholderRes)
             if (isCircle) {

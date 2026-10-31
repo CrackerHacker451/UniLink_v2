@@ -21,7 +21,7 @@ class StorageRepository {
         }
     }
 
-    private fun getCompactBytesFromUri(uri: Uri, maxWidth: Int = 600, maxHeight: Int = 600): ByteArray? {
+    private fun getCompactBytesFromUri(uri: Uri, maxWidth: Int = 1920, maxHeight: Int = 1920): ByteArray? {
         return try {
             val resolver = UniLinkApp.instance.contentResolver
             val inputStream = resolver.openInputStream(uri)
@@ -38,7 +38,7 @@ class StorageRepository {
                 canvas.drawBitmap(scaled, 0f, 0f, null)
 
                 val outputStream = ByteArrayOutputStream()
-                resultBitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
+                resultBitmap.compress(Bitmap.CompressFormat.JPEG, 95, outputStream)
                 outputStream.toByteArray()
             } else {
                 resolver.openInputStream(uri)?.use { it.readBytes() }
@@ -108,7 +108,7 @@ class StorageRepository {
     }
 
     fun uploadProfilePicture(uid: String, imageUri: Uri, onComplete: (String?) -> Unit) {
-        val bytes = getCompactBytesFromUri(imageUri, maxWidth = 500, maxHeight = 500)
+        val bytes = getCompactBytesFromUri(imageUri, maxWidth = 1080, maxHeight = 1080)
         if (bytes == null) {
             onComplete(imageUri.toString())
             return
@@ -118,7 +118,7 @@ class StorageRepository {
     }
 
     fun uploadPostImage(imageUri: Uri, onComplete: (String?) -> Unit) {
-        val bytes = getCompactBytesFromUri(imageUri, maxWidth = 800, maxHeight = 800)
+        val bytes = getCompactBytesFromUri(imageUri, maxWidth = 1920, maxHeight = 1920)
         if (bytes == null) {
             onComplete(imageUri.toString())
             return
@@ -129,7 +129,7 @@ class StorageRepository {
     }
 
     fun uploadChatImage(chatId: String, imageUri: Uri, onComplete: (String?) -> Unit) {
-        val bytes = getCompactBytesFromUri(imageUri, maxWidth = 600, maxHeight = 600)
+        val bytes = getCompactBytesFromUri(imageUri, maxWidth = 1440, maxHeight = 1440)
         if (bytes == null) {
             onComplete(imageUri.toString())
             return
@@ -140,7 +140,7 @@ class StorageRepository {
     }
 
     fun uploadTeamAttachment(teamId: String, fileUri: Uri, fileName: String, onComplete: (String?) -> Unit) {
-        val bytes = getCompactBytesFromUri(fileUri, maxWidth = 800, maxHeight = 800)
+        val bytes = getCompactBytesFromUri(fileUri, maxWidth = 1920, maxHeight = 1920)
         if (bytes == null) {
             onComplete(fileUri.toString())
             return
