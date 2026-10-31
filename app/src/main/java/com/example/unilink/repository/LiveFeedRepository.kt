@@ -57,6 +57,17 @@ class LiveFeedRepository {
 
             var posts = if (firestorePosts.isNotEmpty()) firestorePosts else getSampleCampusPulsePosts()
 
+            // Filter out system notifications & Campus Live+ broadcast alerts (only show real user posts)
+            posts = posts.filter {
+                it.authorId != "system" &&
+                it.postType != "system_update" &&
+                !it.authorName.contains("Campus Live", ignoreCase = true)
+            }
+
+            if (posts.isEmpty()) {
+                posts = getSampleCampusPulsePosts()
+            }
+
             if (!tagFilter.isNullOrEmpty() && tagFilter != "All") {
                 posts = posts.filter { it.tag.contains(tagFilter, ignoreCase = true) }
             }
@@ -73,36 +84,36 @@ class LiveFeedRepository {
         return listOf(
             Post(
                 postId = "sample_p1",
-                authorId = "system",
-                authorName = "Campus Live Stage 📡",
-                authorMajor = "Official Update",
-                content = "🔴 Newton's Lobby Hackathon 2026 is LIVE! World ID 4.0, Chainlink CRE & NewtonAI features are now active for all campus builders. 🚀",
-                postType = "system_update",
+                authorId = "user_aarav_sharma",
+                authorName = "Aarav Sharma",
+                authorMajor = "Computer Science",
+                content = "🚀 Just deployed our decentralized campus voting dApp with World ID 4.0 proof of human verification! Check it out in the Projects tab!",
+                postType = "twite",
                 tag = "#Hackathon2026",
                 likes = 42,
                 commentCount = 8
             ),
             Post(
                 postId = "sample_p2",
-                authorId = "system",
-                authorName = "NewtonAI Assistant 🤖",
-                authorMajor = "AI Companion",
-                content = "✨ Need a project idea, code audit, or study focus room? Command NewtonAI on the Home screen or tap any quick action chip!",
+                authorId = "user_sneha_reddy",
+                authorName = "Sneha Reddy",
+                authorMajor = "AI & Data Science",
+                content = "✨ Anyone interested in pair programming for Chainlink CRE workflow integration? Building an automated campus grant payout system! 💡",
                 postType = "twite",
-                tag = "#NewtonAI",
+                tag = "#Chainlink",
                 likes = 35,
                 commentCount = 5
             ),
             Post(
                 postId = "sample_p3",
-                authorId = "system",
-                authorName = "Doubt Board Drop 🧠",
-                authorMajor = "Academic Q&A",
-                content = "New academic doubt posted: \"How to optimize PageRank algorithm in Kotlin?\" (Reward: 25 UniCoins) 💰",
-                postType = "doubt",
-                tag = "#DoubtBoard",
-                likes = 18,
-                commentCount = 3
+                authorId = "user_rohan_verma",
+                authorName = "Rohan Verma",
+                authorMajor = "Fullstack & Cloud",
+                content = "📚 Shared comprehensive Kotlin Coroutines & Jetpack Compose notes in the Notes Vault! Feel free to download for midterms. 📖",
+                postType = "twite",
+                tag = "#NotesVault",
+                likes = 28,
+                commentCount = 4
             )
         )
     }
