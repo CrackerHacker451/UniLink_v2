@@ -10,18 +10,19 @@ class LiveFeedRepository {
 
     fun observeCampusPulse(tagFilter: String? = null, onUpdate: (List<Post>) -> Unit): com.google.firebase.firestore.ListenerRegistration {
         return db.collection("posts").addSnapshotListener { snapshot, e ->
-            if (e != null || snapshot == null || snapshot.isEmpty) {
-                onUpdate(emptyList())
-                return@addSnapshotListener
+            val firestorePosts = if (e == null && snapshot != null && !snapshot.isEmpty) {
+                snapshot.mapNotNull { doc ->
+                    try {
+                        doc.toObject(Post::class.java)
+                    } catch (_: Exception) {
+                        null
+                    }
+                }
+            } else {
+                emptyList()
             }
 
-            var posts = snapshot.mapNotNull { doc ->
-                try {
-                    doc.toObject(Post::class.java)
-                } catch (_: Exception) {
-                    null
-                }
-            }
+            var posts = if (firestorePosts.isNotEmpty()) firestorePosts else getSampleCampusPulsePosts()
 
             if (!tagFilter.isNullOrEmpty() && tagFilter != "All") {
                 posts = posts.filter { it.tag.contains(tagFilter, ignoreCase = true) }
@@ -33,6 +34,44 @@ class LiveFeedRepository {
 
             onUpdate(sortedPosts)
         }
+    }
+
+    private fun getSampleCampusPulsePosts(): List<Post> {
+        return listOf(
+            Post(
+                postId = "sample_p1",
+                authorId = "system",
+                authorName = "Campus Live Stage 📡",
+                authorMajor = "Official Update",
+                content = "🔴 Newton's Lobby Hackathon 2026 is LIVE! World ID 4.0, Chainlink CRE & NewtonAI features are now active for all campus builders. 🚀",
+                postType = "system_update",
+                tag = "#Hackathon2026",
+                likes = 42,
+                commentCount = 8
+            ),
+            Post(
+                postId = "sample_p2",
+                authorId = "system",
+                authorName = "NewtonAI Assistant 🤖",
+                authorMajor = "AI Companion",
+                content = "✨ Need a project idea, code audit, or study focus room? Command NewtonAI on the Home screen or tap any quick action chip!",
+                postType = "twite",
+                tag = "#NewtonAI",
+                likes = 35,
+                commentCount = 5
+            ),
+            Post(
+                postId = "sample_p3",
+                authorId = "system",
+                authorName = "Doubt Board Drop 🧠",
+                authorMajor = "Academic Q&A",
+                content = "New academic doubt posted: \"How to optimize PageRank algorithm in Kotlin?\" (Reward: 25 UniCoins) 💰",
+                postType = "doubt",
+                tag = "#DoubtBoard",
+                likes = 18,
+                commentCount = 3
+            )
+        )
     }
 
     fun publishTwite(content: String, tag: String = "#General", onComplete: (Boolean) -> Unit) {

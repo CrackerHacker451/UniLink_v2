@@ -93,11 +93,9 @@ class DoubtRepository {
     }
 
     fun observeDoubts(onUpdate: (List<Doubt>) -> Unit): ListenerRegistration {
-        val tenHoursAgoTime = System.currentTimeMillis() - (10 * 60 * 60 * 1000L) // 10 Hours Active Window
-
         return db.collection("doubts")
             .addSnapshotListener { snapshot, e ->
-                val firestoreDoubts = if (e == null && snapshot != null) {
+                val firestoreDoubts = if (e == null && snapshot != null && !snapshot.isEmpty) {
                     snapshot.mapNotNull { doc ->
                         try {
                             doc.toObject(Doubt::class.java)
@@ -109,15 +107,47 @@ class DoubtRepository {
                     emptyList()
                 }
 
-                // Filter active doubts posted within last 10 hours
-                val activeFirestoreDoubts = firestoreDoubts.filter { doubt ->
-                    val doubtTime = doubt.timestampDate?.time ?: System.currentTimeMillis()
-                    doubtTime >= tenHoursAgoTime
-                }.sortedByDescending { doubt ->
+                val sortedDoubts = firestoreDoubts.sortedByDescending { doubt ->
                     doubt.timestampDate?.time ?: System.currentTimeMillis()
                 }
 
-                onUpdate(activeFirestoreDoubts)
+                if (sortedDoubts.isNotEmpty()) {
+                    onUpdate(sortedDoubts)
+                } else {
+                    onUpdate(getSampleCampusDoubts())
+                }
             }
+    }
+
+    private fun getSampleCampusDoubts(): List<Doubt> {
+        return listOf(
+            Doubt(
+                doubtId = "sample_1",
+                userName = "Sneha Reddy",
+                question = "How to optimize PageRank algorithm & graph traversal in Kotlin for large datasets? 💻",
+                rewardCoins = 25,
+                tags = listOf("Algorithms", "Kotlin"),
+                answerCount = 2,
+                accentColor = "#22D3EE"
+            ),
+            Doubt(
+                doubtId = "sample_2",
+                userName = "Aryan Sharma",
+                question = "Can someone explain Quantum Entanglement in simple terms for Physics Lab assignment? ⚛️",
+                rewardCoins = 15,
+                tags = listOf("Physics", "Quantum"),
+                answerCount = 1,
+                accentColor = "#EC4899"
+            ),
+            Doubt(
+                doubtId = "sample_3",
+                userName = "Meera Nair",
+                question = "Best architectural pattern for Jetpack Compose StateFlow in Android Studio? 📱",
+                rewardCoins = 20,
+                tags = listOf("Android", "Compose"),
+                answerCount = 3,
+                accentColor = "#10B981"
+            )
+        )
     }
 }
