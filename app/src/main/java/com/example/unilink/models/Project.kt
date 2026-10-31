@@ -36,7 +36,12 @@ data class Project(
     var announcement: String? = null,
     var hackathonDeadline: Date? = null,
     
-    // For handling different field names from website
+    // For handling different field names from website / Firestore
+    @get:PropertyName("displayTitle") @set:PropertyName("displayTitle")
+    var storedDisplayTitle: String? = null,
+
+    var skills: List<String>? = emptyList(),
+
     @get:PropertyName("name") @set:PropertyName("name")
     var webName: String? = null
 ) {
@@ -55,10 +60,17 @@ data class Project(
             else -> emptyList()
         }
 
+    // Helper to get skills falling back to skills property
+    @get:Exclude
+    val effectiveSkills: List<String>
+        get() = if (!skillsRequired.isNullOrEmpty()) skillsRequired!! else skills ?: emptyList()
+
     // Helper to get title regardless of source
     @get:Exclude
     val displayTitle: String
-        get() = if (source == "newtonslobby") {
+        get() = if (!storedDisplayTitle.isNullOrEmpty()) {
+            storedDisplayTitle!!
+        } else if (source == "newtonslobby") {
             webName ?: title?.ifEmpty { "Untitled Web Project" } ?: "Untitled Web Project"
         } else {
             title?.ifEmpty { "Untitled Project" } ?: "Untitled Project"

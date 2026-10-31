@@ -6,7 +6,10 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import kotlinx.coroutines.launch
 import coil.load
 import com.example.unilink.R
@@ -55,6 +58,10 @@ class ProjectDetailsActivity : AppCompatActivity() {
 
         projectId = intent.getStringExtra("projectId")
         
+        // Initialize RecyclerView layoutManager and empty adapter immediately to prevent "No adapter attached" warning
+        binding.rvMembers.layoutManager = LinearLayoutManager(this)
+        binding.rvMembers.adapter = LeaderboardAdapter(emptyList()) {}
+
         loadProjectDetails()
 
         binding.btnShare.setOnClickListener {
@@ -94,21 +101,38 @@ class ProjectDetailsActivity : AppCompatActivity() {
         }
     }
 
-    private fun showWorldIdTrustSheet(id: String, title: String) {
+    private fun showComposeBottomSheet(content: @androidx.compose.runtime.Composable (com.google.android.material.bottomsheet.BottomSheetDialog) -> Unit) {
         val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
+        dialog.window?.decorView?.let { decor ->
+            decor.setViewTreeLifecycleOwner(this)
+            decor.setViewTreeViewModelStoreOwner(this)
+            decor.setViewTreeSavedStateRegistryOwner(this)
+        }
         val composeView = androidx.compose.ui.platform.ComposeView(this).apply {
-            setContent {
-                val viewModel = com.example.unilink.worldid.NewtonsLobbyTrustViewModel(application)
-                com.example.unilink.worldid.NewtonsLobbyTrustSheet(
-                    projectId = id,
-                    projectTitle = title,
-                    viewModel = viewModel,
-                    onClose = { dialog.dismiss() }
-                )
-            }
+            setViewTreeLifecycleOwner(this@ProjectDetailsActivity)
+            setViewTreeViewModelStoreOwner(this@ProjectDetailsActivity)
+            setViewTreeSavedStateRegistryOwner(this@ProjectDetailsActivity)
+            setContent { content(dialog) }
         }
         dialog.setContentView(composeView)
+        dialog.findViewById<android.view.View>(com.google.android.material.R.id.container)?.let { container ->
+            container.setViewTreeLifecycleOwner(this)
+            container.setViewTreeViewModelStoreOwner(this)
+            container.setViewTreeSavedStateRegistryOwner(this)
+        }
         dialog.show()
+    }
+
+    private fun showWorldIdTrustSheet(id: String, title: String) {
+        showComposeBottomSheet { dialog ->
+            val viewModel = com.example.unilink.worldid.NewtonsLobbyTrustViewModel(application)
+            com.example.unilink.worldid.NewtonsLobbyTrustSheet(
+                projectId = id,
+                projectTitle = title,
+                viewModel = viewModel,
+                onClose = { dialog.dismiss() }
+            )
+        }
     }
 
     private fun loadProjectDetails() {
@@ -120,6 +144,8 @@ class ProjectDetailsActivity : AppCompatActivity() {
             if (!isFinishing && !isDestroyed) {
                 binding.ivProjectBanner.load(uri)
             }
+        }.addOnFailureListener {
+            /* Ignore 404 when project has no custom cover.jpg */
         }
 
         projectRepository.getProjectById(id) { foundProject ->

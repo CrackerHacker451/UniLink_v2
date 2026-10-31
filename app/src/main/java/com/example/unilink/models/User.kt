@@ -98,6 +98,16 @@ data class User(
     var autoTheme: Boolean = false,
     var premiumCode: String? = null,
 
+    // Web3, World ID & Decentralized Identity Fields
+    var hederaAccountId: String? = null,
+    var walletAddress: String? = null,
+    var encryptedSwarmAvatarRef: String? = null,
+    var worldIdVerified: Boolean = false,
+    var worldIdNullifier: String? = null,
+    var ensSubname: String? = null,
+    var sybilScore: Int = 0,
+    var worldIdCredentialType: String? = null,
+
     @ServerTimestamp var lastSeenTimestamp: Date? = null,
     @ServerTimestamp var lastLoginDate: Date? = null,
     @ServerTimestamp var createdAt: Date? = null
