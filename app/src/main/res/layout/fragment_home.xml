@@ -54,9 +54,9 @@
                             android:id="@+id/ivLogo"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:padding="8dp"
-                            android:src="@mipmap/ic_launcher"
-                            android:scaleType="centerInside"
+                            android:padding="2dp"
+                            android:src="@drawable/ic_newton_logo"
+                            android:scaleType="fitCenter"
                             android:contentDescription="Logo" />
                     </com.google.android.material.card.MaterialCardView>
 
