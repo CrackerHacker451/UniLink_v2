@@ -64,15 +64,42 @@ class NotificationRepository {
                 conn.setRequestProperty("Authorization", "key=AAAA3k451NL:APA91bG_nl_server_key_placeholder")
                 conn.doOutput = true
 
+                val channelId = if (type == "video_call") "nl_calls_v3" else "nl_v3"
+
                 val jsonBody = org.json.JSONObject().apply {
                     put("to", token)
                     put("priority", "high")
+                    put("content_available", true)
+                    put("mutable_content", true)
+
+                    put("notification", org.json.JSONObject().apply {
+                        put("title", title)
+                        put("body", message)
+                        put("sound", "default")
+                        put("badge", 1)
+                        put("android_channel_id", channelId)
+                        put("click_action", "OPEN_MAIN_ACTIVITY")
+                    })
+
                     put("data", org.json.JSONObject().apply {
                         put("title", title)
                         put("body", message)
                         put("type", type)
                         put("chatId", targetId ?: "")
+                        put("targetId", targetId ?: "")
                         put("senderId", senderId)
+                    })
+
+                    put("android", org.json.JSONObject().apply {
+                        put("priority", "high")
+                        put("notification", org.json.JSONObject().apply {
+                            put("channel_id", channelId)
+                            put("sound", "default")
+                            put("default_sound", true)
+                            put("default_vibrate_timings", true)
+                            put("notification_priority", "PRIORITY_MAX")
+                            put("visibility", "PUBLIC")
+                        })
                     })
                 }
 
@@ -81,7 +108,7 @@ class NotificationRepository {
                     writer.flush()
                 }
                 val responseCode = conn.responseCode
-                android.util.Log.d("NotificationRepository", "FCM Push Sent, Status: $responseCode")
+                android.util.Log.d("NotificationRepository", "FCM High-Priority Push Sent, Status: $responseCode")
             } catch (e: Exception) {
                 android.util.Log.e("NotificationRepository", "FCM Push Error: ${e.message}")
             }

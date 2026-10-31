@@ -80,6 +80,22 @@ class VideoCallActivity : AppCompatActivity() {
             if (channelId.isNotEmpty()) {
                 db.collection("calls").document(channelId).set(data, SetOptions.merge())
             }
+
+            if (isOffer && partnerId.isNotEmpty()) {
+                val myUid = auth.currentUser?.uid ?: ""
+                if (myUid.isNotEmpty()) {
+                    db.collection("users").document(myUid).get().addOnSuccessListener { myDoc ->
+                        val callerName = myDoc.getString("name") ?: "Campus Peer"
+                        com.example.unilink.repository.NotificationRepository().sendNotification(
+                            receiverUid = partnerId,
+                            type = "video_call",
+                            title = "Incoming Video Call 🎥",
+                            message = "$callerName is calling you...",
+                            targetId = channelId
+                        )
+                    }
+                }
+            }
         }
 
         override fun onSetSuccess() {
