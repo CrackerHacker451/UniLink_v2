@@ -4,6 +4,7 @@ import com.example.unilink.models.Notification
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.launch
 
 class NotificationRepository {
     private val db = FirebaseFirestore.getInstance()
@@ -31,6 +32,14 @@ class NotificationRepository {
 
             db.collection("users").document(receiverUid).collection("notifications").document(notificationId).set(notification)
 
+            // Trigger FCM Data Push Notification to Receiver's device token even when app is closed
+            db.collection("users").document(receiverUid).get().addOnSuccessListener { receiverDoc ->
+                val fcmToken = receiverDoc.getString("fcmToken") ?: ""
+                if (fcmToken.isNotEmpty()) {
+                    sendFcmPushNotification(fcmToken, title, message, type, targetId, currentUid)
+                }
+            }
+
             if (type == "video_call") {
                 db.collection("users").document(receiverUid).update(
                     mapOf(
@@ -40,6 +49,41 @@ class NotificationRepository {
                         "activeCallTimestamp" to FieldValue.serverTimestamp()
                     )
                 )
+            }
+        }
+    }
+
+    private fun sendFcmPushNotification(token: String, title: String, message: String, type: String, targetId: String?, senderId: String) {
+        if (token.isBlank()) return
+        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+            try {
+                val url = java.net.URL("https://fcm.googleapis.com/fcm/send")
+                val conn = url.openConnection() as java.net.HttpURLConnection
+                conn.requestMethod = "POST"
+                conn.setRequestProperty("Content-Type", "application/json")
+                conn.setRequestProperty("Authorization", "key=AAAA3k451NL:APA91bG_nl_server_key_placeholder")
+                conn.doOutput = true
+
+                val jsonBody = org.json.JSONObject().apply {
+                    put("to", token)
+                    put("priority", "high")
+                    put("data", org.json.JSONObject().apply {
+                        put("title", title)
+                        put("body", message)
+                        put("type", type)
+                        put("chatId", targetId ?: "")
+                        put("senderId", senderId)
+                    })
+                }
+
+                java.io.OutputStreamWriter(conn.outputStream).use { writer ->
+                    writer.write(jsonBody.toString())
+                    writer.flush()
+                }
+                val responseCode = conn.responseCode
+                android.util.Log.d("NotificationRepository", "FCM Push Sent, Status: $responseCode")
+            } catch (e: Exception) {
+                android.util.Log.e("NotificationRepository", "FCM Push Error: ${e.message}")
             }
         }
     }

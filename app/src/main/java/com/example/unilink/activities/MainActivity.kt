@@ -152,12 +152,8 @@ class MainActivity : AppCompatActivity() {
     private fun observeNotifications() {
         notificationListener?.remove()
         notificationListener = com.example.unilink.repository.NotificationRepository().observeNotifications { list ->
-            val now = System.currentTimeMillis()
             list.forEach { notif ->
-                val notifTime = notif.timestamp?.time ?: now
-                val isRecent = (now - notifTime) < 30000L
-
-                if (!notif.isRead && isRecent && !shownNotificationIds.contains(notif.notificationId)) {
+                if (!notif.isRead && !shownNotificationIds.contains(notif.notificationId)) {
                     shownNotificationIds.add(notif.notificationId)
                     if (notif.type == "video_call") {
                         com.example.unilink.utils.NotificationHelper.showIncomingCallNotification(
