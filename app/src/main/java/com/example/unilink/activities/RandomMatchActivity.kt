@@ -148,26 +148,6 @@ class RandomMatchActivity : AppCompatActivity() {
 
                     db.collection("random_matches").document(matchId).set(matchData)
                     finalizeMatch(matchId, matchName, isCallerRole, deterministicSessionId)
-                } else if (searchAttempts >= 2) {
-                    // Fallback to active online campus student if no user is tapping match at that exact second
-                    db.collection("users").whereEqualTo("isOnline", true).limit(10).get()
-                        .addOnSuccessListener { onlineSnaps ->
-                            if (!isMatching) return@addOnSuccessListener
-                            val peers = onlineSnaps.documents.filter { it.id != myUid }
-                            val peerDoc = if (peers.isNotEmpty()) peers.random() else null
-                            val matchId = peerDoc?.id ?: "campus_peer_${(1..100).random()}"
-                            val matchName = peerDoc?.getString("name") ?: listOf("Sneha Reddy", "Rohan Verma", "Aryan Sharma", "Ananya R.").random()
-                            val deterministicSessionId = "session_${listOf(myUid, matchId).sorted().joinToString("_vs_")}_${System.currentTimeMillis() / 60000}"
-                            val isCallerRole = (myUid < matchId)
-
-                            finalizeMatch(matchId, matchName, isCallerRole, deterministicSessionId)
-                        }
-                        .addOnFailureListener {
-                            val matchId = "campus_peer_speedlink"
-                            val matchName = "Sneha Reddy (Campus SpeedLink)"
-                            val deterministicSessionId = "session_${listOf(myUid, matchId).sorted().joinToString("_vs_")}_${System.currentTimeMillis() / 60000}"
-                            finalizeMatch(matchId, matchName, true, deterministicSessionId)
-                        }
                 } else {
                     val statusMessages = arrayOf(
                         "Scanning active students...",
@@ -176,7 +156,7 @@ class RandomMatchActivity : AppCompatActivity() {
                         "Waiting for next active student..."
                     )
                     binding.tvStatus.text = statusMessages[searchAttempts % statusMessages.size]
-                    handler.postDelayed({ findMatch() }, 1500)
+                    handler.postDelayed({ findMatch() }, 2000)
                 }
             }
             .addOnFailureListener {
