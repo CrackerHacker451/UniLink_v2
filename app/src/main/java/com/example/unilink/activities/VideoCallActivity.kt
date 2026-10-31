@@ -86,11 +86,14 @@ class VideoCallActivity : AppCompatActivity() {
                 if (myUid.isNotEmpty()) {
                     db.collection("users").document(myUid).get().addOnSuccessListener { myDoc ->
                         val callerName = myDoc.getString("name") ?: "Campus Peer"
+                        val isRandom = channelId.startsWith("session_")
+                        val notifTitle = if (isRandom) "⚡ Random SpeedLink Match from $callerName" else "🎥 Personal Video Call from $callerName"
+                        val notifBody = if (isRandom) "Incoming random peer video connect!" else "$callerName is calling you for a personal video call..."
                         com.example.unilink.repository.NotificationRepository().sendNotification(
                             receiverUid = partnerId,
                             type = "video_call",
-                            title = "Incoming Video Call 🎥",
-                            message = "$callerName is calling you...",
+                            title = notifTitle,
+                            message = notifBody,
                             targetId = channelId
                         )
                     }
@@ -210,6 +213,18 @@ class VideoCallActivity : AppCompatActivity() {
         val partnerName = intent.getStringExtra("partnerName") ?: "Campus Peer"
         partnerId = intent.getStringExtra("partnerId") ?: ""
 
+        val isRandomMatch = intent.getBooleanExtra("isRandomMatch", false) || channelId.startsWith("session_")
+
+        if (isRandomMatch) {
+            binding.tvCallTypeBadge.text = "⚡ RANDOM SPEEDLINK"
+            binding.tvCallTypeBadge.setTextColor(android.graphics.Color.parseColor("#F472B6"))
+            binding.btnSkipPeer.visibility = android.view.View.VISIBLE
+        } else {
+            binding.tvCallTypeBadge.text = "🔒 ENCRYPTED PERSONAL CALL"
+            binding.tvCallTypeBadge.setTextColor(android.graphics.Color.parseColor("#10B981"))
+            binding.btnSkipPeer.visibility = android.view.View.GONE
+        }
+
         binding.tvPartnerName.text = partnerName
         if (partnerId.isNotEmpty()) {
             com.example.unilink.repository.UserRepository().getUserById(partnerId) { user ->
@@ -233,8 +248,14 @@ class VideoCallActivity : AppCompatActivity() {
     }
 
     private fun setConnectedState() {
-        binding.tvCallStatus.text = "Live Stream"
-        binding.tvCallStatus.setTextColor(android.graphics.Color.parseColor("#10B981"))
+        val isRandomMatch = intent.getBooleanExtra("isRandomMatch", false) || channelId.startsWith("session_")
+        if (isRandomMatch) {
+            binding.tvCallStatus.text = "⚡ Random Peer Live"
+            binding.tvCallStatus.setTextColor(android.graphics.Color.parseColor("#22D3EE"))
+        } else {
+            binding.tvCallStatus.text = "🔒 Private 1-on-1 Call"
+            binding.tvCallStatus.setTextColor(android.graphics.Color.parseColor("#10B981"))
+        }
         binding.tvDuration.visibility = android.view.View.VISIBLE
         startTimer()
     }

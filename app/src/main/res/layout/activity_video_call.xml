@@ -60,6 +60,16 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/tvCallTypeBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🔒 ENCRYPTED PERSONAL CALL"
+                android:textColor="#10B981"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.08" />
+
+            <TextView
                 android:id="@+id/tvPartnerName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
