@@ -393,82 +393,146 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Campus Radar Hero Card (Super Easy for New Users to Find) -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardHeroCampusRadar"
+                <!-- Minimal Aesthetic Spotlight Row (Radar & Random Match) -->
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="24dp"
                     android:layout_marginTop="20dp"
-                    app:cardCornerRadius="24dp"
-                    app:cardElevation="8dp"
-                    app:strokeColor="#06B6D4"
-                    app:strokeWidth="2dp"
-                    android:clickable="true"
-                    android:focusable="true">
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <!-- Campus Radar Card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardHeroCampusRadar"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/bg_cyber_button"
-                        android:orientation="vertical"
-                        android:padding="20dp">
+                        android:layout_weight="1"
+                        android:layout_marginEnd="6dp"
+                        app:cardBackgroundColor="?attr/cardBackgroundColor"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="2dp"
+                        app:strokeColor="#4006B6D4"
+                        app:strokeWidth="1dp"
+                        android:clickable="true"
+                        android:focusable="true">
 
-                        <RelativeLayout
+                        <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="16dp">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="📡 CAMPUS RADAR &amp; NEARBY SCANNER"
+                                android:text="📡 CAMPUS RADAR"
                                 android:textColor="#22D3EE"
-                                android:textSize="11sp"
+                                android:textSize="10sp"
                                 android:textStyle="bold"
-                                android:letterSpacing="0.08" />
+                                android:letterSpacing="0.06" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_alignParentEnd="true"
-                                android:text="● LIVE RADAR"
-                                android:textColor="#10B981"
-                                android:textSize="10sp"
+                                android:layout_marginTop="4dp"
+                                android:text="Nearby Peers"
+                                android:textColor="@color/white"
+                                android:textSize="16sp"
                                 android:textStyle="bold" />
-                        </RelativeLayout>
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
-                            android:text="Scan Nearby Campus Peers 📡"
-                            android:textColor="@color/white"
-                            android:textSize="18sp"
-                            android:textStyle="bold" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Scan active campus radius"
+                                android:textColor="#94A3B8"
+                                android:textSize="11sp" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="Discover active students, research partners, and project teammates around your campus!"
-                            android:textColor="#CBD5E1"
-                            android:textSize="12sp" />
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnScanCampusRadarHero"
+                                android:layout_width="match_parent"
+                                android:layout_height="44dp"
+                                android:layout_marginTop="14dp"
+                                android:text="Scan Radar 📡"
+                                android:textAllCaps="false"
+                                android:textColor="@color/white"
+                                android:textSize="12sp"
+                                android:textStyle="bold"
+                                app:cornerRadius="14dp"
+                                app:backgroundTint="#2606B6D4"
+                                app:strokeColor="#06B6D4"
+                                app:strokeWidth="1dp" />
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnScanCampusRadarHero"
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Random Match Card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardHeroRandomMatch"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="6dp"
+                        app:cardBackgroundColor="?attr/cardBackgroundColor"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="2dp"
+                        app:strokeColor="#40EC4899"
+                        app:strokeWidth="1dp"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="52dp"
-                            android:layout_marginTop="16dp"
-                            android:text="📡 Launch Campus Radar Scan"
-                            android:textAllCaps="false"
-                            android:textColor="@color/black"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            app:cornerRadius="16dp"
-                            app:backgroundTint="#06B6D4" />
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="16dp">
 
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="⚡ SPEED LINK"
+                                android:textColor="#F472B6"
+                                android:textSize="10sp"
+                                android:textStyle="bold"
+                                android:letterSpacing="0.06" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="Random Match"
+                                android:textColor="@color/white"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="1-on-1 instant peer connection"
+                                android:textColor="#94A3B8"
+                                android:textSize="11sp" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnStartRandomMatchHero"
+                                android:layout_width="match_parent"
+                                android:layout_height="44dp"
+                                android:layout_marginTop="14dp"
+                                android:text="Match Now ⚡"
+                                android:textAllCaps="false"
+                                android:textColor="@color/white"
+                                android:textSize="12sp"
+                                android:textStyle="bold"
+                                app:cornerRadius="14dp"
+                                app:backgroundTint="#26EC4899"
+                                app:strokeColor="#EC4899"
+                                app:strokeWidth="1dp" />
+
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
 
                 <!-- Campus Arena Hero Card -->
                 <com.google.android.material.card.MaterialCardView
@@ -477,10 +541,10 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="24dp"
                     android:layout_marginTop="20dp"
-                    app:cardCornerRadius="24dp"
-                    app:cardElevation="6dp"
-                    app:strokeColor="#A855F7"
-                    app:strokeWidth="1.5dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="2dp"
+                    app:strokeColor="#40A855F7"
+                    app:strokeWidth="1dp"
                     android:clickable="true"
                     android:focusable="true">
 
@@ -500,7 +564,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="⚡ CAMPUS ARENA &amp; LIVE STAGE"
                                 android:textColor="#22D3EE"
-                                android:textSize="11sp"
+                                android:textSize="10sp"
                                 android:textStyle="bold"
                                 android:letterSpacing="0.08" />
 
@@ -520,7 +584,7 @@
                             android:layout_marginTop="6dp"
                             android:text="Fun Activity Hub &amp; Midnight Broadcast 🎙️"
                             android:textColor="@color/white"
-                            android:textSize="17sp"
+                            android:textSize="16sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -529,7 +593,7 @@
                             android:layout_marginTop="4dp"
                             android:text="11:59 Midnight Mic • DareDrop • Barter Block • Roast &amp; Toast"
                             android:textColor="#94A3B8"
-                            android:textSize="12sp" />
+                            android:textSize="11sp" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -541,84 +605,35 @@
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btnEnterArena"
                                 android:layout_width="0dp"
-                                android:layout_height="46dp"
+                                android:layout_height="44dp"
                                 android:layout_weight="1"
-                                android:layout_marginEnd="8dp"
+                                android:layout_marginEnd="6dp"
                                 android:text="Enter Arena ⚡"
                                 android:textAllCaps="false"
-                                android:textSize="13sp"
+                                android:textSize="12sp"
                                 android:textStyle="bold"
-                                app:cornerRadius="23dp"
+                                app:cornerRadius="14dp"
                                 app:backgroundTint="#A855F7" />
 
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btnGoLiveStream"
                                 android:layout_width="0dp"
-                                android:layout_height="46dp"
+                                android:layout_height="44dp"
                                 android:layout_weight="1"
-                                android:layout_marginStart="8dp"
+                                android:layout_marginStart="6dp"
                                 android:text="Live 📡"
                                 android:textAllCaps="false"
-                                android:textSize="13sp"
+                                android:textSize="12sp"
                                 android:textStyle="bold"
-                                app:cornerRadius="23dp"
+                                app:cornerRadius="14dp"
                                 app:strokeColor="#06B6D4"
-                                app:strokeWidth="1.5dp"
+                                app:strokeWidth="1dp"
                                 app:backgroundTint="#260F172A"
                                 android:textColor="@color/white" />
                         </LinearLayout>
 
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
-
-                <!-- Launchpad Section (Immediately After Campus Arena) -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="24dp"
-                    android:layout_marginTop="28dp"
-                    android:text="Launchpad"
-                    android:textColor="?attr/textPrimaryColor"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <!-- Quick Actions Grid -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:paddingHorizontal="20dp"
-                    android:orientation="horizontal"
-                    android:baselineAligned="false">
-
-                    <include
-                        android:id="@+id/actionFindTeam"
-                        layout="@layout/item_quick_action_premium"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1" />
-
-                    <include
-                        android:id="@+id/actionCreateTeam"
-                        layout="@layout/item_quick_action_premium"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1" />
-
-                    <include
-                        android:id="@+id/actionNearby"
-                        layout="@layout/item_quick_action_premium"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1" />
-
-                    <include
-                        android:id="@+id/actionRandomMatch"
-                        layout="@layout/item_quick_action_premium"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1" />
-                </LinearLayout>
 
                 <!-- Highlights -->
                 <TextView

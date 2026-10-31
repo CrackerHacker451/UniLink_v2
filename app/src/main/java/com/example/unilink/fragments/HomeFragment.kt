@@ -211,13 +211,6 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupUI() {
-        binding.apply {
-            actionFindTeam.apply { tvActionLabel.text = "Teams"; ivActionIcon.setImageResource(android.R.drawable.ic_menu_my_calendar) }
-            actionCreateTeam.apply { tvActionLabel.text = "Launch"; ivActionIcon.setImageResource(android.R.drawable.ic_menu_add) }
-            actionNearby.apply { tvActionLabel.text = "Radar"; ivActionIcon.setImageResource(android.R.drawable.ic_menu_mylocation) }
-            actionRandomMatch.apply { tvActionLabel.text = "Random"; ivActionIcon.setImageResource(android.R.drawable.ic_menu_camera) }
-        }
-
         userListener?.remove()
         userListener = userRepository.observeCurrentUser { user ->
             _binding?.apply {
@@ -243,14 +236,13 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
-        binding.actionFindTeam.root.setOnClickListener { navigateTo(FindTeamActivity::class.java, it) }
-        binding.actionCreateTeam.root.setOnClickListener { navigateTo(CreateTeamActivity::class.java, it) }
-        binding.actionRandomMatch.root.setOnClickListener { navigateTo(RandomMatchActivity::class.java, it) }
-        binding.actionNearby.root.setOnClickListener { navigateTo(NearbyStudentsActivity::class.java, it) }
-
         // Campus Radar Hero Spotlight
         binding.cardHeroCampusRadar.setOnClickListener { navigateTo(NearbyStudentsActivity::class.java, it) }
         binding.btnScanCampusRadarHero.setOnClickListener { navigateTo(NearbyStudentsActivity::class.java, it) }
+
+        // Random Peer Speed Match Hero Spotlight
+        binding.cardHeroRandomMatch.setOnClickListener { navigateTo(RandomMatchActivity::class.java, it) }
+        binding.btnStartRandomMatchHero.setOnClickListener { navigateTo(RandomMatchActivity::class.java, it) }
 
         binding.cardCampusArena.setOnClickListener { navigateTo(com.example.unilink.activities.CampusArenaActivity::class.java, it) }
         binding.btnEnterArena.setOnClickListener { navigateTo(com.example.unilink.activities.CampusArenaActivity::class.java, it) }
