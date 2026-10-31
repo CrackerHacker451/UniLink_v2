@@ -62,7 +62,7 @@ data class User(
     @get:PropertyName("isAdmin") @set:PropertyName("isAdmin")
     var isAdminField: Boolean = false,
 
-    var vipLevel: Int = 0,
+    var vipLevel: Int? = 0,
 
     @get:PropertyName("isIncognito") @set:PropertyName("isIncognito")
     var isIncognito: Boolean = false,
@@ -105,7 +105,7 @@ data class User(
     var worldIdVerified: Boolean = false,
     var worldIdNullifier: String? = null,
     var ensSubname: String? = null,
-    var sybilScore: Int = 0,
+    var sybilScore: Int? = 0,
     var worldIdCredentialType: String? = null,
 
     @ServerTimestamp var lastSeenTimestamp: Date? = null,

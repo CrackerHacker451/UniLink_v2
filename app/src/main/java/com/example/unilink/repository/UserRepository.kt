@@ -330,7 +330,12 @@ class UserRepository {
     fun getUserById(uid: String, onResult: (User?) -> Unit) {
         db.collection("users").document(uid).get()
             .addOnSuccessListener { document ->
-                onResult(document.toObject(User::class.java))
+                try {
+                    onResult(document.toObject(User::class.java))
+                } catch (e: Exception) {
+                    android.util.Log.e("UserRepository", "Error deserializing User $uid: ${e.message}")
+                    onResult(null)
+                }
             }
             .addOnFailureListener {
                 onResult(null)
@@ -461,7 +466,7 @@ class UserRepository {
 
         getUserById(currentUid) { currentUser ->
             val vouchWeight = when {
-                currentUser?.isVip == true && currentUser.vipLevel >= 3 -> 5
+                currentUser?.isVip == true && (currentUser.vipLevel ?: 0) >= 3 -> 5
                 currentUser?.isVip == true -> 3
                 currentUser?.isPremium == true -> 2
                 else -> 1
