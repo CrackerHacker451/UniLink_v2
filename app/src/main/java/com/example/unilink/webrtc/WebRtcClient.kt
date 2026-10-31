@@ -107,9 +107,11 @@ class WebRtcClient(
             localAudioTrack = peerConnectionFactory?.createAudioTrack("101", localAudioSource)
             localAudioTrack?.setEnabled(true)
 
-            // Add tracks to PeerConnection using Unified Plan with 4.5 Mbps Full HD bitrate target
+            // Add tracks to PeerConnection using Unified Plan with SEND_RECV direction and 4.5 Mbps Full HD bitrate target
             if (localVideoTrack != null) {
-                val rtpSender = peerConnection?.addTrack(localVideoTrack, listOf("mediaStream"))
+                val transceiverInit = RtpTransceiver.RtpTransceiverInit(RtpTransceiver.RtpTransceiverDirection.SEND_RECV, listOf("mediaStream"))
+                val transceiver = peerConnection?.addTransceiver(localVideoTrack, transceiverInit)
+                val rtpSender = transceiver?.sender ?: peerConnection?.addTrack(localVideoTrack, listOf("mediaStream"))
                 try {
                     val params = rtpSender?.parameters
                     if (params != null && params.encodings.isNotEmpty()) {
@@ -120,7 +122,8 @@ class WebRtcClient(
                 } catch (_: Exception) {}
             }
             if (localAudioTrack != null) {
-                peerConnection?.addTrack(localAudioTrack, listOf("mediaStream"))
+                val transceiverInit = RtpTransceiver.RtpTransceiverInit(RtpTransceiver.RtpTransceiverDirection.SEND_RECV, listOf("mediaStream"))
+                peerConnection?.addTransceiver(localAudioTrack, transceiverInit)
             }
 
             onVideoStarted?.invoke()

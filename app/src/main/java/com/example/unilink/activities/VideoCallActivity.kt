@@ -150,7 +150,14 @@ class VideoCallActivity : AppCompatActivity() {
             if (track is VideoTrack) {
                 runOnUiThread {
                     if (isFinishing || isDestroyed) return@runOnUiThread
-                    track.addSink(binding.remoteVideoView)
+                    try {
+                        track.setEnabled(true)
+                        track.removeSink(binding.remoteVideoView)
+                        track.addSink(binding.remoteVideoView)
+                        binding.remoteVideoView.visibility = android.view.View.VISIBLE
+                    } catch (e: Exception) {
+                        Log.e("VideoCall", "Error attaching video track sink", e)
+                    }
                     setConnectedState()
                 }
             }
@@ -168,7 +175,14 @@ class VideoCallActivity : AppCompatActivity() {
             if (stream.videoTracks.isNotEmpty()) {
                 runOnUiThread {
                     if (isFinishing || isDestroyed) return@runOnUiThread
-                    stream.videoTracks[0].addSink(binding.remoteVideoView)
+                    try {
+                        stream.videoTracks[0].setEnabled(true)
+                        stream.videoTracks[0].removeSink(binding.remoteVideoView)
+                        stream.videoTracks[0].addSink(binding.remoteVideoView)
+                        binding.remoteVideoView.visibility = android.view.View.VISIBLE
+                    } catch (e: Exception) {
+                        Log.e("VideoCall", "Error attaching video stream sink", e)
+                    }
                     setConnectedState()
                 }
             }
