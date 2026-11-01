@@ -67,8 +67,46 @@ class ProPassBottomSheet(
         }
 
         binding.btnSubscribe.setOnClickListener {
-            val planName = if (isAnnualSelected) "Annual Pro Pass (₹299/yr)" else "Monthly Pro Pass (₹49/mo)"
-            activateProPass(planName)
+            val code = binding.etPromoCode.text.toString().trim()
+            if (code.isNotEmpty()) {
+                UserRepository().redeemPremiumCode(code) { success, msg ->
+                    if (success) {
+                        Toast.makeText(context, msg ?: "Pro Pass Activated! 👑", Toast.LENGTH_LONG).show()
+                        onSubscriptionActivated()
+                        dismiss()
+                    } else {
+                        Toast.makeText(context, msg ?: "Invalid code", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } else {
+                submitPendingPaymentRequest()
+            }
+        }
+    }
+
+    private fun submitPendingPaymentRequest() {
+        val uid = auth.currentUser?.uid ?: return
+        HapticUtils.playSuccess(binding.btnSubscribe)
+        val planName = if (isAnnualSelected) "Annual Pro Pass (₹299/yr)" else "Monthly Pro Pass (₹49/mo)"
+        val amount = if (isAnnualSelected) 299 else 49
+
+        val request = hashMapOf<String, Any>(
+            "uid" to uid,
+            "planName" to planName,
+            "amount" to amount,
+            "status" to "pending_verification",
+            "timestamp" to FieldValue.serverTimestamp()
+        )
+
+        db.collection("payment_verifications").add(request).addOnSuccessListener {
+            context?.let { ctx ->
+                Toast.makeText(ctx, "💳 Payment request submitted! Admin will verify and activate your Pro Pass shortly.", Toast.LENGTH_LONG).show()
+            }
+            dismiss()
+        }.addOnFailureListener {
+            context?.let { ctx ->
+                Toast.makeText(ctx, "Failed to submit request. Enter promo code or try again.", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

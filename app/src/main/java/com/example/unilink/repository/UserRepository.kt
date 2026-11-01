@@ -377,11 +377,13 @@ class UserRepository {
     }
 
     fun redeemPremiumCode(inputCode: String, onComplete: (Boolean, String?) -> Unit) {
-        val code = inputCode.trim().uppercase().ifEmpty { "UNILINKPRO" }
+        val code = inputCode.trim().uppercase()
+        if (code.isEmpty()) return onComplete(false, "Please enter a valid promo code")
+
         val uid = auth.currentUser?.uid ?: return onComplete(false, "User not logged in")
 
-        val vipCodes = listOf("CAMPUS_VIP", "PROPASS2025", "PAPABOL1917", "NDSIR")
-        val proCodes = listOf("UNILINKPRO", "UNILINK_PRO", "CYBER_PRO", "PREMIUM100", "STUDENT_ELITE", "1234", "PRO")
+        val vipCodes = listOf("CAMPUS_VIP", "ROYAL_ADMIN_2026", "VIP2026", "PAPABOL1917", "NDSIR")
+        val proCodes = listOf("UNILINKPRO", "UNILINKPRO2026", "CAMPUS_PRO", "STUDENT_ELITE")
 
         if (code in vipCodes) {
             val updates = mapOf(
@@ -408,7 +410,7 @@ class UserRepository {
                 .addOnSuccessListener { onComplete(true, "✨ Pro Pass Unlocked! +200 Bonus UniCoins!") }
                 .addOnFailureListener { onComplete(false, it.message) }
         } else {
-            onComplete(false, "Invalid Pro Pass code. Try UNILINKPRO or CAMPUS_VIP!")
+            onComplete(false, "Invalid promo code. Submit payment transaction ID for Admin verification.")
         }
     }
 
