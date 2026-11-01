@@ -103,6 +103,8 @@ data class User(
     var walletAddress: String? = null,
     var encryptedSwarmAvatarRef: String? = null,
     var worldIdVerified: Boolean = false,
+    var worldIdBadge: String? = null,
+    var lastVerifiedAt: Any? = null,
     var worldIdNullifier: String? = null,
     var ensSubname: String? = null,
     var sybilScore: Int? = 0,
