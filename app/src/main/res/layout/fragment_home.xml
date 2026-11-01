@@ -106,6 +106,38 @@
                         app:layout_constraintBottom_toBottomOf="parent">
 
                         <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/cardStreakBadge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="32dp"
+                            android:layout_marginEnd="6dp"
+                            app:cardBackgroundColor="?attr/cardBackgroundColor"
+                            app:cardCornerRadius="16dp"
+                            app:cardElevation="0dp"
+                            app:strokeColor="#FF7A00"
+                            app:strokeWidth="1dp">
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:gravity="center_vertical"
+                                android:paddingHorizontal="8dp">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="🔥"
+                                    android:textSize="12sp" />
+                                <TextView
+                                    android:id="@+id/tvHeaderStreak"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="4dp"
+                                    android:text="7"
+                                    android:textColor="#FF7A00"
+                                    android:textSize="12sp"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <com.google.android.material.card.MaterialCardView
                             android:layout_width="wrap_content"
                             android:layout_height="32dp"
                             android:layout_marginEnd="6dp"
@@ -290,6 +322,81 @@
                             android:textSize="14sp"
                             android:imeOptions="actionSearch"
                             android:inputType="text" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- UniAI Genius Quick Copilot Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardUniAiCopilot"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="24dp"
+                    android:layout_marginTop="16dp"
+                    app:cardBackgroundColor="?attr/cardBackgroundColor"
+                    app:cardCornerRadius="24dp"
+                    app:cardElevation="2dp"
+                    app:strokeColor="?attr/accentColor"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="✨ UniAI Study Copilot"
+                                android:textColor="?attr/accentColor"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentEnd="true"
+                                android:text="Instant AI Help"
+                                android:textColor="?attr/textSecondaryColor"
+                                android:textSize="11sp" />
+                        </RelativeLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="44dp"
+                            android:layout_marginTop="10dp"
+                            android:background="@drawable/bg_tag"
+                            android:gravity="center_vertical"
+                            android:paddingHorizontal="12dp">
+
+                            <EditText
+                                android:id="@+id/etUniAiHomePrompt"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:background="@null"
+                                android:hint="Explain quantum mechanics, solve calculus..."
+                                android:textColor="?attr/textPrimaryColor"
+                                android:textColorHint="?attr/textSecondaryColor"
+                                android:textSize="13sp"
+                                android:imeOptions="actionDone"
+                                android:inputType="text" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnUniAiHomeAsk"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:layout_marginStart="8dp"
+                                android:text="Ask ✨"
+                                android:textAllCaps="false"
+                                android:textColor="@color/white"
+                                android:textSize="11sp"
+                                android:textStyle="bold"
+                                app:cornerRadius="16dp"
+                                app:backgroundTint="?attr/accentColor" />
+                        </LinearLayout>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 

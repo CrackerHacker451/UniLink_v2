@@ -308,6 +308,10 @@ class MainActivity : AppCompatActivity() {
         dialog.show()
     }
 
+    fun showAiAssistantWithPrompt(initialPrompt: String) {
+        showAiAssistant()
+    }
+
     private fun checkForAppUpdates() {
         val prefs = getSharedPreferences("unilink_update_prefs", MODE_PRIVATE)
 

@@ -272,6 +272,22 @@ class HomeFragment : Fragment() {
 
         binding.tvJoinFocusRoom.setOnClickListener { navigateTo(FocusRoomActivity::class.java) }
 
+        binding.cardStreakBadge.setOnClickListener {
+            HapticUtils.playSelection(it)
+            Toast.makeText(context, "🔥 7 Day Active Campus Streak! Keep active daily to earn bonus UniCoins!", Toast.LENGTH_SHORT).show()
+        }
+
+        binding.btnUniAiHomeAsk.setOnClickListener {
+            val prompt = binding.etUniAiHomePrompt.text.toString().trim()
+            if (prompt.isNotEmpty()) {
+                HapticUtils.playSelection(it)
+                (activity as? MainActivity)?.showAiAssistantWithPrompt(prompt)
+                binding.etUniAiHomePrompt.setText("")
+            } else {
+                (activity as? MainActivity)?.showAiAssistant()
+            }
+        }
+
         binding.etSearchAll.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 val query = binding.etSearchAll.text.toString().trim()
