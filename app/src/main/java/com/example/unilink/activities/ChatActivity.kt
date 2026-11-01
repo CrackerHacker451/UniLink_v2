@@ -102,6 +102,10 @@ class ChatActivity : AppCompatActivity() {
 
         chatId = intent.getStringExtra("chatId")
         receiverId = intent.getStringExtra("receiverId")
+        if (chatId.isNullOrEmpty() && !receiverId.isNullOrEmpty()) {
+            val currentUid = auth.currentUser?.uid ?: ""
+            chatId = chatRepository.getChatId(currentUid, receiverId!!)
+        }
         isGroup = intent.getBooleanExtra("isGroup", false)
         isProjectSync = intent.getBooleanExtra("isProjectSync", false)
         val receiverName = intent.getStringExtra("receiverName") ?: intent.getStringExtra("chatName")
@@ -174,12 +178,7 @@ class ChatActivity : AppCompatActivity() {
         popup.menu.add("Clear Chat")
         popup.menu.add("Export Chat")
         popup.menu.add("Block Student")
-        
-        userRepository.getCurrentUser { user ->
-            if (user?.isPremium == true) {
-                popup.menu.add("Change Wallpaper")
-            }
-        }
+        popup.menu.add("Change Wallpaper")
 
         popup.setOnMenuItemClickListener { item ->
             when (item.title) {
@@ -203,39 +202,46 @@ class ChatActivity : AppCompatActivity() {
         binding.ivChatWallpaper.visibility = View.VISIBLE
         binding.ivChatWallpaper.alpha = 0.95f
 
-        when {
-            wallpaperSource is Int -> {
-                binding.ivChatWallpaper.setImageDrawable(null)
-                binding.ivChatWallpaper.setBackgroundResource(wallpaperSource)
-            }
-            wallpaperSource is android.net.Uri -> {
-                binding.ivChatWallpaper.background = null
-                binding.ivChatWallpaper.load(wallpaperSource) {
-                    crossfade(true)
-                    allowHardware(false)
+        try {
+            when {
+                wallpaperSource is Int -> {
+                    val drawable = androidx.core.content.ContextCompat.getDrawable(this, wallpaperSource)
+                    binding.ivChatWallpaper.setImageDrawable(drawable)
+                    binding.ivChatWallpaper.background = drawable
                 }
-            }
-            else -> {
-                val sourceStr = wallpaperSource.toString()
-                val resId = ThemeUtils.getDrawableIdByName(this, sourceStr)
-                if (resId != 0) {
-                    binding.ivChatWallpaper.setImageDrawable(null)
-                    binding.ivChatWallpaper.setBackgroundResource(resId)
-                } else if (sourceStr.startsWith("content://") || sourceStr.startsWith("file://")) {
+                wallpaperSource is android.net.Uri -> {
                     binding.ivChatWallpaper.background = null
-                    binding.ivChatWallpaper.load(android.net.Uri.parse(sourceStr)) {
-                        crossfade(true)
-                        allowHardware(false)
-                    }
-                } else {
-                    binding.ivChatWallpaper.background = null
-                    binding.ivChatWallpaper.load(sourceStr) {
+                    binding.ivChatWallpaper.load(wallpaperSource) {
                         crossfade(true)
                         allowHardware(false)
                     }
                 }
+                else -> {
+                    val sourceStr = wallpaperSource.toString()
+                    val resId = ThemeUtils.getDrawableIdByName(this, sourceStr)
+                    if (resId != 0) {
+                        val drawable = androidx.core.content.ContextCompat.getDrawable(this, resId)
+                        binding.ivChatWallpaper.setImageDrawable(drawable)
+                        binding.ivChatWallpaper.background = drawable
+                    } else {
+                        binding.ivChatWallpaper.background = null
+                        val uriToLoad = if (sourceStr.startsWith("content://") || sourceStr.startsWith("file://")) {
+                            android.net.Uri.parse(sourceStr)
+                        } else {
+                            sourceStr
+                        }
+                        binding.ivChatWallpaper.load(uriToLoad) {
+                            crossfade(true)
+                            allowHardware(false)
+                        }
+                    }
+                }
             }
+        } catch (e: Exception) {
+            Log.e("ChatActivity", "Error setting wallpaper image: ${e.message}")
         }
+
+        binding.ivChatWallpaper.requestLayout()
         binding.ivChatWallpaper.invalidate()
     }
 
