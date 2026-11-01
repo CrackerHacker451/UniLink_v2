@@ -83,6 +83,11 @@ class ProfileActivity : AppCompatActivity() {
             showProPassDialog()
         }
 
+        binding.cardWorldIdBadge.setOnClickListener {
+            HapticUtils.playSelection(it)
+            showIdKitTrustSheet()
+        }
+
         binding.btnVault.setOnClickListener {
             HapticUtils.playSelection(it)
             startActivity(Intent(this, VaultActivity::class.java))
@@ -104,6 +109,23 @@ class ProfileActivity : AppCompatActivity() {
         com.example.unilink.ui.ProPassBottomSheet {
             Toast.makeText(this, "Pro Pass Active! 👑", Toast.LENGTH_SHORT).show()
         }.show(supportFragmentManager, "ProPassBottomSheet")
+    }
+
+    private fun showIdKitTrustSheet() {
+        val viewModel = com.example.unilink.worldid.NewtonsLobbyTrustViewModel(application)
+        val composeView = androidx.compose.ui.platform.ComposeView(this).apply {
+            setContent {
+                com.example.unilink.worldid.NewtonsLobbyTrustSheet(
+                    projectId = "student_idkit_${currentUid ?: "guest"}",
+                    projectTitle = "IDKit World ID 4.0 Student Verification",
+                    viewModel = viewModel
+                )
+            }
+        }
+
+        val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
+        dialog.setContentView(composeView)
+        dialog.show()
     }
 
     private fun observeCurrentProfile() {
@@ -181,6 +203,18 @@ class ProfileActivity : AppCompatActivity() {
                 binding.tvLocation.visibility == View.VISIBLE) View.VISIBLE else View.GONE
 
         binding.ivPremiumBadge.visibility = if (user.isPremium) View.VISIBLE else View.GONE
+
+        if (user.worldIdVerified) {
+            binding.tvWorldIdStatus.text = "IDKit World ID Verified 🌐"
+            binding.cardWorldIdBadge.setCardBackgroundColor(android.graphics.Color.parseColor("#1F10B981"))
+            binding.cardWorldIdBadge.strokeColor = android.graphics.Color.parseColor("#10B981")
+            binding.tvWorldIdStatus.setTextColor(android.graphics.Color.parseColor("#10B981"))
+        } else {
+            binding.tvWorldIdStatus.text = "Verify IDKit Liveness 🌐"
+            binding.cardWorldIdBadge.setCardBackgroundColor(android.graphics.Color.parseColor("#1F06B6D4"))
+            binding.cardWorldIdBadge.strokeColor = android.graphics.Color.parseColor("#06B6D4")
+            binding.tvWorldIdStatus.setTextColor(android.graphics.Color.parseColor("#06B6D4"))
+        }
 
         if (user.uid != auth.currentUser?.uid) {
             setupLinkButton(user.uid)

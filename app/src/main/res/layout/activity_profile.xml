@@ -117,6 +117,39 @@
                         android:alpha="0.7"
                         tools:text="username" />
 
+                    <!-- World ID IDKit Liveness Badge -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardWorldIdBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="28dp"
+                        android:layout_marginTop="8dp"
+                        app:cardBackgroundColor="#1F06B6D4"
+                        app:cardCornerRadius="14dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="#06B6D4"
+                        app:strokeWidth="1dp">
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:gravity="center_vertical"
+                            android:paddingHorizontal="10dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="🌐"
+                                android:textSize="11sp" />
+                            <TextView
+                                android:id="@+id/tvWorldIdStatus"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:text="IDKit World ID Verified"
+                                android:textColor="#06B6D4"
+                                android:textSize="11sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
                     <TextView
                         android:id="@+id/tvBio"
                         android:layout_width="match_parent"
