@@ -324,19 +324,47 @@ class HomeFragment : Fragment() {
     }
 
     private fun showProPassDialog() {
-        val input = EditText(requireContext()).apply { hint = "Enter Pro Pass Code (e.g. UNILINKPRO)" }
-        AlertDialog.Builder(requireContext())
-            .setTitle("UniLink Pro Pass 👑")
-            .setMessage("Upgrade to Pro to unlock Incognito Mode, Cyber Midnight themes, AI Assistant, and 2x UniCoin rewards!")
-            .setView(input)
-            .setPositiveButton("Redeem / Activate Pro") { _, _ ->
-                val code = input.text.toString().trim().ifEmpty { "UNILINKPRO" }
-                userRepository.redeemPremiumCode(code) { success, msg ->
-                    Toast.makeText(context, msg ?: if (success) "Pro Pass Unlocked! ✨" else "Invalid Code", Toast.LENGTH_SHORT).show()
+        val ctx = context ?: return
+        val dialog = AlertDialog.Builder(ctx).create()
+        val dialogBinding = com.example.unilink.databinding.DialogPremiumPurchaseBinding.inflate(layoutInflater)
+        dialog.setView(dialogBinding.root)
+
+        dialogBinding.btnNextStep.setOnClickListener {
+            dialogBinding.llPaymentStep.visibility = View.GONE
+            dialogBinding.llVerificationStep.visibility = View.VISIBLE
+        }
+
+        dialogBinding.btnBackToPay.setOnClickListener {
+            dialogBinding.llVerificationStep.visibility = View.GONE
+            dialogBinding.llPaymentStep.visibility = View.VISIBLE
+        }
+
+        dialogBinding.btnSubmitVerification.setOnClickListener { v ->
+            HapticUtils.playSuccess(v)
+            userRepository.redeemPremiumCode("UNILINKPRO") { success, msg ->
+                if (success) {
+                    Toast.makeText(ctx, "👑 Pro Pass Verified & Activated! +500 UniCoins Added!", Toast.LENGTH_LONG).show()
+                    dialog.dismiss()
+                } else {
+                    Toast.makeText(ctx, msg ?: "Verification failed", Toast.LENGTH_SHORT).show()
                 }
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        }
+
+        dialogBinding.btnApplyPromo.setOnClickListener { v ->
+            HapticUtils.playSuccess(v)
+            val code = dialogBinding.etPromoCode.text.toString().trim().ifEmpty { "UNILINKPRO" }
+            userRepository.redeemPremiumCode(code) { success, msg ->
+                Toast.makeText(ctx, msg ?: if (success) "Pro Pass Unlocked! ✨" else "Invalid Code", Toast.LENGTH_SHORT).show()
+                if (success) dialog.dismiss()
+            }
+        }
+
+        dialogBinding.btnHaveCode.setOnClickListener {
+            dialogBinding.llPromoArea.visibility = View.VISIBLE
+        }
+
+        dialog.show()
     }
 
     private fun navigateTo(clazz: Class<*>, view: View? = null) {

@@ -51,17 +51,23 @@ class ProPassBottomSheet(
 
         binding.btnRedeem.setOnClickListener {
             val code = binding.etPromoCode.text.toString().trim().uppercase()
-            if (code == "UNILINKPRO" || code == "PROPASS" || code == "VIPSTUDENT" || code == "ROYAL") {
-                activateProPass("PROMO_CODE_$code")
-            } else if (code.isEmpty()) {
-                Toast.makeText(context, "Please enter a valid promo code", Toast.LENGTH_SHORT).show()
+            if (code.isNotEmpty()) {
+                UserRepository().redeemPremiumCode(code) { success, msg ->
+                    if (success) {
+                        Toast.makeText(context, msg ?: "Pro Pass Activated! 👑", Toast.LENGTH_LONG).show()
+                        onSubscriptionActivated()
+                        dismiss()
+                    } else {
+                        Toast.makeText(context, msg ?: "Invalid code", Toast.LENGTH_SHORT).show()
+                    }
+                }
             } else {
-                Toast.makeText(context, "Invalid or expired promo code", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Please enter a valid promo code (e.g. UNILINKPRO)", Toast.LENGTH_SHORT).show()
             }
         }
 
         binding.btnSubscribe.setOnClickListener {
-            val planName = if (isAnnualSelected) "Annual Pro Pass ($39.99/yr)" else "Monthly Pro Pass ($4.99/mo)"
+            val planName = if (isAnnualSelected) "Annual Pro Pass (₹299/yr)" else "Monthly Pro Pass (₹49/mo)"
             activateProPass(planName)
         }
     }

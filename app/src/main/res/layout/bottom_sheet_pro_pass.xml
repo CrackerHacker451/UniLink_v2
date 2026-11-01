@@ -135,7 +135,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="$4.99 / mo"
+                    android:text="₹49 / mo"
                     android:textColor="#FFD700"
                     android:textSize="16sp"
                     android:textStyle="bold" />
@@ -161,14 +161,14 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Annual Pass (Save 33%)"
+                    android:text="Annual Pass (Save 50%)"
                     android:textColor="#10B981"
                     android:textSize="11sp"
                     android:textStyle="bold" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="$39.99 / yr"
+                    android:text="₹299 / yr"
                     android:textColor="#FFD700"
                     android:textSize="16sp"
                     android:textStyle="bold" />
