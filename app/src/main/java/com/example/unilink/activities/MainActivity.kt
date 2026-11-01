@@ -276,9 +276,20 @@ class MainActivity : AppCompatActivity() {
                     }
                     is com.example.unilink.utils.AgentExecutionResult.HandledByAi -> {
                         lifecycleScope.launch {
-                            val response = com.example.unilink.repository.GeminiRepository().getAiHint(prompt, true)
-                            adapter.addMessage(com.example.unilink.adapters.AiMessage(text = response, isUser = false))
+                            val zeroGResp = com.example.unilink.zerog.ZeroGAiService.run0GInference(this@MainActivity, prompt)
+                            
+                            val formatted0GResponse = "${zeroGResp.resultText}\n\n" +
+                                    "-----------------------------\n" +
+                                    "🌐 0G Private Computer Verified Inference\n" +
+                                    "• 0G Request ID: ${zeroGResp.requestId}\n" +
+                                    "• Model: ${zeroGResp.model} (Qwen Omni / 0gm-1.0)\n" +
+                                    "• 0G Storage CID: ${zeroGResp.zeroGStorageCid}\n" +
+                                    "• 0G Chain EVM Settlement: ${zeroGResp.chainSettlementTx.take(18)}...\n" +
+                                    "• iAI Credits Deducted: -${zeroGResp.creditsDeducted} (Balance: ${String.format(java.util.Locale.US, "%.3f", zeroGResp.remainingCredits)} iAI Credits)"
+
+                            adapter.addMessage(com.example.unilink.adapters.AiMessage(text = formatted0GResponse, isUser = false))
                             aiBinding.rvAiChat.smoothScrollToPosition(adapter.itemCount - 1)
+                            aiBinding.tvZeroGCredits.text = "${String.format(java.util.Locale.US, "%.3f", zeroGResp.remainingCredits)} iAI Credits"
                         }
                     }
                 }

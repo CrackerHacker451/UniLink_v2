@@ -34,6 +34,50 @@
             app:tint="?attr/accentColor" />
     </LinearLayout>
 
+    <!-- 0G Staked iAI Daily Compute Credits Widget -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardZeroGCompute"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:cardBackgroundColor="#1A06B6D4"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="0dp"
+        app:strokeColor="#06B6D4"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="6dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🌐 0G Private Computer"
+                android:textColor="#06B6D4"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/tvZeroGCredits"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="12.710 iAI Credits/Day"
+                android:textColor="@color/white"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvAiChat"
         android:layout_width="match_parent"
