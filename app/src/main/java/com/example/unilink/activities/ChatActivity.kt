@@ -232,17 +232,58 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
+    private fun promptWallpaperScope(wallpaperRef: String, themeColor: String) {
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+            .setTitle("Apply Wallpaper Scope 🔒")
+            .setMessage("Would you like to apply this wallpaper strictly to THIS CHAT ROOM (shared only with this connected person) or set as your default for ALL YOUR CHATS?")
+            .setPositiveButton("This Chat Only 🔒") { _, _ ->
+                applyWallpaperToThisChatOnly(wallpaperRef, themeColor)
+            }
+            .setNegativeButton("All My Chats 🌐") { _, _ ->
+                applyWallpaperToAllChats(wallpaperRef, themeColor)
+            }
+            .setNeutralButton("Cancel", null)
+            .show()
+    }
+
+    private fun applyWallpaperToThisChatOnly(wallpaperRef: String, themeColor: String) {
+        setWallpaperImage(wallpaperRef)
+        applyDynamicChatTheme(themeColor)
+
+        val cid = chatId
+        if (!cid.isNullOrEmpty()) {
+            val roomUpdates = mapOf(
+                "chatWallpaperUrl" to wallpaperRef,
+                "chatThemeColor" to themeColor
+            )
+            db.collection("chats").document(cid).set(roomUpdates, com.google.firebase.firestore.SetOptions.merge())
+            Toast.makeText(this, "Wallpaper locked to THIS CHAT ONLY! Strictly private 🔒", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun applyWallpaperToAllChats(wallpaperRef: String, themeColor: String) {
+        val uid = auth.currentUser?.uid ?: return
+        setWallpaperImage(wallpaperRef)
+        applyDynamicChatTheme(themeColor)
+
+        getSharedPreferences("unilink_wallpaper_prefs", MODE_PRIVATE)
+            .edit()
+            .putString("local_wallpaper_$uid", wallpaperRef)
+            .putString("local_theme_color_$uid", themeColor)
+            .apply()
+
+        db.collection("users").document(uid).update(
+            mapOf(
+                "defaultWallpaperUrl" to wallpaperRef,
+                "defaultThemeColor" to themeColor
+            )
+        )
+        Toast.makeText(this, "Default wallpaper updated for ALL your chats! 🌐", Toast.LENGTH_SHORT).show()
+    }
+
     private val pickWallpaperGalleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let { wallpaperUri ->
             Toast.makeText(this, "Extracting matching chat theme color... ✨", Toast.LENGTH_SHORT).show()
-            val uid = auth.currentUser?.uid ?: ""
-
-            getSharedPreferences("unilink_wallpaper_prefs", MODE_PRIVATE)
-                .edit()
-                .putString("local_wallpaper_$uid", wallpaperUri.toString())
-                .apply()
-
-            setWallpaperImage(wallpaperUri)
 
             try {
                 val bitmap = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
@@ -252,24 +293,14 @@ class ChatActivity : AppCompatActivity() {
                     android.provider.MediaStore.Images.Media.getBitmap(contentResolver, wallpaperUri)
                 }
                 val dynamicThemeColor = ThemeUtils.extractDominantHexColor(bitmap)
-                applyDynamicChatTheme(dynamicThemeColor)
 
                 com.example.unilink.repository.StorageRepository().uploadPostImage(wallpaperUri) { imageUrl ->
-                    if (imageUrl != null) {
-                        db.collection("users").document(uid).update("chatWallpaperUrl", imageUrl)
-                        val cid = chatId
-                        if (!cid.isNullOrEmpty()) {
-                            val roomUpdates = mapOf(
-                                "chatWallpaperUrl" to imageUrl,
-                                "chatThemeColor" to dynamicThemeColor
-                            )
-                            db.collection("chats").document(cid).set(roomUpdates, com.google.firebase.firestore.SetOptions.merge())
-                        }
-                        Toast.makeText(this, "Chat Wallpaper & Matching Theme Synced to both users! ✨", Toast.LENGTH_SHORT).show()
-                    }
+                    val finalRef = imageUrl ?: wallpaperUri.toString()
+                    promptWallpaperScope(finalRef, dynamicThemeColor)
                 }
             } catch (e: Exception) {
                 Log.e("ChatActivity", "Error extracting wallpaper color", e)
+                promptWallpaperScope(wallpaperUri.toString(), "#06B6D4")
             }
         }
     }
@@ -308,29 +339,11 @@ class ChatActivity : AppCompatActivity() {
             .setTitle("Chat Wallpapers 🎨")
             .setAdapter(adapter) { _, which ->
                 val selected = drawableNames[which]
-                val uid = auth.currentUser?.uid ?: ""
                 if (selected == "CUSTOM_GALLERY") {
                     pickWallpaperGalleryLauncher.launch("image/*")
                 } else {
                     val presetColor = presetThemeColors.getOrNull(which) ?: "#A855F7"
-                    getSharedPreferences("unilink_wallpaper_prefs", MODE_PRIVATE)
-                        .edit()
-                        .remove("local_wallpaper_$uid")
-                        .apply()
-
-                    applyDynamicChatTheme(presetColor)
-
-                    db.collection("users").document(uid).update("chatWallpaperUrl", selected)
-                    val cid = chatId
-                    if (!cid.isNullOrEmpty()) {
-                        val roomUpdates = mapOf(
-                            "chatWallpaperUrl" to selected,
-                            "chatThemeColor" to presetColor
-                        )
-                        db.collection("chats").document(cid).set(roomUpdates, com.google.firebase.firestore.SetOptions.merge())
-                    }
-                    Toast.makeText(this, "Chat Wallpaper & Theme Applied! ✨", Toast.LENGTH_SHORT).show()
-                    loadPremiumWallpaper()
+                    promptWallpaperScope(selected, presetColor)
                 }
             }
             .show()
