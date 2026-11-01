@@ -201,19 +201,33 @@ class ChatActivity : AppCompatActivity() {
     private fun setWallpaperImage(wallpaperSource: Any) {
         if (_binding == null) return
         binding.ivChatWallpaper.visibility = View.VISIBLE
-        binding.ivChatWallpaper.alpha = 0.85f
+        binding.ivChatWallpaper.alpha = 0.90f
 
-        if (wallpaperSource is Int) {
-            binding.ivChatWallpaper.setImageResource(wallpaperSource)
-        } else {
-            val sourceStr = wallpaperSource.toString()
-            val resId = ThemeUtils.getDrawableIdByName(this, sourceStr)
-            if (resId != 0) {
-                binding.ivChatWallpaper.setImageResource(resId)
-            } else {
-                binding.ivChatWallpaper.load(sourceStr) {
+        when {
+            wallpaperSource is Int -> {
+                binding.ivChatWallpaper.setImageResource(wallpaperSource)
+            }
+            wallpaperSource is android.net.Uri -> {
+                binding.ivChatWallpaper.load(wallpaperSource) {
                     crossfade(true)
-                    allowHardware(true)
+                    allowHardware(false)
+                }
+            }
+            else -> {
+                val sourceStr = wallpaperSource.toString()
+                val resId = ThemeUtils.getDrawableIdByName(this, sourceStr)
+                if (resId != 0) {
+                    binding.ivChatWallpaper.setImageResource(resId)
+                } else if (sourceStr.startsWith("content://") || sourceStr.startsWith("file://")) {
+                    binding.ivChatWallpaper.load(android.net.Uri.parse(sourceStr)) {
+                        crossfade(true)
+                        allowHardware(false)
+                    }
+                } else {
+                    binding.ivChatWallpaper.load(sourceStr) {
+                        crossfade(true)
+                        allowHardware(false)
+                    }
                 }
             }
         }
@@ -383,11 +397,13 @@ class ChatActivity : AppCompatActivity() {
                     binding.typingIndicator.visibility = if (isReceiverTyping) View.VISIBLE else View.GONE
                 }
 
-                if (room.chatWallpaperUrl.isNotEmpty()) {
+                if (!room.chatWallpaperUrl.isNullOrEmpty()) {
                     setWallpaperImage(room.chatWallpaperUrl)
-                }
-                if (room.chatThemeColor.isNotEmpty()) {
-                    applyDynamicChatTheme(room.chatThemeColor)
+                    if (!room.chatThemeColor.isNullOrEmpty()) {
+                        applyDynamicChatTheme(room.chatThemeColor)
+                    }
+                } else {
+                    loadPremiumWallpaper()
                 }
             }
         }
