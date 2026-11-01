@@ -195,19 +195,54 @@ class ChatActivity : AppCompatActivity() {
         popup.show()
     }
 
+    private val pickWallpaperGalleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        uri?.let { wallpaperUri ->
+            Toast.makeText(this, "Uploading custom chat wallpaper...", Toast.LENGTH_SHORT).show()
+            com.example.unilink.repository.StorageRepository().uploadPostImage(wallpaperUri) { imageUrl ->
+                if (imageUrl != null) {
+                    db.collection("users").document(auth.currentUser?.uid ?: "").update("chatWallpaperUrl", imageUrl)
+                        .addOnSuccessListener {
+                            Toast.makeText(this, "Custom Chat Wallpaper Applied! ✨", Toast.LENGTH_SHORT).show()
+                            loadPremiumWallpaper()
+                        }
+                } else {
+                    Toast.makeText(this, "Failed to upload wallpaper", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
     private fun showWallpaperPicker() {
-        val wallpapers = arrayOf("Nebula", "Sci-Fi", "Lightning", "Aurora")
-        val drawableNames = arrayOf("banner_nebula", "banner_sci_fi", "banner_lightning", "bg_aura_premium")
+        val wallpapers = arrayOf(
+            "🌌 Deep Space Nebula",
+            "⚡ Sci-Fi Cyberpunk",
+            "⚡ Cyber Lightning",
+            "🔮 Aurora Purple",
+            "🌲 Emerald Forest",
+            "🌅 Sunset Amber",
+            "📷 Custom Gallery Photo"
+        )
+        val drawableNames = arrayOf(
+            "banner_nebula",
+            "banner_sci_fi",
+            "banner_lightning",
+            "bg_aura_premium",
+            "bg_mesh_gradient",
+            "bg_premium_card",
+            "CUSTOM_GALLERY"
+        )
         val adapter = android.widget.ArrayAdapter(this, R.layout.item_dialog_choice, wallpapers)
 
         com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-            .setTitle("Chat Customization & Wallpapers 🎨")
+            .setTitle("Chat Wallpapers 🎨")
             .setAdapter(adapter) { _, which ->
                 val selected = drawableNames[which]
-                userRepository.updateUserPremiumSettings(wallpaperResId = null, bannerName = null, appTheme = null, profilePicUrl = null) {
+                if (selected == "CUSTOM_GALLERY") {
+                    pickWallpaperGalleryLauncher.launch("image/*")
+                } else {
                     db.collection("users").document(auth.currentUser?.uid ?: "").update("chatWallpaperUrl", selected)
                         .addOnSuccessListener {
-                            Toast.makeText(this, "Wallpaper updated!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, "Chat Wallpaper Applied! ✨", Toast.LENGTH_SHORT).show()
                             loadPremiumWallpaper()
                         }
                 }
@@ -255,14 +290,17 @@ class ChatActivity : AppCompatActivity() {
     private fun loadPremiumWallpaper() {
         userRepository.getCurrentUser { user ->
             if (isFinishing || isDestroyed || _binding == null) return@getCurrentUser
-            if (user?.isPremium == true && !user.chatWallpaperUrl.isNullOrEmpty()) {
+            val wallpaper = user?.chatWallpaperUrl
+            if (!wallpaper.isNullOrEmpty()) {
                 binding.ivChatWallpaper.visibility = View.VISIBLE
-                val resId = ThemeUtils.getDrawableIdByName(this, user.chatWallpaperUrl)
+                val resId = ThemeUtils.getDrawableIdByName(this, wallpaper)
                 if (resId != 0) {
                     binding.ivChatWallpaper.setImageResource(resId)
                 } else {
-                    binding.ivChatWallpaper.load(user.chatWallpaperUrl)
+                    binding.ivChatWallpaper.load(wallpaper)
                 }
+            } else {
+                binding.ivChatWallpaper.visibility = View.GONE
             }
         }
     }
