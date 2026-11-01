@@ -13,13 +13,12 @@
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardLogo"
-        android:layout_width="180dp"
-        android:layout_height="180dp"
-        app:cardBackgroundColor="#1AFFFFFF"
-        app:cardCornerRadius="90dp"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        app:cardBackgroundColor="@android:color/transparent"
+        app:cardCornerRadius="32dp"
         app:cardElevation="0dp"
-        app:strokeColor="#33FFFFFF"
-        app:strokeWidth="1.5dp"
+        app:strokeWidth="0dp"
         app:layout_constraintBottom_toTopOf="@id/tvLogo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -28,10 +27,10 @@
 
         <ImageView
             android:id="@+id/ivLogo"
-            android:layout_width="140dp"
-            android:layout_height="140dp"
-            android:layout_gravity="center"
-            android:src="@drawable/ic_newton_logo" />
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_newton_logo"
+            android:scaleType="fitCenter" />
     </com.google.android.material.card.MaterialCardView>
 
     <TextView
