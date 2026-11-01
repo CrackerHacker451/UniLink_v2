@@ -21,6 +21,8 @@ data class User(
     var profileImageUrl: String? = null,
     var profileBannerUrl: String? = null,
     var chatWallpaperUrl: String? = null,
+    var defaultWallpaperUrl: String? = null,
+    var defaultThemeColor: String? = null,
     var phoneNumber: String? = null,
     var goals: String = "",
     var fcmToken: String? = null,

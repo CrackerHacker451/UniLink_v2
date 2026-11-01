@@ -294,6 +294,7 @@ class ChatActivity : AppCompatActivity() {
 
         db.collection("users").document(uid).update(
             mapOf(
+                "chatWallpaperUrl" to wallpaperRef,
                 "defaultWallpaperUrl" to wallpaperRef,
                 "defaultThemeColor" to themeColor
             )
@@ -425,19 +426,27 @@ class ChatActivity : AppCompatActivity() {
 
     private fun loadPremiumWallpaper() {
         val uid = auth.currentUser?.uid ?: return
-        val localUriString = getSharedPreferences("unilink_wallpaper_prefs", MODE_PRIVATE)
-            .getString("local_wallpaper_$uid", null)
+        val prefs = getSharedPreferences("unilink_wallpaper_prefs", MODE_PRIVATE)
+        val localUriString = prefs.getString("local_wallpaper_$uid", null)
+        val localThemeColor = prefs.getString("local_theme_color_$uid", null)
 
         if (!localUriString.isNullOrEmpty()) {
             setWallpaperImage(localUriString)
+            if (!localThemeColor.isNullOrEmpty()) {
+                applyDynamicChatTheme(localThemeColor)
+            }
             return
         }
 
         userRepository.getCurrentUser { user ->
             if (isFinishing || isDestroyed || _binding == null) return@getCurrentUser
-            val wallpaper = user?.chatWallpaperUrl
+            val wallpaper = user?.chatWallpaperUrl ?: user?.defaultWallpaperUrl
+            val themeColor = user?.defaultThemeColor
             if (!wallpaper.isNullOrEmpty()) {
                 setWallpaperImage(wallpaper)
+                if (!themeColor.isNullOrEmpty()) {
+                    applyDynamicChatTheme(themeColor)
+                }
             } else {
                 binding.ivChatWallpaper.visibility = View.GONE
             }
