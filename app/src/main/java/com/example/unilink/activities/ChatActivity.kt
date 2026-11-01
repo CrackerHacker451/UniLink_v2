@@ -201,13 +201,15 @@ class ChatActivity : AppCompatActivity() {
     private fun setWallpaperImage(wallpaperSource: Any) {
         if (_binding == null) return
         binding.ivChatWallpaper.visibility = View.VISIBLE
-        binding.ivChatWallpaper.alpha = 0.90f
+        binding.ivChatWallpaper.alpha = 0.95f
 
         when {
             wallpaperSource is Int -> {
-                binding.ivChatWallpaper.setImageResource(wallpaperSource)
+                binding.ivChatWallpaper.setImageDrawable(null)
+                binding.ivChatWallpaper.setBackgroundResource(wallpaperSource)
             }
             wallpaperSource is android.net.Uri -> {
+                binding.ivChatWallpaper.background = null
                 binding.ivChatWallpaper.load(wallpaperSource) {
                     crossfade(true)
                     allowHardware(false)
@@ -217,13 +219,16 @@ class ChatActivity : AppCompatActivity() {
                 val sourceStr = wallpaperSource.toString()
                 val resId = ThemeUtils.getDrawableIdByName(this, sourceStr)
                 if (resId != 0) {
-                    binding.ivChatWallpaper.setImageResource(resId)
+                    binding.ivChatWallpaper.setImageDrawable(null)
+                    binding.ivChatWallpaper.setBackgroundResource(resId)
                 } else if (sourceStr.startsWith("content://") || sourceStr.startsWith("file://")) {
+                    binding.ivChatWallpaper.background = null
                     binding.ivChatWallpaper.load(android.net.Uri.parse(sourceStr)) {
                         crossfade(true)
                         allowHardware(false)
                     }
                 } else {
+                    binding.ivChatWallpaper.background = null
                     binding.ivChatWallpaper.load(sourceStr) {
                         crossfade(true)
                         allowHardware(false)
@@ -231,6 +236,7 @@ class ChatActivity : AppCompatActivity() {
                 }
             }
         }
+        binding.ivChatWallpaper.invalidate()
     }
 
     private fun applyDynamicChatTheme(hexColor: String) {
@@ -308,12 +314,17 @@ class ChatActivity : AppCompatActivity() {
                 }
                 val dynamicThemeColor = ThemeUtils.extractDominantHexColor(bitmap)
 
+                // Instant visual update on screen!
+                setWallpaperImage(wallpaperUri)
+                applyDynamicChatTheme(dynamicThemeColor)
+
                 com.example.unilink.repository.StorageRepository().uploadPostImage(wallpaperUri) { imageUrl ->
                     val finalRef = imageUrl ?: wallpaperUri.toString()
                     promptWallpaperScope(finalRef, dynamicThemeColor)
                 }
             } catch (e: Exception) {
                 Log.e("ChatActivity", "Error extracting wallpaper color", e)
+                setWallpaperImage(wallpaperUri)
                 promptWallpaperScope(wallpaperUri.toString(), "#06B6D4")
             }
         }
@@ -357,6 +368,9 @@ class ChatActivity : AppCompatActivity() {
                     pickWallpaperGalleryLauncher.launch("image/*")
                 } else {
                     val presetColor = presetThemeColors.getOrNull(which) ?: "#A855F7"
+                    // Instant visual update on screen!
+                    setWallpaperImage(selected)
+                    applyDynamicChatTheme(presetColor)
                     promptWallpaperScope(selected, presetColor)
                 }
             }
