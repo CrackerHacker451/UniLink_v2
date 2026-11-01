@@ -210,6 +210,14 @@ class HomeFragment : Fragment() {
         binding.livePulseBadge.visibility = View.VISIBLE
     }
 
+    private fun formatCompactCount(count: Int): String {
+        return when {
+            count >= 1_000_000 -> String.format("%.1fM", count / 1_000_000.0)
+            count >= 1_000 -> String.format("%.1fK", count / 1_000.0)
+            else -> count.toString()
+        }
+    }
+
     private fun setupUI() {
         userListener?.remove()
         userListener = userRepository.observeCurrentUser { user ->
@@ -217,7 +225,8 @@ class HomeFragment : Fragment() {
                 user?.let {
                     tvCollegeName.text = it.collegeName ?: "SRM University"
                     tvUniCoins.text = it.uniCoins.toString()
-                    tvHeaderUniCoins.text = it.uniCoins.toString()
+                    tvHeaderUniCoins.text = formatCompactCount(it.uniCoins)
+                    tvHeaderStreak.text = it.streakDays.toString()
                     tvXpStreak.text = if (it.streakDays == 1) "🔥 1-day streak" else "🔥 ${it.streakDays}-day streak"
 
                     if (it.streakDays >= 3) {
@@ -250,9 +259,10 @@ class HomeFragment : Fragment() {
 
         binding.tvLivePulse.setOnClickListener { navigateTo(com.example.unilink.activities.CampusArenaActivity::class.java, it) }
         binding.livePulseBadge.setOnClickListener { navigateTo(com.example.unilink.activities.CampusArenaActivity::class.java, it) }
-        binding.btnSettings.setOnClickListener { navigateTo(SettingsActivity::class.java, it) }
         binding.btnLeaderboard.setOnClickListener { navigateTo(LeaderboardActivity::class.java, it) }
         binding.btnNotifications.setOnClickListener { navigateTo(NotificationsActivity::class.java, it) }
+
+        binding.cardHeaderStats.setOnClickListener { HapticUtils.playSelection(it); showProPassDialog() }
 
         binding.tvHeaderUniCoins.setOnClickListener { HapticUtils.playSelection(it); showProPassDialog() }
         binding.tvUniCoins.setOnClickListener { HapticUtils.playSelection(it); showProPassDialog() }
@@ -271,11 +281,6 @@ class HomeFragment : Fragment() {
         }
 
         binding.tvJoinFocusRoom.setOnClickListener { navigateTo(FocusRoomActivity::class.java) }
-
-        binding.cardStreakBadge.setOnClickListener {
-            HapticUtils.playSelection(it)
-            Toast.makeText(context, "🔥 7 Day Active Campus Streak! Keep active daily to earn bonus UniCoins!", Toast.LENGTH_SHORT).show()
-        }
 
         binding.btnUniAiHomeAsk.setOnClickListener {
             val prompt = binding.etUniAiHomePrompt.text.toString().trim()
