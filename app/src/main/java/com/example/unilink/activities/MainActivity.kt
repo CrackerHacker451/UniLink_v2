@@ -93,7 +93,17 @@ class MainActivity : AppCompatActivity() {
         observeNotifications()
         checkAndRequestPermissions()
         com.example.unilink.services.FcmService.subscribeToGlobalUpdates()
+        refreshFcmTokenOnLaunch()
         checkForAppUpdates()
+    }
+
+    private fun refreshFcmTokenOnLaunch() {
+        val uid = auth.currentUser?.uid ?: return
+        com.google.firebase.messaging.FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
+            if (!token.isNullOrBlank()) {
+                com.google.firebase.firestore.FirebaseFirestore.getInstance().collection("users").document(uid).update("fcmToken", token)
+            }
+        }
     }
 
     private fun checkAndRequestPermissions() {
