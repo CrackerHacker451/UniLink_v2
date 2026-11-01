@@ -126,7 +126,7 @@
             android:id="@+id/ivChatWallpaper"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:alpha="0.4"
+            android:alpha="0.85"
             android:scaleType="centerCrop"
             android:visibility="gone"
             app:layout_constraintTop_toTopOf="parent"

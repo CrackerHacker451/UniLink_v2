@@ -195,18 +195,45 @@ class ChatActivity : AppCompatActivity() {
         popup.show()
     }
 
+    private fun setWallpaperImage(wallpaperSource: Any) {
+        if (_binding == null) return
+        binding.ivChatWallpaper.visibility = View.VISIBLE
+        binding.ivChatWallpaper.alpha = 0.85f
+
+        if (wallpaperSource is Int) {
+            binding.ivChatWallpaper.setImageResource(wallpaperSource)
+        } else {
+            val sourceStr = wallpaperSource.toString()
+            val resId = ThemeUtils.getDrawableIdByName(this, sourceStr)
+            if (resId != 0) {
+                binding.ivChatWallpaper.setImageResource(resId)
+            } else {
+                binding.ivChatWallpaper.load(sourceStr) {
+                    crossfade(true)
+                    allowHardware(true)
+                }
+            }
+        }
+    }
+
     private val pickWallpaperGalleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let { wallpaperUri ->
-            Toast.makeText(this, "Uploading custom chat wallpaper...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Applying custom chat wallpaper... ✨", Toast.LENGTH_SHORT).show()
+            val uid = auth.currentUser?.uid ?: ""
+
+            getSharedPreferences("unilink_wallpaper_prefs", MODE_PRIVATE)
+                .edit()
+                .putString("local_wallpaper_$uid", wallpaperUri.toString())
+                .apply()
+
+            setWallpaperImage(wallpaperUri)
+
             com.example.unilink.repository.StorageRepository().uploadPostImage(wallpaperUri) { imageUrl ->
                 if (imageUrl != null) {
-                    db.collection("users").document(auth.currentUser?.uid ?: "").update("chatWallpaperUrl", imageUrl)
+                    db.collection("users").document(uid).update("chatWallpaperUrl", imageUrl)
                         .addOnSuccessListener {
-                            Toast.makeText(this, "Custom Chat Wallpaper Applied! ✨", Toast.LENGTH_SHORT).show()
-                            loadPremiumWallpaper()
+                            Toast.makeText(this, "Custom Chat Wallpaper Synced! ✨", Toast.LENGTH_SHORT).show()
                         }
-                } else {
-                    Toast.makeText(this, "Failed to upload wallpaper", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -237,10 +264,16 @@ class ChatActivity : AppCompatActivity() {
             .setTitle("Chat Wallpapers 🎨")
             .setAdapter(adapter) { _, which ->
                 val selected = drawableNames[which]
+                val uid = auth.currentUser?.uid ?: ""
                 if (selected == "CUSTOM_GALLERY") {
                     pickWallpaperGalleryLauncher.launch("image/*")
                 } else {
-                    db.collection("users").document(auth.currentUser?.uid ?: "").update("chatWallpaperUrl", selected)
+                    getSharedPreferences("unilink_wallpaper_prefs", MODE_PRIVATE)
+                        .edit()
+                        .remove("local_wallpaper_$uid")
+                        .apply()
+
+                    db.collection("users").document(uid).update("chatWallpaperUrl", selected)
                         .addOnSuccessListener {
                             Toast.makeText(this, "Chat Wallpaper Applied! ✨", Toast.LENGTH_SHORT).show()
                             loadPremiumWallpaper()
@@ -288,17 +321,20 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun loadPremiumWallpaper() {
+        val uid = auth.currentUser?.uid ?: return
+        val localUriString = getSharedPreferences("unilink_wallpaper_prefs", MODE_PRIVATE)
+            .getString("local_wallpaper_$uid", null)
+
+        if (!localUriString.isNullOrEmpty()) {
+            setWallpaperImage(localUriString)
+            return
+        }
+
         userRepository.getCurrentUser { user ->
             if (isFinishing || isDestroyed || _binding == null) return@getCurrentUser
             val wallpaper = user?.chatWallpaperUrl
             if (!wallpaper.isNullOrEmpty()) {
-                binding.ivChatWallpaper.visibility = View.VISIBLE
-                val resId = ThemeUtils.getDrawableIdByName(this, wallpaper)
-                if (resId != 0) {
-                    binding.ivChatWallpaper.setImageResource(resId)
-                } else {
-                    binding.ivChatWallpaper.load(wallpaper)
-                }
+                setWallpaperImage(wallpaper)
             } else {
                 binding.ivChatWallpaper.visibility = View.GONE
             }
