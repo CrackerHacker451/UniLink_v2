@@ -135,4 +135,40 @@ object ThemeUtils {
         context.theme.resolveAttribute(R.attr.textPrimaryColor, typedValue, true)
         return typedValue.data
     }
+
+    fun extractDominantHexColor(bitmap: android.graphics.Bitmap): String {
+        return try {
+            val scaled = android.graphics.Bitmap.createScaledBitmap(bitmap, 40, 40, false)
+            var redSum = 0L
+            var greenSum = 0L
+            var blueSum = 0L
+            var count = 0
+
+            for (x in 0 until scaled.width) {
+                for (y in 0 until scaled.height) {
+                    val pixel = scaled.getPixel(x, y)
+                    val r = Color.red(pixel)
+                    val g = Color.green(pixel)
+                    val b = Color.blue(pixel)
+
+                    if (r + g + b > 80) {
+                        redSum += r
+                        greenSum += g
+                        blueSum += b
+                        count++
+                    }
+                }
+            }
+
+            if (count == 0) return "#A855F7"
+
+            val avgR = (redSum / count).toInt().coerceIn(60, 240)
+            val avgG = (greenSum / count).toInt().coerceIn(60, 240)
+            val avgB = (blueSum / count).toInt().coerceIn(60, 240)
+
+            String.format("#%02X%02X%02X", avgR, avgG, avgB)
+        } catch (_: Exception) {
+            "#A855F7"
+        }
+    }
 }

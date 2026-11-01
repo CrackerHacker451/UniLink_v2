@@ -1,9 +1,12 @@
 package com.example.unilink.activities
 
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -216,9 +219,22 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
+    private fun applyDynamicChatTheme(hexColor: String) {
+        if (_binding == null || hexColor.isEmpty()) return
+        try {
+            val colorInt = Color.parseColor(hexColor)
+            binding.btnSend.backgroundTintList = ColorStateList.valueOf(colorInt)
+            binding.quickActionBarCard.strokeColor = colorInt
+            adapter?.dynamicThemeColor = hexColor
+            adapter?.notifyDataSetChanged()
+        } catch (e: Exception) {
+            Log.e("ChatActivity", "Error applying dynamic theme color", e)
+        }
+    }
+
     private val pickWallpaperGalleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let { wallpaperUri ->
-            Toast.makeText(this, "Applying custom chat wallpaper... ✨", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Extracting matching chat theme color... ✨", Toast.LENGTH_SHORT).show()
             val uid = auth.currentUser?.uid ?: ""
 
             getSharedPreferences("unilink_wallpaper_prefs", MODE_PRIVATE)
@@ -228,13 +244,32 @@ class ChatActivity : AppCompatActivity() {
 
             setWallpaperImage(wallpaperUri)
 
-            com.example.unilink.repository.StorageRepository().uploadPostImage(wallpaperUri) { imageUrl ->
-                if (imageUrl != null) {
-                    db.collection("users").document(uid).update("chatWallpaperUrl", imageUrl)
-                        .addOnSuccessListener {
-                            Toast.makeText(this, "Custom Chat Wallpaper Synced! ✨", Toast.LENGTH_SHORT).show()
-                        }
+            try {
+                val bitmap = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                    android.graphics.ImageDecoder.decodeBitmap(android.graphics.ImageDecoder.createSource(contentResolver, wallpaperUri))
+                } else {
+                    @Suppress("DEPRECATION")
+                    android.provider.MediaStore.Images.Media.getBitmap(contentResolver, wallpaperUri)
                 }
+                val dynamicThemeColor = ThemeUtils.extractDominantHexColor(bitmap)
+                applyDynamicChatTheme(dynamicThemeColor)
+
+                com.example.unilink.repository.StorageRepository().uploadPostImage(wallpaperUri) { imageUrl ->
+                    if (imageUrl != null) {
+                        db.collection("users").document(uid).update("chatWallpaperUrl", imageUrl)
+                        val cid = chatId
+                        if (!cid.isNullOrEmpty()) {
+                            val roomUpdates = mapOf(
+                                "chatWallpaperUrl" to imageUrl,
+                                "chatThemeColor" to dynamicThemeColor
+                            )
+                            db.collection("chats").document(cid).set(roomUpdates, com.google.firebase.firestore.SetOptions.merge())
+                        }
+                        Toast.makeText(this, "Chat Wallpaper & Matching Theme Synced to both users! ✨", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("ChatActivity", "Error extracting wallpaper color", e)
             }
         }
     }
@@ -258,6 +293,15 @@ class ChatActivity : AppCompatActivity() {
             "bg_premium_card",
             "CUSTOM_GALLERY"
         )
+        val presetThemeColors = arrayOf(
+            "#A855F7",
+            "#06B6D4",
+            "#22D3EE",
+            "#EC4899",
+            "#10B981",
+            "#FACC15"
+        )
+
         val adapter = android.widget.ArrayAdapter(this, R.layout.item_dialog_choice, wallpapers)
 
         com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
@@ -268,16 +312,25 @@ class ChatActivity : AppCompatActivity() {
                 if (selected == "CUSTOM_GALLERY") {
                     pickWallpaperGalleryLauncher.launch("image/*")
                 } else {
+                    val presetColor = presetThemeColors.getOrNull(which) ?: "#A855F7"
                     getSharedPreferences("unilink_wallpaper_prefs", MODE_PRIVATE)
                         .edit()
                         .remove("local_wallpaper_$uid")
                         .apply()
 
+                    applyDynamicChatTheme(presetColor)
+
                     db.collection("users").document(uid).update("chatWallpaperUrl", selected)
-                        .addOnSuccessListener {
-                            Toast.makeText(this, "Chat Wallpaper Applied! ✨", Toast.LENGTH_SHORT).show()
-                            loadPremiumWallpaper()
-                        }
+                    val cid = chatId
+                    if (!cid.isNullOrEmpty()) {
+                        val roomUpdates = mapOf(
+                            "chatWallpaperUrl" to selected,
+                            "chatThemeColor" to presetColor
+                        )
+                        db.collection("chats").document(cid).set(roomUpdates, com.google.firebase.firestore.SetOptions.merge())
+                    }
+                    Toast.makeText(this, "Chat Wallpaper & Theme Applied! ✨", Toast.LENGTH_SHORT).show()
+                    loadPremiumWallpaper()
                 }
             }
             .show()
@@ -315,6 +368,13 @@ class ChatActivity : AppCompatActivity() {
                 if (!isGroup && receiverId != null) {
                     val isReceiverTyping = room.typingStatus[receiverId] == true
                     binding.typingIndicator.visibility = if (isReceiverTyping) View.VISIBLE else View.GONE
+                }
+
+                if (room.chatWallpaperUrl.isNotEmpty()) {
+                    setWallpaperImage(room.chatWallpaperUrl)
+                }
+                if (room.chatThemeColor.isNotEmpty()) {
+                    applyDynamicChatTheme(room.chatThemeColor)
                 }
             }
         }

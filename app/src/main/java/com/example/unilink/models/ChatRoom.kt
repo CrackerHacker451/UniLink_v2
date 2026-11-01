@@ -17,6 +17,8 @@ data class ChatRoom(
     
     var groupName: String = "",
     var groupImageUrl: String = "",
+    var chatWallpaperUrl: String = "",
+    var chatThemeColor: String = "",
     var unreadCounts: Map<String, Int> = emptyMap(), // Track unread messages per user
     var typingStatus: Map<String, Boolean> = emptyMap() // userId -> isTyping
 ) {

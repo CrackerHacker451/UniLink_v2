@@ -55,6 +55,7 @@ class ChatAdapter(
     }
 
     private val decryptionCache = mutableMapOf<String, String>()
+    var dynamicThemeColor: String? = null
 
     fun updateMessages(newMessages: List<ChatMessage>, onCommitted: (() -> Unit)? = null) {
         val displayList = mutableListOf<ChatItem>()
@@ -145,6 +146,17 @@ class ChatAdapter(
             is SentViewHolder -> {
                 holder.binding.tvMessage.text = decryptedText
                 holder.binding.tvTimestamp.text = time
+
+                if (!dynamicThemeColor.isNullOrEmpty()) {
+                    try {
+                        val tintColor = Color.parseColor(dynamicThemeColor)
+                        holder.binding.llMessageBubble.backgroundTintList = ColorStateList.valueOf(tintColor)
+                    } catch (_: Exception) {
+                        holder.binding.llMessageBubble.backgroundTintList = null
+                    }
+                } else {
+                    holder.binding.llMessageBubble.backgroundTintList = null
+                }
                 
                 if (decryptedReply != null) {
                     holder.binding.llReplyQuote.visibility = View.VISIBLE
