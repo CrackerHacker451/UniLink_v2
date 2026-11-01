@@ -412,6 +412,12 @@ class UserRepository {
         }
     }
 
+    fun addUniCoins(amount: Int, onComplete: (Boolean) -> Unit) {
+        val uid = auth.currentUser?.uid ?: return onComplete(false)
+        db.collection("users").document(uid).update("uniCoins", com.google.firebase.firestore.FieldValue.increment(amount.toLong()))
+            .addOnCompleteListener { onComplete(it.isSuccessful) }
+    }
+
     fun activatePremium(onComplete: (Boolean) -> Unit) {
         val uid = auth.currentUser?.uid ?: return onComplete(false)
         val updates = mapOf(

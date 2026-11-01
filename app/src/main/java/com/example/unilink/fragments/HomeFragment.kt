@@ -262,9 +262,7 @@ class HomeFragment : Fragment() {
         binding.btnLeaderboard.setOnClickListener { navigateTo(LeaderboardActivity::class.java, it) }
         binding.btnNotifications.setOnClickListener { navigateTo(NotificationsActivity::class.java, it) }
 
-        binding.cardHeaderStats.setOnClickListener { HapticUtils.playSelection(it); showProPassDialog() }
-
-        binding.tvHeaderUniCoins.setOnClickListener { HapticUtils.playSelection(it); showProPassDialog() }
+        binding.cardHeaderStats.setOnClickListener { HapticUtils.playSelection(it); showStreakModal() }
         binding.tvUniCoins.setOnClickListener { HapticUtils.playSelection(it); showProPassDialog() }
         binding.tvNewVaultsCount.setOnClickListener { navigateTo(VaultActivity::class.java, it) }
 
@@ -300,6 +298,29 @@ class HomeFragment : Fragment() {
                 true
             } else false
         }
+    }
+
+    private fun showStreakModal() {
+        val ctx = context ?: return
+        val dialogView = layoutInflater.inflate(R.layout.dialog_streak_rewards, null)
+        val dialog = AlertDialog.Builder(ctx).setView(dialogView).create()
+
+        val btnClose = dialogView.findViewById<TextView>(R.id.btnCloseStreak)
+        val btnClaim = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnClaimStreakBonus)
+
+        btnClose?.setOnClickListener { dialog.dismiss() }
+
+        btnClaim?.setOnClickListener { v ->
+            HapticUtils.playSuccess(v)
+            userRepository.addUniCoins(50) { success ->
+                if (success) {
+                    Toast.makeText(ctx, "🔥 Daily Campus Streak Bonus Claimed! +50 UniCoins Added!", Toast.LENGTH_LONG).show()
+                    dialog.dismiss()
+                }
+            }
+        }
+
+        dialog.show()
     }
 
     private fun showProPassDialog() {

@@ -80,36 +80,54 @@ class FindTeamActivity : AppCompatActivity() {
 
     private fun runSmartAiMatch() {
         val uid = auth.currentUser?.uid ?: return
-        binding.progressBar.visibility = View.VISIBLE
-        Toast.makeText(this, "UniAI is analyzing your profile...", Toast.LENGTH_SHORT).show()
+        val dialogView = layoutInflater.inflate(R.layout.dialog_ai_teammate_matchmaker, null)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this).setView(dialogView).create()
 
-        com.example.unilink.repository.UserRepository().getUserById(uid) { user ->
-            if (user == null) return@getUserById
-            
-            val projectsContext = allProjects.take(15).joinToString(" | ") { "${it.displayTitle}: ${it.skillsRequired?.joinToString() ?: ""}" }
-            val userContext = "Name: ${user.name}, Skills: ${user.skills.joinToString()}, Goals: ${user.goals}"
-            
-            val prompt = "Based on this user context: $userContext, which of these projects best fit them? Projects: $projectsContext. Just give me the names of top 2 projects separated by a comma."
+        val btnClose = dialogView.findViewById<android.widget.TextView>(R.id.btnCloseDialog)
+        val etSkill = dialogView.findViewById<android.widget.EditText>(R.id.etTargetSkill)
+        val btnRun = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnRunAiMatch)
+        val progress = dialogView.findViewById<com.google.android.material.progressindicator.LinearProgressIndicator>(R.id.matchProgress)
+        val resultsContainer = dialogView.findViewById<android.widget.LinearLayout>(R.id.llMatchResultsContainer)
 
-            lifecycleScope.launch {
-                val response = com.example.unilink.repository.GeminiRepository().getAiHint(prompt, true)
-                binding.progressBar.visibility = View.GONE
-                
-                if (response != null) {
-                    val recommendedNames = response.split(",").map { it.trim() }
-                    val recommendedProjects = allProjects.filter { p -> 
-                        recommendedNames.any { p.displayTitle.contains(it, ignoreCase = true) }
+        val chipHackathon = dialogView.findViewById<com.google.android.material.chip.Chip>(R.id.chipHackathon)
+        val chipStartup = dialogView.findViewById<com.google.android.material.chip.Chip>(R.id.chipStartup)
+
+        btnClose?.setOnClickListener { dialog.dismiss() }
+
+        btnRun?.setOnClickListener { v ->
+            com.example.unilink.utils.HapticUtils.playSelection(v)
+            val skillQuery = etSkill?.text?.toString()?.trim()?.ifEmpty { "Figma UI/UX & Machine Learning" } ?: "Figma UI/UX & Machine Learning"
+            val scope = if (chipHackathon?.isChecked == true) "Hackathon 🏆" else if (chipStartup?.isChecked == true) "Startup MVP 🚀" else "Group Assignment 📚"
+
+            progress?.visibility = View.VISIBLE
+            btnRun.isEnabled = false
+            btnRun.text = "Matching Skills..."
+
+            com.example.unilink.repository.UserRepository().getUserById(uid) { user ->
+                val mySkills = user?.skills?.joinToString() ?: "Kotlin, Android, AI"
+                val prompt = "Act as an AI Hackathon Matchmaker. Project Scope: $scope. Skill Needed: $skillQuery. User Skills: $mySkills. Recommend top 2 teammate profiles with match score % and key reasons."
+
+                lifecycleScope.launch {
+                    val response = com.example.unilink.repository.GeminiRepository().getAiHint(prompt, true)
+                    progress?.visibility = View.GONE
+                    btnRun.isEnabled = true
+                    btnRun.text = "Find Best Teammates ✨"
+
+                    resultsContainer?.visibility = View.VISIBLE
+                    resultsContainer?.removeAllViews()
+
+                    val resultTv = android.widget.TextView(this@FindTeamActivity).apply {
+                        text = response
+                        setTextColor(getColor(R.color.white))
+                        textSize = 13f
+                        setPadding(12, 12, 12, 12)
                     }
-                    
-                    if (recommendedProjects.isNotEmpty()) {
-                        updateRecyclerView(recommendedProjects)
-                        Toast.makeText(this@FindTeamActivity, "UniAI found matches for you! ✨", Toast.LENGTH_LONG).show()
-                    } else {
-                        Toast.makeText(this@FindTeamActivity, "No perfect matches found. Keep exploring!", Toast.LENGTH_SHORT).show()
-                    }
+                    resultsContainer?.addView(resultTv)
                 }
             }
         }
+
+        dialog.show()
     }
 
     private fun fetchTeams() {
