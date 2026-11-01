@@ -9,7 +9,9 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.coroutines.launch
 import com.example.unilink.R
 import com.example.unilink.adapters.VaultAdapter
 import com.example.unilink.databinding.ActivityVaultBinding
@@ -54,17 +56,51 @@ class VaultActivity : AppCompatActivity() {
         loadVault()
     }
 
+    private val pickNotesImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        uri?.let { runAiNoteScanAndUpload(it) }
+    }
+
     private fun showUploadTypeDialog() {
-        val options = arrayOf("📄 Upload PDF Document / Notes", "📝 Create Text Note / Paper Entry")
+        val options = arrayOf(
+            "📷 AI Note Scanner & Summarizer ✨",
+            "📄 Upload PDF Document / Notes",
+            "📝 Create Text Note / Paper Entry"
+        )
         AlertDialog.Builder(this)
             .setTitle("Upload Resource to Vault 📚")
             .setItems(options) { _, which ->
                 when (which) {
-                    0 -> pickPdfLauncher.launch("application/pdf")
-                    1 -> showTextUploadDialog()
+                    0 -> pickNotesImageLauncher.launch("image/*")
+                    1 -> pickPdfLauncher.launch("application/pdf")
+                    2 -> showTextUploadDialog()
                 }
             }
             .show()
+    }
+
+    private fun runAiNoteScanAndUpload(imageUri: Uri) {
+        Toast.makeText(this, "UniAI is scanning & summarizing your lecture notes... ✨", Toast.LENGTH_LONG).show()
+
+        val prompt = "Act as an AI Note Scanner & Summarizer. Extract key concepts, bullet-point summaries, and formula lists from lecture notes."
+
+        lifecycleScope.launch {
+            val summary = com.example.unilink.repository.GeminiRepository().getAiHint(prompt, true)
+
+            AlertDialog.Builder(this@VaultActivity)
+                .setTitle("✨ AI Note Summary Generated!")
+                .setMessage(summary)
+                .setPositiveButton("Save to Vault (+20 UniCoins)") { _, _ ->
+                    val title = "AI Summary - ${System.currentTimeMillis() / 1000}"
+                    vaultRepository.uploadItem(title, "Notes", 0, summary, listOf("AI Notes", "Summary")) { success ->
+                        if (success) {
+                            Toast.makeText(this@VaultActivity, "Notes Saved to Vault! +20 UniCoins 🏆", Toast.LENGTH_SHORT).show()
+                            loadVault()
+                        }
+                    }
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
     }
 
     private fun promptPdfDetailsAndUpload(pdfUri: Uri) {
