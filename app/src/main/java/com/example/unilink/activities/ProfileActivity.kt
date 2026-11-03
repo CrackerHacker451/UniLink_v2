@@ -7,6 +7,11 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeViewModelStoreOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.example.unilink.R
 import com.example.unilink.databinding.ActivityProfileBinding
 import com.example.unilink.models.User
@@ -111,21 +116,35 @@ class ProfileActivity : AppCompatActivity() {
         }.show(supportFragmentManager, "ProPassBottomSheet")
     }
 
-    private fun showIdKitTrustSheet() {
-        val viewModel = com.example.unilink.worldid.NewtonsLobbyTrustViewModel(application)
-        val composeView = androidx.compose.ui.platform.ComposeView(this).apply {
+    private fun showComposeBottomSheet(content: @androidx.compose.runtime.Composable (com.google.android.material.bottomsheet.BottomSheetDialog) -> Unit) {
+        val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
+        val composeView = ComposeView(this).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                com.example.unilink.worldid.NewtonsLobbyTrustSheet(
-                    projectId = "student_idkit_${currentUid ?: "guest"}",
-                    projectTitle = "IDKit World ID 4.0 Student Verification",
-                    viewModel = viewModel
-                )
+                content(dialog)
             }
         }
-
-        val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
         dialog.setContentView(composeView)
+
+        dialog.findViewById<android.view.View>(com.google.android.material.R.id.container)?.let { container ->
+            container.setViewTreeLifecycleOwner(this)
+            container.setViewTreeViewModelStoreOwner(this)
+            container.setViewTreeSavedStateRegistryOwner(this)
+        }
+
         dialog.show()
+    }
+
+    private fun showIdKitTrustSheet() {
+        showComposeBottomSheet { dialog ->
+            val viewModel = com.example.unilink.worldid.NewtonsLobbyTrustViewModel(application)
+            com.example.unilink.worldid.NewtonsLobbyTrustSheet(
+                projectId = "student_idkit_${currentUid ?: "guest"}",
+                projectTitle = "IDKit World ID 4.0 Student Verification",
+                viewModel = viewModel,
+                onClose = { dialog.dismiss() }
+            )
+        }
     }
 
     private fun observeCurrentProfile() {
