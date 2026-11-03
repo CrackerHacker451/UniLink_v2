@@ -120,21 +120,21 @@ fun NewtonsLobbyTrustSheet(
                         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0x3306B6D4))
                     ) {
                         Column(modifier = Modifier.padding(18.dp)) {
-                            Text("100% Liveness Protection 🚀", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            Text("World ID Selfie Check (Credential ID 11) 📸", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(4.dp))
-                            Text("Selfie Check (Credential ID 11) verifies liveness via phone camera without requiring an Orb. Sybil score < 3 grants 1.0x boost weight & unlocks Builder Badge.", color = Color.White.copy(0.7f), fontSize = 12.sp)
+                            Text("Selfie Check verifies liveness and proof-of-presence via phone camera without requiring an Orb. Sybil score < 3 grants 1.0x boost weight & unlocks Live Student Badge.", color = Color.White.copy(0.7f), fontSize = 12.sp)
 
                             Spacer(modifier = Modifier.height(16.dp))
 
                             Button(
-                                onClick = { viewModel.startVerification(projectId, CredentialTier.SELFIE) },
+                                onClick = { viewModel.startVerification(projectId) },
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF06B6D4)),
                                 shape = RoundedCornerShape(14.dp),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Icon(Icons.Default.VerifiedUser, contentDescription = null, tint = Color.Black, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Verify Liveness & Boost (Selfie Check)", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                Text("Verify Selfie Check Liveness 📸", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                             }
 
                             Spacer(modifier = Modifier.height(8.dp))
@@ -177,21 +177,21 @@ fun NewtonsLobbyTrustSheet(
                         ) {
                             Icon(Icons.Default.VerifiedUser, contentDescription = null, tint = Color(0xFF06B6D4), modifier = Modifier.size(36.dp))
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text("IDKit Liveness Gate Ready 🌐", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                            Text("Selfie Check Liveness Ready 📸", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(4.dp))
-                            Text("Verify proof-of-presence via World App or phone camera selfie check.", color = Color.White.copy(0.7f), fontSize = 12.sp, textAlign = TextAlign.Center)
+                            Text("Verify proof-of-presence via World App or camera selfie liveness check.", color = Color.White.copy(0.7f), fontSize = 12.sp, textAlign = TextAlign.Center)
 
                             Spacer(modifier = Modifier.height(16.dp))
 
                             Button(
-                                onClick = { viewModel.completeVerification(projectId, state.tier) },
+                                onClick = { viewModel.completeVerification(projectId) },
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF06B6D4)),
                                 shape = RoundedCornerShape(12.dp),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color.Black, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Complete Liveness Verification 🚀", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                Text("Complete Selfie Liveness Check 📸", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                             }
 
                             Spacer(modifier = Modifier.height(8.dp))
@@ -222,48 +222,6 @@ fun NewtonsLobbyTrustSheet(
                         Spacer(modifier = Modifier.height(14.dp))
                         Text("Verifying Zero-Knowledge Liveness Proof...", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                         Text("Validating Merkle Root & Nullifier Hash on-chain", color = Color(0xFF06B6D4), fontSize = 11.sp)
-                    }
-                }
-
-                is TrustUiState.StepUpRequired -> {
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(20.dp),
-                        color = Color(0x2BF59E0B),
-                        border = androidx.compose.foundation.BorderStroke(1.5.dp, Color(0xFFF59E0B))
-                    ) {
-                        Column(modifier = Modifier.padding(18.dp)) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.Warning, contentDescription = null, tint = Color(0xFFF59E0B), modifier = Modifier.size(22.dp))
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("High Sybil Risk Detected (Score: ${state.sybilScore}/10)", color = Color(0xFFF59E0B), fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                            }
-
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Text(state.message, color = Color.White.copy(0.85f), fontSize = 12.sp)
-
-                            Spacer(modifier = Modifier.height(14.dp))
-
-                            Button(
-                                onClick = { viewModel.startVerification(projectId, CredentialTier.STEP_UP) },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF59E0B)),
-                                shape = RoundedCornerShape(12.dp),
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text("Step Up with NFC Passport / Proof of Human (1.0x)", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                            }
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            OutlinedButton(
-                                onClick = { viewModel.triggerFallbackPath(projectId, "Accepted 0.2x Guest Vote") },
-                                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
-                                shape = RoundedCornerShape(12.dp),
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text("Keep 0.2x Guest Vote", color = Color.White.copy(0.8f), fontSize = 12.sp)
-                            }
-                        }
                     }
                 }
 

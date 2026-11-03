@@ -14,17 +14,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
-enum class CredentialTier {
-    SELFIE,   // selfieCheck (Credential ID 11 - Proof of Presence)
-    STEP_UP   // passport (NFC Passport ID 9303) or proofOfHuman (Orb ID 1)
-}
-
 sealed class TrustUiState {
     object Idle : TrustUiState()
     object LoadingSignature : TrustUiState()
-    data class AwaitingWorldApp(val connectorUri: String, val tier: CredentialTier) : TrustUiState()
+    data class AwaitingWorldApp(val connectorUri: String) : TrustUiState()
     object VerifyingLiveness : TrustUiState()
-    data class StepUpRequired(val sybilScore: Int, val message: String) : TrustUiState()
     data class Verified(val sybilScore: Int, val badge: String, val weight: String) : TrustUiState()
     data class FallbackActive(val reason: String) : TrustUiState()
 }
@@ -38,20 +32,19 @@ class NewtonsLobbyTrustViewModel(application: Application) : AndroidViewModel(ap
     private val _uiState = MutableStateFlow<TrustUiState>(TrustUiState.Idle)
     val uiState: StateFlow<TrustUiState> = _uiState.asStateFlow()
 
-    fun startVerification(projectId: String, tier: CredentialTier = CredentialTier.SELFIE) {
+    fun startVerification(projectId: String) {
         viewModelScope.launch {
             _uiState.value = TrustUiState.LoadingSignature
 
             val sigResponse = apiService.getRpSignature(RpSignatureRequest(action = "upvote-prototype"))
 
-            val presetName = if (tier == CredentialTier.SELFIE) "selfie_check" else "passport"
-            val connectorUri = "https://worldcoin.org/verify?connector_id=nl_session_${System.currentTimeMillis()}&app_id=app_newtons_lobby_hackathon&action=upvote-prototype&signal=${projectId}&preset=${presetName}&nonce=${sigResponse.nonce}&return_to=newtonslobby://verify-done"
+            val connectorUri = "https://worldcoin.org/verify?connector_id=nl_session_${System.currentTimeMillis()}&app_id=app_newtons_lobby_hackathon&action=upvote-prototype&signal=${projectId}&preset=selfie_check&nonce=${sigResponse.nonce}&return_to=newtonslobby://verify-done"
 
-            _uiState.value = TrustUiState.AwaitingWorldApp(connectorUri, tier)
+            _uiState.value = TrustUiState.AwaitingWorldApp(connectorUri)
         }
     }
 
-    fun completeVerification(projectId: String, tier: CredentialTier = CredentialTier.SELFIE) {
+    fun completeVerification(projectId: String) {
         viewModelScope.launch {
             _uiState.value = TrustUiState.VerifyingLiveness
 
@@ -61,8 +54,8 @@ class NewtonsLobbyTrustViewModel(application: Application) : AndroidViewModel(ap
                 put("proof", "0x3892a019b881...world_id_v4_raw_proof")
                 put("merkle_root", "0x2910a991823a")
                 put("nullifier_hash", "0x09121a823b19_nullifier")
-                put("credential_type", if (tier == CredentialTier.SELFIE) "selfie_check" else "passport")
-                put("sybil_score", if (tier == CredentialTier.SELFIE) 1 else 0)
+                put("credential_type", "selfie_check")
+                put("sybil_score", 1)
             }.toString()
 
             val uid = auth.currentUser?.uid ?: "guest_builder_uid"
@@ -70,30 +63,23 @@ class NewtonsLobbyTrustViewModel(application: Application) : AndroidViewModel(ap
                 VerifyProofRequest(
                     proofPayloadRawJson = mockProofPayload,
                     projectId = projectId,
-                    requestedTier = tier.name,
+                    requestedTier = "SELFIE",
                     firebaseUid = uid
                 )
             )
 
             val score = verifyResp.sybilScore ?: 1
-            if (score >= 3 && tier == CredentialTier.SELFIE) {
-                _uiState.value = TrustUiState.StepUpRequired(
-                    sybilScore = score,
-                    message = "High Sybil Risk detected (Score $score/10). Step up with NFC Passport or Orb Proof of Human for 1.0x weight."
-                )
-            } else {
-                recordVerificationInFirestore(
-                    projectId = projectId,
-                    weight = "1.0x",
-                    badge = if (tier == CredentialTier.SELFIE) "Live Student (Selfie Verified)" else "Orbit Verified Student",
-                    sybilScore = score
-                )
-                _uiState.value = TrustUiState.Verified(
-                    sybilScore = score,
-                    badge = if (tier == CredentialTier.SELFIE) "Live Student (Selfie Verified)" else "Orbit Verified Student",
-                    weight = "1.0x"
-                )
-            }
+            recordVerificationInFirestore(
+                projectId = projectId,
+                weight = "1.0x",
+                badge = "Live Student (Selfie Verified)",
+                sybilScore = score
+            )
+            _uiState.value = TrustUiState.Verified(
+                sybilScore = score,
+                badge = "Live Student (Selfie Verified)",
+                weight = "1.0x"
+            )
         }
     }
 
@@ -114,20 +100,11 @@ class NewtonsLobbyTrustViewModel(application: Application) : AndroidViewModel(ap
             _uiState.value = TrustUiState.LoadingSignature
             delay(300)
 
-            when (mockScore) {
-                1 -> {
-                    recordVerificationInFirestore(projectId, "1.0x", "Live Student (Selfie Verified)", 1)
-                    _uiState.value = TrustUiState.Verified(1, "Live Student (Selfie Verified)", "1.0x")
-                }
-                5 -> {
-                    _uiState.value = TrustUiState.StepUpRequired(
-                        sybilScore = 5,
-                        message = "Simulated Sybil Risk (Score 5/10). Step-up with NFC Passport or Orb Proof of Human for 1.0x weight."
-                    )
-                }
-                else -> {
-                    triggerFallbackPath(projectId, "Judge Simulated Fallback (Guest Queue)")
-                }
+            if (mockScore <= 3) {
+                recordVerificationInFirestore(projectId, "1.0x", "Live Student (Selfie Verified)", 1)
+                _uiState.value = TrustUiState.Verified(1, "Live Student (Selfie Verified)", "1.0x")
+            } else {
+                triggerFallbackPath(projectId, "Judge Simulated Fallback (Guest Queue 0.2x)")
             }
         }
     }
