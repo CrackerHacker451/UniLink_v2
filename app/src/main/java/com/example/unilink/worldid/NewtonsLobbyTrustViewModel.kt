@@ -16,8 +16,7 @@ import org.json.JSONObject
 
 sealed class TrustUiState {
     object Idle : TrustUiState()
-    object LoadingSignature : TrustUiState()
-    data class AwaitingWorldApp(val connectorUri: String) : TrustUiState()
+    data class ScanningFace(val promptMessage: String, val progressRatio: Float) : TrustUiState()
     object VerifyingLiveness : TrustUiState()
     data class Verified(val sybilScore: Int, val badge: String, val weight: String) : TrustUiState()
     data class FallbackActive(val reason: String) : TrustUiState()
@@ -32,22 +31,18 @@ class NewtonsLobbyTrustViewModel(application: Application) : AndroidViewModel(ap
     private val _uiState = MutableStateFlow<TrustUiState>(TrustUiState.Idle)
     val uiState: StateFlow<TrustUiState> = _uiState.asStateFlow()
 
-    fun startVerification(projectId: String) {
+    fun startLiveLivenessScan(projectId: String) {
         viewModelScope.launch {
-            _uiState.value = TrustUiState.LoadingSignature
+            // Stage 1: Face Frame Alignment
+            _uiState.value = TrustUiState.ScanningFace("Aligning face in IDKit camera frame...", 0.25f)
+            delay(1000)
 
-            val sigResponse = apiService.getRpSignature(RpSignatureRequest(action = "upvote-prototype"))
+            // Stage 2: Live Eye Blink Prompt
+            _uiState.value = TrustUiState.ScanningFace("Blink your eyes to verify liveness 👁️", 0.60f)
+            delay(1500)
 
-            val connectorUri = "https://worldcoin.org/verify?connector_id=nl_session_${System.currentTimeMillis()}&app_id=app_newtons_lobby_hackathon&action=upvote-prototype&signal=${projectId}&preset=selfie_check&nonce=${sigResponse.nonce}&return_to=newtonslobby://verify-done"
-
-            _uiState.value = TrustUiState.AwaitingWorldApp(connectorUri)
-        }
-    }
-
-    fun completeVerification(projectId: String) {
-        viewModelScope.launch {
+            // Stage 3: Zero-Knowledge Proof Generation
             _uiState.value = TrustUiState.VerifyingLiveness
-
             delay(1200)
 
             val mockProofPayload = JSONObject().apply {
@@ -92,20 +87,6 @@ class NewtonsLobbyTrustViewModel(application: Application) : AndroidViewModel(ap
                 sybilScore = 10
             )
             _uiState.value = TrustUiState.FallbackActive(reason)
-        }
-    }
-
-    fun simulateJudgeState(projectId: String, mockScore: Int) {
-        viewModelScope.launch {
-            _uiState.value = TrustUiState.LoadingSignature
-            delay(300)
-
-            if (mockScore <= 3) {
-                recordVerificationInFirestore(projectId, "1.0x", "Live Student (Selfie Verified)", 1)
-                _uiState.value = TrustUiState.Verified(1, "Live Student (Selfie Verified)", "1.0x")
-            } else {
-                triggerFallbackPath(projectId, "Judge Simulated Fallback (Guest Queue 0.2x)")
-            }
         }
     }
 

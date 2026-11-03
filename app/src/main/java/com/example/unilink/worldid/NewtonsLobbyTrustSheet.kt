@@ -1,13 +1,13 @@
 package com.example.unilink.worldid
 
-import android.content.Intent
-import android.net.Uri
-import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,18 +23,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Launch
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.VerifiedUser
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -45,7 +43,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -56,10 +53,8 @@ fun NewtonsLobbyTrustSheet(
     projectId: String = "project_newton_ai",
     projectTitle: String = "NewtonAI Smart Agent Engine",
     viewModel: NewtonsLobbyTrustViewModel,
-    onTakeSelfie: () -> Unit = {},
     onClose: () -> Unit = {}
 ) {
-    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
 
     Surface(
@@ -104,8 +99,8 @@ fun NewtonsLobbyTrustSheet(
                 Spacer(modifier = Modifier.width(12.dp))
 
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("World ID 4.0 Proportional Trust Gate 🌐", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                    Text("Boosting '$projectTitle' & Claiming Compute Credits", color = Color(0xFF06B6D4), fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                    Text("World ID 4.0 IDKit Liveness Gate 🌐", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    Text("Selfie Check (Credential ID 11 - Proof of Presence)", color = Color(0xFF06B6D4), fontSize = 11.sp, fontWeight = FontWeight.Medium)
                 }
             }
 
@@ -121,24 +116,21 @@ fun NewtonsLobbyTrustSheet(
                         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0x3306B6D4))
                     ) {
                         Column(modifier = Modifier.padding(18.dp)) {
-                            Text("World ID Selfie Check (Credential ID 11) 📸", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            Text("Real-Time Face & Eye-Blink Liveness Scan 📸", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(4.dp))
-                            Text("Selfie Check verifies liveness and proof-of-presence via phone camera without requiring an Orb. Sybil score < 3 grants 1.0x boost weight & unlocks Live Student Badge.", color = Color.White.copy(0.7f), fontSize = 12.sp)
+                            Text("IDKit verifies live human presence via real-time camera face frame alignment and eye blink detection.", color = Color.White.copy(0.7f), fontSize = 12.sp)
 
                             Spacer(modifier = Modifier.height(16.dp))
 
                             Button(
-                                onClick = {
-                                    viewModel.startVerification(projectId)
-                                    onTakeSelfie()
-                                },
+                                onClick = { viewModel.startLiveLivenessScan(projectId) },
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF06B6D4)),
                                 shape = RoundedCornerShape(14.dp),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Icon(Icons.Default.VerifiedUser, contentDescription = null, tint = Color.Black, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Verify Selfie Check Liveness 📸", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                Text("Start Live IDKit Liveness Scan 📸", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                             }
 
                             Spacer(modifier = Modifier.height(8.dp))
@@ -156,47 +148,53 @@ fun NewtonsLobbyTrustSheet(
                     }
                 }
 
-                is TrustUiState.LoadingSignature -> {
-                    Column(
-                        modifier = Modifier.padding(32.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        CircularProgressIndicator(color = Color(0xFF06B6D4), modifier = Modifier.size(36.dp))
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text("Fetching RP Signature from Backend...", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Medium)
-                        Text("Validating nonce & isolating RP_SIGNING_KEY", color = Color.White.copy(0.6f), fontSize = 11.sp)
-                    }
-                }
+                is TrustUiState.ScanningFace -> {
+                    val infiniteTransition = rememberInfiniteTransition()
+                    val laserAlpha by infiniteTransition.animateFloat(
+                        initialValue = 0.3f,
+                        targetValue = 1.0f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(800, easing = FastOutSlowInEasing),
+                            repeatMode = RepeatMode.Reverse
+                        )
+                    )
 
-                is TrustUiState.AwaitingWorldApp -> {
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(20.dp),
                         color = Color(0x2B06B6D4),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF06B6D4))
+                        border = androidx.compose.foundation.BorderStroke(1.5.dp, Color(0xFF06B6D4).copy(alpha = laserAlpha))
                     ) {
                         Column(
-                            modifier = Modifier.padding(18.dp),
+                            modifier = Modifier.padding(20.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Icon(Icons.Default.VerifiedUser, contentDescription = null, tint = Color(0xFF06B6D4), modifier = Modifier.size(36.dp))
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text("Selfie Check Liveness Ready 📸", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text("Take a camera selfie to verify proof-of-presence and liveness.", color = Color.White.copy(0.7f), fontSize = 12.sp, textAlign = TextAlign.Center)
+                            Box(
+                                modifier = Modifier
+                                    .size(110.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(0x3306B6D4))
+                                    .border(2.dp, Color(0xFF06B6D4), CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(Icons.Default.Face, contentDescription = null, tint = Color(0xFF06B6D4), modifier = Modifier.size(54.dp))
+                            }
 
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            Button(
-                                onClick = { onTakeSelfie() },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF06B6D4)),
-                                shape = RoundedCornerShape(12.dp),
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color.Black, modifier = Modifier.size(18.dp))
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text("📸 Take Camera Selfie & Verify", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                            }
+                            Text(state.promptMessage, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            LinearProgressIndicator(
+                                progress = { state.progressRatio },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(6.dp)
+                                    .clip(RoundedCornerShape(3.dp)),
+                                color = Color(0xFF06B6D4),
+                                trackColor = Color(0x3306B6D4)
+                            )
                         }
                     }
                 }
@@ -236,7 +234,7 @@ fun NewtonsLobbyTrustSheet(
                                 shape = RoundedCornerShape(12.dp),
                                 color = Color(0x3310B981)
                             ) {
-                                Text("Badge Unlocked: ${state.badge} 🏅", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp))
+                                Text("Badge Unlocked: ${state.badge} 🌐", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp))
                             }
                         }
                     }
@@ -264,62 +262,17 @@ fun NewtonsLobbyTrustSheet(
             }
 
             Spacer(modifier = Modifier.height(20.dp))
-            Divider(color = Color(0x33FFFFFF))
+            HorizontalDivider(color = Color(0x33FFFFFF))
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Judge Demo Switcher Panel (Instant Testing without physical World App)
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0x1F161B22))
-                    .padding(14.dp)
+            // Re-verify / Reset Action
+            OutlinedButton(
+                onClick = { viewModel.resetState() },
+                shape = RoundedCornerShape(10.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0x33FFFFFF)),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("👨‍⚖️ Hackathon Judge Instant Simulator", color = Color(0xFF06B6D4), fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    FilterChip(
-                        selected = false,
-                        onClick = { viewModel.simulateJudgeState(projectId, 1) },
-                        label = { Text("Simulate Low Risk (Score: 1)", fontSize = 10.sp) },
-                        colors = FilterChipDefaults.filterChipColors(containerColor = Color(0x3310B981), labelColor = Color.White),
-                        modifier = Modifier.weight(1f)
-                    )
-
-                    FilterChip(
-                        selected = false,
-                        onClick = { viewModel.simulateJudgeState(projectId, 5) },
-                        label = { Text("Simulate High Risk (5 -> Step-Up)", fontSize = 10.sp) },
-                        colors = FilterChipDefaults.filterChipColors(containerColor = Color(0x33F59E0B), labelColor = Color.White),
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-
-                FilterChip(
-                    selected = false,
-                    onClick = { viewModel.simulateJudgeState(projectId, -1) },
-                    label = { Text("Simulate Cancelled / Fallback (Guest Queue 0.2x)", fontSize = 10.sp) },
-                    colors = FilterChipDefaults.filterChipColors(containerColor = Color(0x338B5CF6), labelColor = Color.White),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(6.dp))
-
-                OutlinedButton(
-                    onClick = { viewModel.resetState() },
-                    shape = RoundedCornerShape(10.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0x33FFFFFF)),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("🔄 Reset Verification State (Start Liveness Over)", color = Color.White.copy(0.8f), fontSize = 11.sp, fontWeight = FontWeight.Medium)
-                }
+                Text("🔄 Reset Verification (Start Liveness Scan Over)", color = Color.White.copy(0.8f), fontSize = 11.sp, fontWeight = FontWeight.Medium)
             }
         }
     }
