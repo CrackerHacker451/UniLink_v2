@@ -20,9 +20,13 @@
 - **Autonomous NewtonAI Campus Agent (`NewtonAiAgent.kt`)**: Translates natural-language student commands into direct in-app actions across 15+ modules (*"Start a live stream"*, *"Find a hackathon teammate"*, *"Scan handwritten calculus notes"*, *"Start a speed match"*).
 
 ### 🌐 2. World ID 4.0 IDKit Proportional Liveness Gate
-- **Zero-Knowledge Proof of Presence**:
-  - **Selfie Check (Credential ID 11)**: Liveness proof via phone camera without requiring an Orb.
-  - **NFC Passport Step-Up (Credential ID 9303)**: Passport or Orb Proof of Human for 1.0x boost weights and verified Builder Badges.
+- **Supported Credentials**:
+  - **`Selfie Check` (Credential ID 11)**: Proof of presence & liveness via phone camera without requiring an Orb.
+  - **`NFC Passport` (Credential ID 9303)**: Encrypted ICAO 9303 NFC passport zero-knowledge proof.
+  - **`Orb Proof of Human` (Credential ID 1)**: Biometric iris verification for 1.0x boost weights.
+- **Server & On-Chain Verification Pipeline**:
+  - **Server-Side Verification (`WorldIdApiService.kt`)**: Validates raw ZK proof JSON (`proof`, `merkle_root`, `nullifier_hash`, `credential_type`) against Relying Party Signature (`rp_newtons_lobby`). Checks `nullifier_hash` in Firestore (`projects/$projectId/votes/$nullifier`) to enforce one-person-one-vote and prevent Sybil attacks.
+  - **On-Chain Settlement (`chainlink-cre/workflow.ts`)**: Executes Chainlink CRE (Runtime Environment) workflows to settle `nullifier_hash` and `sybilScore` on EVM smart contracts, minting verified **CRE Builder Badges** on-chain.
 - **Glowing Profile IDKit Badge**: Interactive Jetpack Compose liveness trust sheet (`NewtonsLobbyTrustSheet.kt`) with Hackathon Judge Instant Simulator.
 
 ### 🎨 3. 2-Way Dynamic Chat Wallpapers & Palette Sampler
