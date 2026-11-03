@@ -88,6 +88,13 @@ dependencies {
     implementation(libs.webrtc)
     implementation(libs.googleai)
 
+    // CameraX for Live IDKit Face Liveness Scanner
+    val cameraVersion = "1.3.4"
+    implementation("androidx.camera:camera-core:$cameraVersion")
+    implementation("androidx.camera:camera-camera2:$cameraVersion")
+    implementation("androidx.camera:camera-lifecycle:$cameraVersion")
+    implementation("androidx.camera:camera-view:$cameraVersion")
+
     // Retrofit & Gson Networking
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")

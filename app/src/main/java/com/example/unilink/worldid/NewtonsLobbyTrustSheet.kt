@@ -1,5 +1,10 @@
 package com.example.unilink.worldid
 
+import android.util.Log
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -12,6 +17,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -43,10 +49,42 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
+
+@Composable
+fun LiveCameraPreview(
+    modifier: Modifier = Modifier
+) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    AndroidView(
+        factory = { ctx ->
+            PreviewView(ctx).apply {
+                scaleType = PreviewView.ScaleType.FILL_CENTER
+                val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
+                cameraProviderFuture.addListener({
+                    try {
+                        val cameraProvider = cameraProviderFuture.get()
+                        val preview = Preview.Builder().build().also {
+                            it.setSurfaceProvider(surfaceProvider)
+                        }
+                        val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
+                        cameraProvider.unbindAll()
+                        cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
+                    } catch (e: Exception) {
+                        Log.e("IDKitCamera", "Camera preview failed: ${e.message}")
+                    }
+                }, ContextCompat.getMainExecutor(ctx))
+            }
+        },
+        modifier = modifier
+    )
+}
 
 @Composable
 fun NewtonsLobbyTrustSheet(
@@ -116,7 +154,7 @@ fun NewtonsLobbyTrustSheet(
                         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0x3306B6D4))
                     ) {
                         Column(modifier = Modifier.padding(18.dp)) {
-                            Text("Real-Time Face & Eye-Blink Liveness Scan 📸", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            Text("Real-Time Camera Face & Eye-Blink Liveness 📸", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(4.dp))
                             Text("IDKit verifies live human presence via real-time camera face frame alignment and eye blink detection.", color = Color.White.copy(0.7f), fontSize = 12.sp)
 
@@ -130,7 +168,7 @@ fun NewtonsLobbyTrustSheet(
                             ) {
                                 Icon(Icons.Default.VerifiedUser, contentDescription = null, tint = Color.Black, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Start Live IDKit Liveness Scan 📸", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                Text("Start Live IDKit Camera Scan 📸", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                             }
 
                             Spacer(modifier = Modifier.height(8.dp))
@@ -151,10 +189,10 @@ fun NewtonsLobbyTrustSheet(
                 is TrustUiState.ScanningFace -> {
                     val infiniteTransition = rememberInfiniteTransition()
                     val laserAlpha by infiniteTransition.animateFloat(
-                        initialValue = 0.3f,
+                        initialValue = 0.4f,
                         targetValue = 1.0f,
                         animationSpec = infiniteRepeatable(
-                            animation = tween(800, easing = FastOutSlowInEasing),
+                            animation = tween(600, easing = FastOutSlowInEasing),
                             repeatMode = RepeatMode.Reverse
                         )
                     )
@@ -171,13 +209,18 @@ fun NewtonsLobbyTrustSheet(
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(110.dp)
+                                    .size(170.dp)
                                     .clip(CircleShape)
-                                    .background(Color(0x3306B6D4))
-                                    .border(2.dp, Color(0xFF06B6D4), CircleShape),
+                                    .background(Color.Black)
+                                    .border(3.dp, Color(0xFF06B6D4).copy(alpha = laserAlpha), CircleShape),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Icon(Icons.Default.Face, contentDescription = null, tint = Color(0xFF06B6D4), modifier = Modifier.size(54.dp))
+                                LiveCameraPreview(modifier = Modifier.fillMaxSize())
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .border(2.dp, Color(0xFF06B6D4), CircleShape)
+                                )
                             }
 
                             Spacer(modifier = Modifier.height(16.dp))
