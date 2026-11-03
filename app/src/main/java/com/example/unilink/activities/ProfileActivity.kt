@@ -138,6 +138,7 @@ class ProfileActivity : AppCompatActivity() {
     private fun showIdKitTrustSheet() {
         showComposeBottomSheet { dialog ->
             val viewModel = com.example.unilink.worldid.NewtonsLobbyTrustViewModel(application)
+            viewModel.resetState()
             com.example.unilink.worldid.NewtonsLobbyTrustSheet(
                 projectId = "student_idkit_${currentUid ?: "guest"}",
                 projectTitle = "IDKit World ID 4.0 Student Verification",
