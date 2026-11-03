@@ -110,6 +110,17 @@ class ProfileActivity : AppCompatActivity() {
         }
     }
 
+    private var activeTrustViewModel: com.example.unilink.worldid.NewtonsLobbyTrustViewModel? = null
+
+    private val selfieCameraLauncher = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.TakePicturePreview()) { bitmap ->
+        if (bitmap != null) {
+            Toast.makeText(this, "Camera Selfie Captured! Verifying Liveness... 📸", Toast.LENGTH_SHORT).show()
+            activeTrustViewModel?.completeVerification("student_idkit_${currentUid ?: "guest"}")
+        } else {
+            Toast.makeText(this, "Camera Selfie cancelled.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun showProPassDialog() {
         com.example.unilink.ui.ProPassBottomSheet {
             Toast.makeText(this, "Pro Pass Active! 👑", Toast.LENGTH_SHORT).show()
@@ -138,10 +149,14 @@ class ProfileActivity : AppCompatActivity() {
     private fun showIdKitTrustSheet() {
         showComposeBottomSheet { dialog ->
             val viewModel = com.example.unilink.worldid.NewtonsLobbyTrustViewModel(application)
+            activeTrustViewModel = viewModel
             com.example.unilink.worldid.NewtonsLobbyTrustSheet(
                 projectId = "student_idkit_${currentUid ?: "guest"}",
                 projectTitle = "IDKit World ID 4.0 Student Verification",
                 viewModel = viewModel,
+                onTakeSelfie = {
+                    selfieCameraLauncher.launch(null)
+                },
                 onClose = { dialog.dismiss() }
             )
         }

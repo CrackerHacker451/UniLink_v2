@@ -56,6 +56,7 @@ fun NewtonsLobbyTrustSheet(
     projectId: String = "project_newton_ai",
     projectTitle: String = "NewtonAI Smart Agent Engine",
     viewModel: NewtonsLobbyTrustViewModel,
+    onTakeSelfie: () -> Unit = {},
     onClose: () -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -127,7 +128,10 @@ fun NewtonsLobbyTrustSheet(
                             Spacer(modifier = Modifier.height(16.dp))
 
                             Button(
-                                onClick = { viewModel.startVerification(projectId) },
+                                onClick = {
+                                    viewModel.startVerification(projectId)
+                                    onTakeSelfie()
+                                },
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF06B6D4)),
                                 shape = RoundedCornerShape(14.dp),
                                 modifier = Modifier.fillMaxWidth()
@@ -179,35 +183,19 @@ fun NewtonsLobbyTrustSheet(
                             Spacer(modifier = Modifier.height(8.dp))
                             Text("Selfie Check Liveness Ready 📸", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(4.dp))
-                            Text("Verify proof-of-presence via World App or camera selfie liveness check.", color = Color.White.copy(0.7f), fontSize = 12.sp, textAlign = TextAlign.Center)
+                            Text("Take a camera selfie to verify proof-of-presence and liveness.", color = Color.White.copy(0.7f), fontSize = 12.sp, textAlign = TextAlign.Center)
 
                             Spacer(modifier = Modifier.height(16.dp))
 
                             Button(
-                                onClick = { viewModel.completeVerification(projectId) },
+                                onClick = { onTakeSelfie() },
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF06B6D4)),
                                 shape = RoundedCornerShape(12.dp),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color.Black, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Complete Selfie Liveness Check 📸", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                            }
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            OutlinedButton(
-                                onClick = {
-                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(state.connectorUri))
-                                    context.startActivity(intent)
-                                },
-                                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
-                                shape = RoundedCornerShape(12.dp),
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Icon(Icons.Default.Launch, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text("Open World App Deep Link", color = Color.White.copy(0.9f), fontSize = 12.sp)
+                                Text("📸 Take Camera Selfie & Verify", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                             }
                         }
                     }
