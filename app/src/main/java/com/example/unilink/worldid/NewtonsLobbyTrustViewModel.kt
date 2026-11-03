@@ -15,6 +15,11 @@ import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 
+enum class CredentialTier {
+    PROOF_OF_HUMAN, // Account Verification (Credential ID 1 - Proof of Human / Orb)
+    SELFIE_CHECK   // Team Creation Gate (Credential ID 11 - Selfie Check Proof of Presence)
+}
+
 sealed class TrustUiState {
     object Idle : TrustUiState()
     data class ScanningFace(val promptMessage: String, val progressRatio: Float) : TrustUiState()
@@ -32,29 +37,32 @@ class NewtonsLobbyTrustViewModel(application: Application) : AndroidViewModel(ap
     private val _uiState = MutableStateFlow<TrustUiState>(TrustUiState.Idle)
     val uiState: StateFlow<TrustUiState> = _uiState.asStateFlow()
 
-    fun startLiveLivenessScan(projectId: String) {
+    fun startLiveLivenessScan(projectId: String, tier: CredentialTier = CredentialTier.PROOF_OF_HUMAN, onVerified: () -> Unit = {}) {
         viewModelScope.launch {
             val uid = auth.currentUser?.uid ?: "guest_builder_uid"
 
-            // Stage 1: Face Frame Alignment
-            _uiState.value = TrustUiState.ScanningFace("Aligning face in IDKit camera frame...", 0.25f)
+            val promptAlign = if (tier == CredentialTier.PROOF_OF_HUMAN) "Aligning face for Proof of Human (Account Verification)..." else "Aligning face for Team Creation Selfie Check..."
+            val promptBlink = if (tier == CredentialTier.PROOF_OF_HUMAN) "Blink your eyes to verify Orbit Proof of Human 👁️" else "Blink your eyes to verify Selfie Presence 👁️"
+
+            _uiState.value = TrustUiState.ScanningFace(promptAlign, 0.25f)
             delay(1000)
 
-            // Stage 2: Live Eye Blink Prompt
-            _uiState.value = TrustUiState.ScanningFace("Blink your eyes to verify liveness 👁️", 0.60f)
+            _uiState.value = TrustUiState.ScanningFace(promptBlink, 0.60f)
             delay(1500)
 
-            // Stage 3: Official World ID 4.0 Selfie Check ZK Proof Generation (issuer_schema_id: 11)
             _uiState.value = TrustUiState.VerifyingLiveness
             delay(1200)
 
             val nowSeconds = System.currentTimeMillis() / 1000
-            val nullifierHash = "0x04e5f6_${uid.take(8)}_rp_scoped_nullifier"
+            val schemaId = if (tier == CredentialTier.PROOF_OF_HUMAN) 1 else 11
+            val identifier = if (tier == CredentialTier.PROOF_OF_HUMAN) "proof_of_human" else "selfie"
+            val badgeName = if (tier == CredentialTier.PROOF_OF_HUMAN) "Orbit Verified Student" else "Live Team Creator (Selfie Verified)"
+            val nullifierHash = "0x04e5f6_${uid.take(8)}_${tier.name.lowercase()}_nullifier"
 
-            val officialWorldId4SelfiePayload = JSONObject().apply {
+            val officialWorldId4Payload = JSONObject().apply {
                 put("protocol_version", "4.0")
                 put("nonce", "nonce_nl_${System.currentTimeMillis()}")
-                put("action", "selfie-check-liveness")
+                put("action", if (tier == CredentialTier.PROOF_OF_HUMAN) "verify-account-2026" else "create-team-liveness")
                 put("environment", "production")
                 put("integrity_bundle", JSONObject().apply {
                     put("version", 2)
@@ -64,7 +72,7 @@ class NewtonsLobbyTrustViewModel(application: Application) : AndroidViewModel(ap
                 })
                 put("responses", JSONArray().apply {
                     put(JSONObject().apply {
-                        put("identifier", "selfie")
+                        put("identifier", identifier)
                         put("signal_hash", "0x0")
                         put("proof", JSONArray().apply {
                             put("0x1a2b3c4d5e6f7a8b9c0d1e2f")
@@ -73,7 +81,7 @@ class NewtonsLobbyTrustViewModel(application: Application) : AndroidViewModel(ap
                             put("0x7a8b9c0d1e2f3a4b5c6d7e8f")
                         })
                         put("nullifier", nullifierHash)
-                        put("issuer_schema_id", 11) // Official World ID 4.0 Selfie Check Schema ID
+                        put("issuer_schema_id", schemaId)
                         put("expires_at_min", nowSeconds + 86400)
                         put("sybil_score", 1)
                     })
@@ -82,9 +90,9 @@ class NewtonsLobbyTrustViewModel(application: Application) : AndroidViewModel(ap
 
             val verifyResp = apiService.verifyProof(
                 VerifyProofRequest(
-                    proofPayloadRawJson = officialWorldId4SelfiePayload,
+                    proofPayloadRawJson = officialWorldId4Payload,
                     projectId = projectId,
-                    requestedTier = "SELFIE",
+                    requestedTier = tier.name,
                     firebaseUid = uid
                 )
             )
@@ -93,14 +101,15 @@ class NewtonsLobbyTrustViewModel(application: Application) : AndroidViewModel(ap
             recordVerificationInFirestore(
                 projectId = projectId,
                 weight = "1.0x",
-                badge = "Live Student (Selfie Verified)",
+                badge = badgeName,
                 sybilScore = score
             )
             _uiState.value = TrustUiState.Verified(
                 sybilScore = score,
-                badge = "Live Student (Selfie Verified)",
+                badge = badgeName,
                 weight = "1.0x"
             )
+            onVerified()
         }
     }
 

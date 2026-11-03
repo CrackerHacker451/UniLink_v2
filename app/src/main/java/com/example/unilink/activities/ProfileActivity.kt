@@ -142,6 +142,7 @@ class ProfileActivity : AppCompatActivity() {
             com.example.unilink.worldid.NewtonsLobbyTrustSheet(
                 projectId = "student_idkit_${currentUid ?: "guest"}",
                 projectTitle = "IDKit World ID 4.0 Student Verification",
+                tier = com.example.unilink.worldid.CredentialTier.PROOF_OF_HUMAN,
                 viewModel = viewModel,
                 onClose = { dialog.dismiss() }
             )

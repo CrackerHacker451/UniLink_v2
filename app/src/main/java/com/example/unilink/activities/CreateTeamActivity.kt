@@ -3,7 +3,12 @@ package com.example.unilink.activities
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeViewModelStoreOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.example.unilink.R
 import com.example.unilink.databinding.ActivityCreateTeamBinding
 import com.example.unilink.repository.GeminiRepository
@@ -55,6 +60,43 @@ class CreateTeamActivity : AppCompatActivity() {
         }
     }
 
+    private fun showComposeBottomSheet(content: @androidx.compose.runtime.Composable (com.google.android.material.bottomsheet.BottomSheetDialog) -> Unit) {
+        val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
+        val composeView = ComposeView(this).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                content(dialog)
+            }
+        }
+        dialog.setContentView(composeView)
+
+        dialog.findViewById<android.view.View>(com.google.android.material.R.id.container)?.let { container ->
+            container.setViewTreeLifecycleOwner(this)
+            container.setViewTreeViewModelStoreOwner(this)
+            container.setViewTreeSavedStateRegistryOwner(this)
+        }
+
+        dialog.show()
+    }
+
+    private fun showSelfieCheckTeamGate(onVerified: () -> Unit) {
+        showComposeBottomSheet { dialog ->
+            val viewModel = com.example.unilink.worldid.NewtonsLobbyTrustViewModel(application)
+            viewModel.resetState()
+            com.example.unilink.worldid.NewtonsLobbyTrustSheet(
+                projectId = "team_gate_${System.currentTimeMillis()}",
+                projectTitle = "Team Creation Gate",
+                tier = com.example.unilink.worldid.CredentialTier.SELFIE_CHECK,
+                viewModel = viewModel,
+                onVerifiedSuccess = {
+                    dialog.dismiss()
+                    onVerified()
+                },
+                onClose = { dialog.dismiss() }
+            )
+        }
+    }
+
     private fun createTeam() {
         val title = binding.etTeamTitle.text.toString().trim()
         val description = binding.etTeamDescription.text.toString().trim()
@@ -74,14 +116,16 @@ class CreateTeamActivity : AppCompatActivity() {
         val tags = tagsString.split(",").asSequence().map { it.trim() }.filter { it.isNotEmpty() }.toList()
         val teamSize = binding.etTeamSize.text.toString().trim().toIntOrNull() ?: 4
 
-        binding.btnCreateTeam.isEnabled = false
-        projectRepository.createProject(title, description, skills, tags, maxTeamSize = teamSize) { success ->
-            if (success) {
-                Toast.makeText(this, getString(R.string.team_created_success), Toast.LENGTH_SHORT).show()
-                finish()
-            } else {
-                binding.btnCreateTeam.isEnabled = true
-                Toast.makeText(this, getString(R.string.team_created_failed), Toast.LENGTH_SHORT).show()
+        showSelfieCheckTeamGate {
+            binding.btnCreateTeam.isEnabled = false
+            projectRepository.createProject(title, description, skills, tags, maxTeamSize = teamSize) { success ->
+                if (success) {
+                    Toast.makeText(this, getString(R.string.team_created_success), Toast.LENGTH_SHORT).show()
+                    finish()
+                } else {
+                    binding.btnCreateTeam.isEnabled = true
+                    Toast.makeText(this, getString(R.string.team_created_failed), Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }

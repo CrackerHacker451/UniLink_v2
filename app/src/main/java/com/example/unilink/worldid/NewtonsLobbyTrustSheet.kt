@@ -29,7 +29,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.VerifiedUser
@@ -90,7 +89,9 @@ fun LiveCameraPreview(
 fun NewtonsLobbyTrustSheet(
     projectId: String = "project_newton_ai",
     projectTitle: String = "NewtonAI Smart Agent Engine",
+    tier: CredentialTier = CredentialTier.PROOF_OF_HUMAN,
     viewModel: NewtonsLobbyTrustViewModel,
+    onVerifiedSuccess: () -> Unit = {},
     onClose: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -137,8 +138,10 @@ fun NewtonsLobbyTrustSheet(
                 Spacer(modifier = Modifier.width(12.dp))
 
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("World ID 4.0 IDKit Liveness Gate 🌐", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                    Text("Selfie Check (Credential ID 11 - Proof of Presence)", color = Color(0xFF06B6D4), fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                    val headerTitle = if (tier == CredentialTier.PROOF_OF_HUMAN) "World ID Proof of Human Account Gate 🌐" else "World ID Selfie Check Team Gate 📸"
+                    val headerSub = if (tier == CredentialTier.PROOF_OF_HUMAN) "Proof of Human (Credential ID 1) • Verified Account Tag" else "Selfie Check (Credential ID 11) • Team Creation Liveness"
+                    Text(headerTitle, color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                    Text(headerSub, color = Color(0xFF06B6D4), fontSize = 11.sp, fontWeight = FontWeight.Medium)
                 }
             }
 
@@ -154,21 +157,27 @@ fun NewtonsLobbyTrustSheet(
                         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0x3306B6D4))
                     ) {
                         Column(modifier = Modifier.padding(18.dp)) {
-                            Text("Real-Time Camera Face & Eye-Blink Liveness 📸", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            val cardTitle = if (tier == CredentialTier.PROOF_OF_HUMAN) "Verify Proof of Human (Account Tag) 🌐" else "Verify Selfie Check Liveness (Team Gate) 📸"
+                            val cardDesc = if (tier == CredentialTier.PROOF_OF_HUMAN) "Proof of Human verifies unique human identity to grant the Orbit Verified Student tag on your profile & posts." else "Selfie Check verifies live human presence via camera face frame alignment before publishing your squad."
+
+                            Text(cardTitle, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(4.dp))
-                            Text("IDKit verifies live human presence via real-time camera face frame alignment and eye blink detection.", color = Color.White.copy(0.7f), fontSize = 12.sp)
+                            Text(cardDesc, color = Color.White.copy(0.7f), fontSize = 12.sp)
 
                             Spacer(modifier = Modifier.height(16.dp))
 
                             Button(
-                                onClick = { viewModel.startLiveLivenessScan(projectId) },
+                                onClick = {
+                                    viewModel.startLiveLivenessScan(projectId, tier, onVerifiedSuccess)
+                                },
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF06B6D4)),
                                 shape = RoundedCornerShape(14.dp),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Icon(Icons.Default.VerifiedUser, contentDescription = null, tint = Color.Black, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Start Live IDKit Camera Scan 📸", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                val btnText = if (tier == CredentialTier.PROOF_OF_HUMAN) "Start Proof of Human Scan 🌐" else "Start Selfie Check Team Gate 📸"
+                                Text(btnText, color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                             }
 
                             Spacer(modifier = Modifier.height(8.dp))
