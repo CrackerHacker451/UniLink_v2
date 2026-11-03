@@ -175,26 +175,53 @@ fun NewtonsLobbyTrustSheet(
                             modifier = Modifier.padding(18.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            CircularProgressIndicator(color = Color(0xFF06B6D4), modifier = Modifier.size(32.dp))
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Text("Opening World App...", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                            Text("Polling IDKit verification response in background...", color = Color.White.copy(0.7f), fontSize = 12.sp, textAlign = TextAlign.Center)
+                            Icon(Icons.Default.VerifiedUser, contentDescription = null, tint = Color(0xFF06B6D4), modifier = Modifier.size(36.dp))
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text("IDKit Liveness Gate Ready 🌐", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text("Verify proof-of-presence via World App or phone camera selfie check.", color = Color.White.copy(0.7f), fontSize = 12.sp, textAlign = TextAlign.Center)
 
                             Spacer(modifier = Modifier.height(16.dp))
 
                             Button(
+                                onClick = { viewModel.completeVerification(projectId, state.tier) },
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF06B6D4)),
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color.Black, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("Complete Liveness Verification 🚀", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            OutlinedButton(
                                 onClick = {
                                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(state.connectorUri))
                                     context.startActivity(intent)
                                 },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF06B6D4)),
-                                shape = RoundedCornerShape(12.dp)
+                                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier.fillMaxWidth()
                             ) {
-                                Icon(Icons.Default.Launch, contentDescription = null, tint = Color.Black, modifier = Modifier.size(16.dp))
+                                Icon(Icons.Default.Launch, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Open World App Deep Link 🚀", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                Text("Open World App Deep Link", color = Color.White.copy(0.9f), fontSize = 12.sp)
                             }
                         }
+                    }
+                }
+
+                is TrustUiState.VerifyingLiveness -> {
+                    Column(
+                        modifier = Modifier.padding(28.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CircularProgressIndicator(color = Color(0xFF06B6D4), modifier = Modifier.size(40.dp))
+                        Spacer(modifier = Modifier.height(14.dp))
+                        Text("Verifying Zero-Knowledge Liveness Proof...", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        Text("Validating Merkle Root & Nullifier Hash on-chain", color = Color(0xFF06B6D4), fontSize = 11.sp)
                     }
                 }
 
@@ -336,6 +363,17 @@ fun NewtonsLobbyTrustSheet(
                     colors = FilterChipDefaults.filterChipColors(containerColor = Color(0x338B5CF6), labelColor = Color.White),
                     modifier = Modifier.fillMaxWidth()
                 )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                OutlinedButton(
+                    onClick = { viewModel.resetState() },
+                    shape = RoundedCornerShape(10.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0x33FFFFFF)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("🔄 Reset Verification State (Start Liveness Over)", color = Color.White.copy(0.8f), fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                }
             }
         }
     }

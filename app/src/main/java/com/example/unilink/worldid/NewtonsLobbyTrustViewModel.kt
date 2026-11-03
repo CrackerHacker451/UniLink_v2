@@ -22,7 +22,8 @@ enum class CredentialTier {
 sealed class TrustUiState {
     object Idle : TrustUiState()
     object LoadingSignature : TrustUiState()
-    data class AwaitingWorldApp(val connectorUri: String) : TrustUiState()
+    data class AwaitingWorldApp(val connectorUri: String, val tier: CredentialTier) : TrustUiState()
+    object VerifyingLiveness : TrustUiState()
     data class StepUpRequired(val sybilScore: Int, val message: String) : TrustUiState()
     data class Verified(val sybilScore: Int, val badge: String, val weight: String) : TrustUiState()
     data class FallbackActive(val reason: String) : TrustUiState()
@@ -46,10 +47,15 @@ class NewtonsLobbyTrustViewModel(application: Application) : AndroidViewModel(ap
             val presetName = if (tier == CredentialTier.SELFIE) "selfie_check" else "passport"
             val connectorUri = "https://worldcoin.org/verify?connector_id=nl_session_${System.currentTimeMillis()}&app_id=app_newtons_lobby_hackathon&action=upvote-prototype&signal=${projectId}&preset=${presetName}&nonce=${sigResponse.nonce}&return_to=newtonslobby://verify-done"
 
-            _uiState.value = TrustUiState.AwaitingWorldApp(connectorUri)
+            _uiState.value = TrustUiState.AwaitingWorldApp(connectorUri, tier)
+        }
+    }
 
-            // Responsive IDKit polling worker in background coroutine
-            delay(300)
+    fun completeVerification(projectId: String, tier: CredentialTier = CredentialTier.SELFIE) {
+        viewModelScope.launch {
+            _uiState.value = TrustUiState.VerifyingLiveness
+
+            delay(1200)
 
             val mockProofPayload = JSONObject().apply {
                 put("proof", "0x3892a019b881...world_id_v4_raw_proof")
@@ -79,12 +85,12 @@ class NewtonsLobbyTrustViewModel(application: Application) : AndroidViewModel(ap
                 recordVerificationInFirestore(
                     projectId = projectId,
                     weight = "1.0x",
-                    badge = if (tier == CredentialTier.SELFIE) "Live Builder (Selfie Verified)" else "Orbit Verified Builder",
+                    badge = if (tier == CredentialTier.SELFIE) "Live Student (Selfie Verified)" else "Orbit Verified Student",
                     sybilScore = score
                 )
                 _uiState.value = TrustUiState.Verified(
                     sybilScore = score,
-                    badge = if (tier == CredentialTier.SELFIE) "Live Builder (Selfie Verified)" else "Orbit Verified Builder",
+                    badge = if (tier == CredentialTier.SELFIE) "Live Student (Selfie Verified)" else "Orbit Verified Student",
                     weight = "1.0x"
                 )
             }
@@ -106,12 +112,12 @@ class NewtonsLobbyTrustViewModel(application: Application) : AndroidViewModel(ap
     fun simulateJudgeState(projectId: String, mockScore: Int) {
         viewModelScope.launch {
             _uiState.value = TrustUiState.LoadingSignature
-            delay(100)
+            delay(300)
 
             when (mockScore) {
                 1 -> {
-                    recordVerificationInFirestore(projectId, "1.0x", "Live Builder (Selfie Verified)", 1)
-                    _uiState.value = TrustUiState.Verified(1, "Live Builder (Selfie Verified)", "1.0x")
+                    recordVerificationInFirestore(projectId, "1.0x", "Live Student (Selfie Verified)", 1)
+                    _uiState.value = TrustUiState.Verified(1, "Live Student (Selfie Verified)", "1.0x")
                 }
                 5 -> {
                     _uiState.value = TrustUiState.StepUpRequired(
@@ -130,7 +136,6 @@ class NewtonsLobbyTrustViewModel(application: Application) : AndroidViewModel(ap
         val uid = auth.currentUser?.uid ?: return
         val nullifier = "nullifier_nl_${uid.take(6)}_${projectId.take(6)}"
 
-        // Record vote on Project
         val voteData = hashMapOf(
             "voterUid" to uid,
             "nullifier" to nullifier,
@@ -142,7 +147,6 @@ class NewtonsLobbyTrustViewModel(application: Application) : AndroidViewModel(ap
         db.collection("projects").document(projectId).collection("votes").document(nullifier)
             .set(voteData, SetOptions.merge())
 
-        // Grant Builder Badge to User
         val userData = hashMapOf(
             "worldIdVerified" to (weight == "1.0x"),
             "worldIdBadge" to badge,
@@ -153,6 +157,15 @@ class NewtonsLobbyTrustViewModel(application: Application) : AndroidViewModel(ap
     }
 
     fun resetState() {
+        val uid = auth.currentUser?.uid
+        if (uid != null) {
+            val userData = hashMapOf(
+                "worldIdVerified" to false,
+                "worldIdBadge" to "Unverified",
+                "sybilScore" to 0
+            )
+            db.collection("users").document(uid).set(userData, SetOptions.merge())
+        }
         _uiState.value = TrustUiState.Idle
     }
 }
