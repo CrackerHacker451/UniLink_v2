@@ -97,6 +97,30 @@
             android:orientation="horizontal">
 
             <com.google.android.material.chip.Chip
+                android:id="@+id/chipRandomMatch"
+                style="@style/Widget.MaterialComponents.Chip.Action"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:text="⚡ Random SpeedLink"
+                android:textColor="#EC4899"
+                app:chipBackgroundColor="?attr/cardBackgroundColor"
+                app:chipStrokeColor="#EC4899"
+                app:chipStrokeWidth="1dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipNearbyRadar"
+                style="@style/Widget.MaterialComponents.Chip.Action"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:text="📡 Campus Radar"
+                android:textColor="#06B6D4"
+                app:chipBackgroundColor="?attr/cardBackgroundColor"
+                app:chipStrokeColor="#06B6D4"
+                app:chipStrokeWidth="1dp" />
+
+            <com.google.android.material.chip.Chip
                 android:id="@+id/chipStartStream"
                 style="@style/Widget.MaterialComponents.Chip.Action"
                 android:layout_width="wrap_content"
@@ -157,18 +181,6 @@
                 app:chipStrokeWidth="1dp" />
 
             <com.google.android.material.chip.Chip
-                android:id="@+id/chipNearbyRadar"
-                style="@style/Widget.MaterialComponents.Chip.Action"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="6dp"
-                android:text="📡 Nearby Radar"
-                android:textColor="?attr/textPrimaryColor"
-                app:chipBackgroundColor="?attr/cardBackgroundColor"
-                app:chipStrokeColor="?attr/borderStrokeColor"
-                app:chipStrokeWidth="1dp" />
-
-            <com.google.android.material.chip.Chip
                 android:id="@+id/chipLeaderboard"
                 style="@style/Widget.MaterialComponents.Chip.Action"
                 android:layout_width="wrap_content"
@@ -185,19 +197,7 @@
                 style="@style/Widget.MaterialComponents.Chip.Action"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="6dp"
                 android:text="📚 Notes Vault"
-                android:textColor="?attr/textPrimaryColor"
-                app:chipBackgroundColor="?attr/cardBackgroundColor"
-                app:chipStrokeColor="?attr/borderStrokeColor"
-                app:chipStrokeWidth="1dp" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipRandomMatch"
-                style="@style/Widget.MaterialComponents.Chip.Action"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="⚡ Random Match"
                 android:textColor="?attr/textPrimaryColor"
                 app:chipBackgroundColor="?attr/cardBackgroundColor"
                 app:chipStrokeColor="?attr/borderStrokeColor"

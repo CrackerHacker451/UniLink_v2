@@ -16,6 +16,14 @@ class CampusArenaActivity : ComponentActivity() {
         setContent {
             CampusArenaScreen(
                 onNavigateBack = { finish() },
+                onOpenRandomMatch = {
+                    val intent = Intent(this, RandomMatchActivity::class.java)
+                    startActivity(intent)
+                },
+                onOpenCampusRadar = {
+                    val intent = Intent(this, NearbyStudentsActivity::class.java)
+                    startActivity(intent)
+                },
                 onOpenAudioRoom = {
                     val intent = Intent(this, LiveStreamActivity::class.java)
                     startActivity(intent)

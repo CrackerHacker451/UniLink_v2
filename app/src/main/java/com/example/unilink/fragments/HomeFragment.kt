@@ -245,6 +245,10 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
+        // Spotlight Card Quick Actions
+        binding.btnSpotlightRandom.setOnClickListener { navigateTo(RandomMatchActivity::class.java, it) }
+        binding.btnSpotlightRadar.setOnClickListener { navigateTo(NearbyStudentsActivity::class.java, it) }
+
         // Campus Radar Hero Spotlight
         binding.cardHeroCampusRadar.setOnClickListener { navigateTo(NearbyStudentsActivity::class.java, it) }
         binding.btnScanCampusRadarHero.setOnClickListener { navigateTo(NearbyStudentsActivity::class.java, it) }

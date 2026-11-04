@@ -135,88 +135,117 @@ class RandomMatchActivity : AppCompatActivity() {
         findMatch()
     }
 
+    private fun attemptTransactionMatch(targetUid: String, targetName: String) {
+        val myUid = auth.currentUser?.uid ?: return
+
+        val myUserRef = db.collection("users").document(myUid)
+        val targetUserRef = db.collection("users").document(targetUid)
+
+        db.runTransaction { transaction ->
+            val targetSnap = transaction.get(targetUserRef)
+
+            val isTargetInCall = targetSnap.getBoolean("inCall") == true
+            val isTargetBusy = targetSnap.getString("currentMatchId") != null
+
+            if (isTargetInCall || isTargetBusy) {
+                throw com.google.firebase.firestore.FirebaseFirestoreException(
+                    "Target peer is busy in another call",
+                    com.google.firebase.firestore.FirebaseFirestoreException.Code.ABORTED
+                )
+            }
+
+            val deterministicSessionId = "session_${listOf(myUid, targetUid).sorted().joinToString("_vs_")}_${System.currentTimeMillis() / 60000}"
+
+            transaction.update(myUserRef, mapOf("inCall" to true, "currentMatchId" to targetUid))
+            transaction.update(targetUserRef, mapOf("inCall" to true, "currentMatchId" to myUid))
+
+            val matchData = mapOf(
+                "hostId" to myUid,
+                "hostName" to myName,
+                "receiverId" to targetUid,
+                "receiverName" to targetName,
+                "callId" to deterministicSessionId,
+                "status" to "active",
+                "timestamp" to com.google.firebase.firestore.FieldValue.serverTimestamp()
+            )
+            transaction.set(db.collection("random_matches").document(targetUid), matchData)
+
+            deterministicSessionId
+        }.addOnSuccessListener { sessionId ->
+            if (!isMatching || isFinishing || isDestroyed) return@addOnSuccessListener
+            skippedUserIds.add(targetUid)
+            val isCallerRole = (myUid < targetUid)
+            finalizeMatch(targetUid, targetName, isCallerRole, sessionId)
+        }.addOnFailureListener {
+            Log.d("RandomMatch", "Atomic reservation aborted for $targetName, trying next peer...")
+            findMatch()
+        }
+    }
+
     private fun findMatch() {
         if (!isMatching || isFinishing || isDestroyed) return
         val myUid = auth.currentUser?.uid ?: return
 
         searchAttempts++
 
-        db.collection("users")
-            .whereEqualTo("isOnline", true)
-            .whereEqualTo("isLookingForRandomMatch", true)
-            .limit(20)
-            .get()
-            .addOnSuccessListener { snapshots ->
-                if (!isMatching) return@addOnSuccessListener
+        if (searchAttempts > 5) {
+            isMatching = false
+            binding.btnStartMatch.visibility = View.VISIBLE
+            binding.btnStartMatch.text = "🔄 Retry Radar Scan"
+            binding.btnSkipUser.visibility = View.GONE
+            binding.btnCancelMatch.visibility = View.GONE
+            binding.viewPulse.visibility = View.GONE
+            binding.tvStatus.text = "No eligible peers available right now"
+            binding.tvSubStatus.text = "Tap 'Retry Radar Scan' to check campus radar again!"
+            return
+        }
 
-                val potentialMatches = snapshots.documents.filter {
-                    it.id != myUid &&
-                    !skippedUserIds.contains(it.id) &&
-                    it.getBoolean("isOnline") == true &&
-                    it.getBoolean("isLookingForRandomMatch") == true
-                }
+        val query = if (searchAttempts <= 2) {
+            db.collection("users")
+                .whereEqualTo("isOnline", true)
+                .whereEqualTo("isLookingForRandomMatch", true)
+                .limit(10)
+        } else {
+            db.collection("users")
+                .whereEqualTo("isOnline", true)
+                .limit(15)
+        }
 
-                if (potentialMatches.isNotEmpty()) {
-                    val match = potentialMatches.random()
-                    val matchId = match.id
-                    val matchName = match.getString("name") ?: "Campus Peer"
+        query.get().addOnSuccessListener { snapshots ->
+            if (!isMatching) return@addOnSuccessListener
 
-                    skippedUserIds.add(matchId)
+            val potentialMatches = snapshots.documents.filter {
+                val uid = it.id
+                val inCall = it.getBoolean("inCall") == true
+                val lastSeen = it.getTimestamp("lastSeenTimestamp")?.toDate()?.time ?: System.currentTimeMillis()
+                val isRecent = (System.currentTimeMillis() - lastSeen) < 120000
 
-                    val deterministicSessionId = "session_${listOf(myUid, matchId).sorted().joinToString("_vs_")}_${System.currentTimeMillis() / 60000}"
-                    val isCallerRole = (myUid < matchId)
-
-                    val matchData = mapOf(
-                        "hostId" to myUid,
-                        "hostName" to myName,
-                        "receiverId" to matchId,
-                        "receiverName" to matchName,
-                        "callId" to deterministicSessionId,
-                        "status" to "active",
-                        "timestamp" to com.google.firebase.firestore.FieldValue.serverTimestamp()
-                    )
-
-                    db.collection("random_matches").document(matchId).set(matchData)
-                    finalizeMatch(matchId, matchName, isCallerRole, deterministicSessionId)
-                } else if (searchAttempts >= 2) {
-                    // Fallback to active online campus student if no user is tapping match at that exact second
-                    db.collection("users").whereEqualTo("isOnline", true).limit(10).get()
-                        .addOnSuccessListener { onlineSnaps ->
-                            if (!isMatching) return@addOnSuccessListener
-                            val peers = onlineSnaps.documents.filter { it.id != myUid && !skippedUserIds.contains(it.id) }
-                            val peerDoc = if (peers.isNotEmpty()) peers.random() else null
-                            val matchId = peerDoc?.id ?: "campus_peer_${(1..100).random()}"
-                            val matchName = peerDoc?.getString("name") ?: listOf("Sneha Reddy", "Rohan Verma", "Aryan Sharma", "Ananya R.").random()
-
-                            skippedUserIds.add(matchId)
-
-                            val deterministicSessionId = "session_${listOf(myUid, matchId).sorted().joinToString("_vs_")}_${System.currentTimeMillis() / 60000}"
-                            val isCallerRole = (myUid < matchId)
-
-                            finalizeMatch(matchId, matchName, isCallerRole, deterministicSessionId)
-                        }
-                        .addOnFailureListener {
-                            val matchId = "campus_peer_speedlink_${System.currentTimeMillis() % 1000}"
-                            val matchName = "Sneha Reddy (Campus SpeedLink)"
-                            val deterministicSessionId = "session_${listOf(myUid, matchId).sorted().joinToString("_vs_")}_${System.currentTimeMillis() / 60000}"
-                            finalizeMatch(matchId, matchName, true, deterministicSessionId)
-                        }
-                } else {
-                    val statusMessages = arrayOf(
-                        "Scanning active students...",
-                        "Checking campus radar...",
-                        "Searching for online peers...",
-                        "Waiting for next active student..."
-                    )
-                    binding.tvStatus.text = statusMessages[searchAttempts % statusMessages.size]
-                    handler.postDelayed({ findMatch() }, 1500)
-                }
+                uid != myUid &&
+                !skippedUserIds.contains(uid) &&
+                !inCall &&
+                isRecent
             }
-            .addOnFailureListener {
-                if (isMatching) {
-                    handler.postDelayed({ findMatch() }, 2000)
-                }
+
+            if (potentialMatches.isNotEmpty()) {
+                val candidate = potentialMatches.random()
+                val matchId = candidate.id
+                val matchName = candidate.getString("name") ?: "Campus Peer"
+                attemptTransactionMatch(matchId, matchName)
+            } else {
+                val statusMessages = arrayOf(
+                    "Searching for online peers...",
+                    "Scanning active students...",
+                    "Checking campus radar...",
+                    "Reserving eligible peer..."
+                )
+                binding.tvStatus.text = statusMessages[searchAttempts % statusMessages.size]
+                handler.postDelayed({ findMatch() }, 1500)
             }
+        }.addOnFailureListener {
+            if (isMatching) {
+                handler.postDelayed({ findMatch() }, 2000)
+            }
+        }
     }
 
     private fun finalizeMatch(partnerUid: String, partnerName: String, isOffer: Boolean, callId: String) {

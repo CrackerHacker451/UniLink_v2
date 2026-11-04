@@ -105,6 +105,8 @@ val ArenaNeonPurple = Color(0xFFA855F7)
 @Composable
 fun CampusArenaScreen(
     onNavigateBack: () -> Unit = {},
+    onOpenRandomMatch: () -> Unit = {},
+    onOpenCampusRadar: () -> Unit = {},
     onOpenAudioRoom: () -> Unit = {},
     onOpenDareDrop: () -> Unit = {},
     onOpenBarterBlock: () -> Unit = {},
@@ -196,6 +198,44 @@ fun CampusArenaScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 contentPadding = PaddingValues(bottom = 90.dp, top = 8.dp)
             ) {
+                // Arena Quick Shortcuts
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Surface(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(RoundedCornerShape(20.dp))
+                                .clickable { onOpenRandomMatch() },
+                            color = Color(0x33EC4899),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, AppPinkAccent)
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text("⚡ SpeedLink", color = AppPinkAccent, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text("1080p Peer Connect", color = Color.White.copy(0.8f), fontSize = 11.sp)
+                            }
+                        }
+
+                        Surface(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(RoundedCornerShape(20.dp))
+                                .clickable { onOpenCampusRadar() },
+                            color = Color(0x3338BDF8),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, AppCyanAccent)
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text("📡 Campus Radar", color = AppCyanAccent, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text("Scan Active Radius", color = Color.White.copy(0.8f), fontSize = 11.sp)
+                            }
+                        }
+                    }
+                }
+
                 // Zone 1: The 11:59 Zone
                 item {
                     Zone1MidnightMicCard(onOpenAudioRoom = onOpenAudioRoom)
