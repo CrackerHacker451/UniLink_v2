@@ -226,12 +226,12 @@ class ProfileActivity : AppCompatActivity() {
         binding.ivPremiumBadge.visibility = if (user.isPremium) View.VISIBLE else View.GONE
 
         if (user.worldIdVerified) {
-            binding.tvWorldIdStatus.text = "IDKit World ID Verified 🌐"
+            binding.tvWorldIdStatus.text = "Human Verified 🌐"
             binding.cardWorldIdBadge.setCardBackgroundColor(android.graphics.Color.parseColor("#1F10B981"))
             binding.cardWorldIdBadge.strokeColor = android.graphics.Color.parseColor("#10B981")
             binding.tvWorldIdStatus.setTextColor(android.graphics.Color.parseColor("#10B981"))
         } else {
-            binding.tvWorldIdStatus.text = "Verify IDKit Liveness 🌐"
+            binding.tvWorldIdStatus.text = "Verify Human Uniqueness 🌐"
             binding.cardWorldIdBadge.setCardBackgroundColor(android.graphics.Color.parseColor("#1F06B6D4"))
             binding.cardWorldIdBadge.strokeColor = android.graphics.Color.parseColor("#06B6D4")
             binding.tvWorldIdStatus.setTextColor(android.graphics.Color.parseColor("#06B6D4"))

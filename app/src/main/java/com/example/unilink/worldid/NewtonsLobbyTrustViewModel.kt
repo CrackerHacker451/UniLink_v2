@@ -56,7 +56,7 @@ class NewtonsLobbyTrustViewModel(application: Application) : AndroidViewModel(ap
             val nowSeconds = System.currentTimeMillis() / 1000
             val schemaId = if (tier == CredentialTier.PROOF_OF_HUMAN) 1 else 11
             val identifier = if (tier == CredentialTier.PROOF_OF_HUMAN) "proof_of_human" else "selfie"
-            val badgeName = if (tier == CredentialTier.PROOF_OF_HUMAN) "Orbit Verified Student" else "Live Team Creator (Selfie Verified)"
+            val badgeName = if (tier == CredentialTier.PROOF_OF_HUMAN) "Human Verified 🌐" else "Live Team Creator (Selfie Verified)"
             val nullifierHash = "0x04e5f6_${uid.take(8)}_${tier.name.lowercase()}_nullifier"
 
             val officialWorldId4Payload = JSONObject().apply {

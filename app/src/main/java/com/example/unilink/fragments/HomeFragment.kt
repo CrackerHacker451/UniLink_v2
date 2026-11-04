@@ -18,7 +18,12 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.view.ViewCompat
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeViewModelStoreOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
@@ -300,6 +305,45 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun showComposeBottomSheet(content: @androidx.compose.runtime.Composable (com.google.android.material.bottomsheet.BottomSheetDialog) -> Unit) {
+        val ctx = context ?: return
+        val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(ctx)
+        val composeView = ComposeView(ctx).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                content(dialog)
+            }
+        }
+        dialog.setContentView(composeView)
+
+        dialog.findViewById<View>(com.google.android.material.R.id.container)?.let { container ->
+            container.setViewTreeLifecycleOwner(viewLifecycleOwner)
+            container.setViewTreeViewModelStoreOwner(this)
+            container.setViewTreeSavedStateRegistryOwner(this)
+        }
+
+        dialog.show()
+    }
+
+    private fun showDay7ProofOfHumanGate(onVerified: () -> Unit) {
+        val act = activity ?: return
+        showComposeBottomSheet { dialog ->
+            val viewModel = com.example.unilink.worldid.NewtonsLobbyTrustViewModel(act.application)
+            viewModel.resetState()
+            com.example.unilink.worldid.NewtonsLobbyTrustSheet(
+                projectId = "day7_streak_${System.currentTimeMillis()}",
+                projectTitle = "Day 7 Streak Gate (+150 UniCoins)",
+                tier = com.example.unilink.worldid.CredentialTier.PROOF_OF_HUMAN,
+                viewModel = viewModel,
+                onVerifiedSuccess = {
+                    dialog.dismiss()
+                    onVerified()
+                },
+                onClose = { dialog.dismiss() }
+            )
+        }
+    }
+
     private fun showStreakModal() {
         val ctx = context ?: return
         val dialogView = layoutInflater.inflate(R.layout.dialog_streak_rewards, null)
@@ -312,10 +356,12 @@ class HomeFragment : Fragment() {
 
         btnClaim?.setOnClickListener { v ->
             HapticUtils.playSuccess(v)
-            userRepository.addUniCoins(50) { success ->
-                if (success) {
-                    Toast.makeText(ctx, "🔥 Daily Campus Streak Bonus Claimed! +50 UniCoins Added!", Toast.LENGTH_LONG).show()
-                    dialog.dismiss()
+            showDay7ProofOfHumanGate {
+                userRepository.addUniCoins(150) { success ->
+                    if (success) {
+                        Toast.makeText(ctx, "🔥 Day 7 Streak Claimed! Human Verified! +150 UniCoins Added! 🌐", Toast.LENGTH_LONG).show()
+                        dialog.dismiss()
+                    }
                 }
             }
         }
