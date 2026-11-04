@@ -252,6 +252,9 @@ class PostAdapter : ListAdapter<Post, PostAdapter.PostViewHolder>(PostDiffCallba
         binding.reactBulb.setOnClickListener(listener)
         binding.reactGem.setOnClickListener(listener)
         binding.reactHeart.setOnClickListener(listener)
+        binding.reactSkull.setOnClickListener(listener)
+        binding.reactBrain.setOnClickListener(listener)
+        binding.reactCrown.setOnClickListener(listener)
         popup.showAsDropDown(view, 0, -view.height * 4)
     }
 
