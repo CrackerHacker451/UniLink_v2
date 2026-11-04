@@ -5,9 +5,11 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import kotlinx.coroutines.launch
 import com.example.unilink.databinding.ActivityRewardWheelBinding
 import com.example.unilink.repository.UserRepository
 import com.example.unilink.utils.HapticUtils
@@ -58,9 +60,9 @@ class RewardWheelActivity : AppCompatActivity() {
             val viewModel = com.example.unilink.worldid.NewtonsLobbyTrustViewModel(application)
             viewModel.resetState()
             com.example.unilink.worldid.NewtonsLobbyTrustSheet(
-                projectId = "reward_wheel_${System.currentTimeMillis()}",
-                projectTitle = "Daily Streak Reward Gate",
-                tier = com.example.unilink.worldid.CredentialTier.SELFIE_CHECK,
+                projectId = com.example.unilink.trust.WorldTrustRepository.REWARD_ACTION,
+                projectTitle = "Day 7 Streak Gate (+150 UniCoins)",
+                tier = com.example.unilink.worldid.CredentialTier.PROOF_OF_HUMAN,
                 viewModel = viewModel,
                 onVerifiedSuccess = {
                     dialog.dismiss()
@@ -73,14 +75,16 @@ class RewardWheelActivity : AppCompatActivity() {
 
     private fun claimReward() {
         binding.btnSpinWheel.isEnabled = false
-        userRepository.addUniCoins(50) { success ->
-            if (success) {
+        lifecycleScope.launch {
+            val trustManager = com.example.unilink.trust.WorldTrustManager(this@RewardWheelActivity)
+            val result = trustManager.executeRewardHumanProofFlow()
+            if (result.success) {
                 HapticUtils.playSuccess(binding.btnSpinWheel)
-                Toast.makeText(this, "🔥 Daily Campus Streak Reward Claimed! +50 UniCoins Added!", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@RewardWheelActivity, result.message ?: "🔥 Day 7 Streak Reward Granted! +150 UniCoins & Pro Pass Active!", Toast.LENGTH_LONG).show()
                 finish()
             } else {
                 binding.btnSpinWheel.isEnabled = true
-                Toast.makeText(this, "Failed to claim reward. Try again.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@RewardWheelActivity, result.message ?: "Failed to claim reward. Try again.", Toast.LENGTH_SHORT).show()
             }
         }
     }
