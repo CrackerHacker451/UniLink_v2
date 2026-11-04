@@ -57,12 +57,13 @@ class NewtonsLobbyTrustViewModel(application: Application) : AndroidViewModel(ap
             val schemaId = if (tier == CredentialTier.PROOF_OF_HUMAN) 1 else 11
             val identifier = if (tier == CredentialTier.PROOF_OF_HUMAN) "proof_of_human" else "selfie"
             val badgeName = if (tier == CredentialTier.PROOF_OF_HUMAN) "Human Verified 🌐" else "Live Team Creator (Selfie Verified)"
-            val nullifierHash = "0x04e5f6_${uid.take(8)}_${tier.name.lowercase()}_nullifier"
+            val actionStr = if (tier == CredentialTier.PROOF_OF_HUMAN) REWARD_ACTION else TEAM_ACTION
+            val nullifierHash = "0x04e5f6_${uid.take(8)}_${actionStr}_nullifier"
 
             val officialWorldId4Payload = JSONObject().apply {
                 put("protocol_version", "4.0")
                 put("nonce", "nonce_nl_${System.currentTimeMillis()}")
-                put("action", if (tier == CredentialTier.PROOF_OF_HUMAN) "verify-account-2026" else "create-team-liveness")
+                put("action", actionStr)
                 put("environment", "production")
                 put("integrity_bundle", JSONObject().apply {
                     put("version", 2)
@@ -102,7 +103,8 @@ class NewtonsLobbyTrustViewModel(application: Application) : AndroidViewModel(ap
                 projectId = projectId,
                 weight = "1.0x",
                 badge = badgeName,
-                sybilScore = score
+                sybilScore = score,
+                action = actionStr
             )
             _uiState.value = TrustUiState.Verified(
                 sybilScore = score,
@@ -119,25 +121,38 @@ class NewtonsLobbyTrustViewModel(application: Application) : AndroidViewModel(ap
                 projectId = projectId,
                 weight = "0.2x",
                 badge = "Guest Contributor (0.2x Queue)",
-                sybilScore = 10
+                sybilScore = 10,
+                action = REWARD_ACTION
             )
             _uiState.value = TrustUiState.FallbackActive(reason)
         }
     }
 
-    private fun recordVerificationInFirestore(projectId: String, weight: String, badge: String, sybilScore: Int) {
+    private fun recordVerificationInFirestore(projectId: String, weight: String, badge: String, sybilScore: Int, action: String = REWARD_ACTION) {
         val uid = auth.currentUser?.uid ?: return
-        val nullifier = "nullifier_nl_${uid.take(6)}_${projectId.take(6)}"
+        val nullifierHash = "0x04e5f6_${uid.take(8)}_${action}_nullifier"
+
+        // Store action-scoped Nullifier record in top-level 'nullifiers' collection
+        val nullifierRecord = hashMapOf(
+            "nullifier" to nullifierHash,
+            "action" to action,
+            "firebaseUid" to uid,
+            "verifiedAt" to FieldValue.serverTimestamp(),
+            "rewardCycle" to "2026-W42"
+        )
+        db.collection("nullifiers").document("${nullifierHash}_${action}")
+            .set(nullifierRecord, SetOptions.merge())
 
         val voteData = hashMapOf(
             "voterUid" to uid,
-            "nullifier" to nullifier,
+            "nullifier" to nullifierHash,
+            "action" to action,
             "weight" to weight,
             "sybilScore" to sybilScore,
             "badge" to badge,
             "timestamp" to FieldValue.serverTimestamp()
         )
-        db.collection("projects").document(projectId).collection("votes").document(nullifier)
+        db.collection("projects").document(projectId).collection("votes").document(nullifierHash)
             .set(voteData, SetOptions.merge())
 
         val userData = hashMapOf(
@@ -160,5 +175,10 @@ class NewtonsLobbyTrustViewModel(application: Application) : AndroidViewModel(ap
             db.collection("users").document(uid).set(userData, SetOptions.merge())
         }
         _uiState.value = TrustUiState.Idle
+    }
+
+    companion object {
+        const val REWARD_ACTION = "newton-streak-day7-v1"
+        const val TEAM_ACTION = "newton-team-create-v1"
     }
 }
