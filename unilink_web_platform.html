@@ -3,553 +3,640 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Newton's Lobby — UniLink Campus Platform</title>
+    <title>UniLink Campus Platform</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        bgDark: '#060709',
-                        bgCard: '#090A0F',
-                        borderSubtle: '#171A21',
-                        borderStrong: '#262A33',
-                        slateCyan: '#7CA5B8',
-                        twilightPurple: '#9D8EC4',
-                        dustyGold: '#D4B27C',
-                        softRose: '#C48484',
-                        sageGreen: '#78A88E'
+                        dark: {
+                            950: '#000000',
+                            900: '#050505',
+                            850: '#0A0A0A',
+                            800: '#121212',
+                            750: '#1E1E1E'
+                        }
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace']
                     }
                 }
             }
         }
     </script>
     <style>
-        body {
-            background-color: #060709;
-            color: #E2E8F0;
-            font-family: 'Inter', sans-serif;
-        }
-        .glass-panel {
-            background: rgba(9, 10, 15, 0.85);
-            backdrop-filter: blur(16px);
-            border: 1px solid #171A21;
-        }
-        .warm-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(217, 119, 6, 0.08);
-            pointer-events: none;
-            z-index: 9999;
-            transition: opacity 0.3s ease;
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #262A33;
-            border-radius: 4px;
-        }
+        .scrollbar-none::-webkit-scrollbar { display: none; }
+        .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+        #warmTintOverlay { pointer-events: none; transition: background-color 0.3s ease; }
     </style>
 </head>
-<body class="min-h-screen flex justify-center items-center bg-[#060709] relative overflow-x-hidden p-2 sm:p-4">
+<body class="bg-dark-950 text-slate-100 font-sans antialiased min-h-screen flex justify-center selection:bg-slate-800 selection:text-slate-200">
 
-    <!-- Eye Comfort Warm Tint Overlay -->
-    <div id="warmTintOverlay" class="warm-overlay opacity-0"></div>
+    <!-- Warm Tint Overlay -->
+    <div id="warmTintOverlay" class="fixed inset-0 z-50 bg-amber-500/0"></div>
 
-    <!-- Main Container (Mobile First Max-Width Layout) -->
-    <div id="appContainer" class="w-full max-w-md h-[94vh] max-h-[920px] bg-[#060709] border border-[#171A21] rounded-3xl shadow-2xl flex flex-col relative overflow-hidden transition-all duration-300">
+    <!-- Mobile App Container (Jet Black in Dark Theme / Pure White in Light Theme) -->
+    <div id="appContainer" class="w-full max-w-md bg-dark-900 min-h-screen flex flex-col relative shadow-2xl overflow-hidden border-x border-dark-800 bg-cover bg-center transition-colors duration-300">
 
-        <!-- Top Header Bar -->
-        <header id="mainHeader" class="w-full px-4 py-3 border-b border-[#171A21] glass-panel z-20 flex justify-between items-center">
-            <!-- Top Left: Stats Pill Alignment -->
-            <div class="flex items-center space-x-3">
-                <div onclick="openCoinsModal()" class="cursor-pointer px-3 py-1.5 rounded-full bg-[#090A0F] border border-[#262A33] text-[#D4B27C] text-xs font-bold font-mono flex items-center gap-1.5 hover:border-[#D4B27C] transition">
-                    <span>🔥 7</span>
-                    <span class="text-gray-500">•</span>
-                    <span>🪙 100,175</span>
-                </div>
+        <!-- HEADER BAR -->
+        <header class="px-4 py-3 flex items-center justify-between border-b border-dark-800 bg-dark-900/95 backdrop-blur-md sticky top-0 z-30">
+            <!-- Left: Sparkles Highlights Button & UniCoins Wallet Badge Side-by-Side -->
+            <div class="flex items-center space-x-2">
+                <button id="openHighlightsBtn" onclick="triggerFeatureModal('Campus Highlights')" title="Campus Highlights" class="w-9 h-9 bg-dark-800 border border-dark-750 rounded-full flex items-center justify-center text-slate-300 hover:border-slate-500 transition-all shadow-sm">
+                    <div class="relative flex items-center justify-center">
+                        <i data-lucide="sparkle" class="w-4 h-4 text-[#7CA5B8]"></i>
+                        <span class="absolute -top-1 -right-1.5 text-[10px]">✨</span>
+                        <span class="absolute -bottom-1 -left-1.5 text-[8px]">•</span>
+                    </div>
+                </button>
+                <button onclick="triggerFeatureModal('UniCoins Wallet')" class="flex items-center space-x-1.5 bg-dark-800 px-2.5 py-1 rounded-full border border-dark-750 shadow-sm text-xs font-medium text-slate-200 hover:border-slate-500 transition-all">
+                    <span class="text-[#D4B27C]">🪙</span>
+                    <span class="text-slate-200" id="headerUniCoins">100,175</span>
+                </button>
             </div>
 
-            <!-- Top Right: Notifications & Three-Dots Menu -->
-            <div class="flex items-center space-x-2">
-                <div class="relative">
-                    <button onclick="openNotificationsModal()" class="p-2 rounded-xl bg-[#090A0F] border border-[#262A33] text-[#7CA5B8] hover:bg-[#171A21] transition relative">
-                        <i data-lucide="bell" class="w-4 h-4"></i>
-                        <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#C48484]"></span>
-                    </button>
-                </div>
+            <!-- Right: Default Header Actions -->
+            <div id="defaultHeaderRight" class="flex items-center space-x-2">
+                <button id="eyeComfortToggle" title="Toggle Warm Tint" class="w-9 h-9 rounded-xl bg-dark-800 border border-dark-750 flex items-center justify-center text-slate-300 hover:text-white transition-all shadow-sm">
+                    <i data-lucide="sun-medium" class="w-4 h-4 text-[#D4B27C]"></i>
+                </button>
+                <button id="openNotificationsBtn" onclick="triggerFeatureModal('Notifications')" title="Notifications" class="w-9 h-9 rounded-xl bg-dark-800 border border-dark-750 flex items-center justify-center text-slate-300 hover:text-white transition-all shadow-sm relative">
+                    <i data-lucide="bell" class="w-4 h-4 text-[#9D8EC4]"></i>
+                    <span class="absolute top-2 right-2 w-2 h-2 bg-[#7CA5B8] rounded-full animate-pulse"></span>
+                </button>
+                <button id="openMenuBtn" onclick="triggerFeatureModal('Menu Drawer')" class="w-9 h-9 rounded-xl bg-dark-800 border border-dark-750 flex items-center justify-center text-slate-300 hover:text-white transition-all shadow-sm">
+                    <i data-lucide="menu" class="w-5 h-5 text-slate-300"></i>
+                </button>
+            </div>
 
-                <div class="relative">
-                    <button onclick="toggleWhatsappDropdown()" title="Menu" class="p-2 rounded-xl bg-[#090A0F] border border-[#262A33] text-gray-300 hover:text-white transition">
-                        <i data-lucide="more-vertical" class="w-4 h-4"></i>
-                    </button>
-
-                    <!-- WhatsApp Dropdown Menu -->
-                    <div id="whatsappDropdown" class="hidden absolute right-0 top-11 w-52 rounded-xl bg-[#090A0F] border border-[#262A33] shadow-2xl p-1.5 z-50 text-xs text-gray-200 space-y-1">
-                        <div onclick="alert('Creating New Squad...')" class="p-2.5 rounded-lg hover:bg-[#171A21] cursor-pointer flex items-center gap-2">
-                            <i data-lucide="users" class="w-3.5 h-3.5 text-[#7CA5B8]"></i> New Hackathon Squad
-                        </div>
-                        <div onclick="switchTab('projects')" class="p-2.5 rounded-lg hover:bg-[#171A21] cursor-pointer flex items-center gap-2">
-                            <i data-lucide="zap" class="w-3.5 h-3.5 text-[#EC4899]"></i> SpeedLink 1080p Match
-                        </div>
-                        <div onclick="switchTab('search')" class="p-2.5 rounded-lg hover:bg-[#171A21] cursor-pointer flex items-center gap-2">
-                            <i data-lucide="radar" class="w-3.5 h-3.5 text-[#06B6D4]"></i> Campus Radar
-                        </div>
-                        <div onclick="switchTab('profile')" class="p-2.5 rounded-lg hover:bg-[#171A21] cursor-pointer flex items-center gap-2">
-                            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-[#78A88E]"></i> World ID Verification
-                        </div>
-                        <div onclick="openSettingsModal()" class="p-2.5 rounded-lg hover:bg-[#171A21] cursor-pointer flex items-center gap-2 border-t border-[#171A21]">
-                            <i data-lucide="settings" class="w-3.5 h-3.5 text-gray-400"></i> Settings
-                        </div>
-                    </div>
-                </div>
+            <!-- Profile-Specific Top Right Actions -->
+            <div id="profileHeaderRight" class="hidden items-center space-x-2">
+                <button onclick="triggerFeatureModal('College Details')" title="College Details" class="px-2.5 py-1.5 rounded-xl bg-dark-800 border border-dark-750 text-xs font-medium text-slate-300 flex items-center space-x-1 hover:border-slate-500">
+                    <i data-lucide="graduation-cap" class="w-3.5 h-3.5 text-[#7CA5B8]"></i>
+                    <span>College</span>
+                </button>
+                <button onclick="triggerFeatureModal('Profile Settings')" title="Settings" class="w-9 h-9 rounded-xl bg-dark-800 border border-dark-750 flex items-center justify-center text-slate-300 hover:text-white transition-all">
+                    <i data-lucide="settings" class="w-4 h-4 text-[#9D8EC4]"></i>
+                </button>
+                <button onclick="triggerFeatureModal('Sign Out')" title="Sign Out" class="w-9 h-9 rounded-xl bg-dark-800 border border-dark-750 flex items-center justify-center text-[#C48484] hover:bg-[#C48484]/10 transition-all">
+                    <i data-lucide="log-out" class="w-4 h-4 text-[#C48484]"></i>
+                </button>
             </div>
         </header>
 
-        <!-- Dynamic Main Screen Content Area -->
-        <main id="mainContent" class="flex-1 overflow-y-auto custom-scrollbar p-3.5 space-y-4 relative z-10">
+        <!-- MAIN CONTENT STREAM -->
+        <main class="flex-1 overflow-y-auto px-4 py-4 space-y-4 max-w-md mx-auto w-full pb-24 scrollbar-none flex flex-col justify-start">
 
-            <!-- HOME TAB -->
-            <section id="tab-home" class="space-y-4">
-                <!-- UniAI Study Copilot Card (Image 3 Specification) -->
-                <div class="p-4 rounded-2xl bg-[#090A0F] border border-[#171A21] space-y-3">
-                    <div class="flex justify-between items-center">
-                        <div class="flex items-center gap-2">
-                            <i data-lucide="sparkles" class="w-4 h-4 text-[#7CA5B8]"></i>
+            <!-- SCREEN 1: HOME FEED -->
+            <div id="screenHome" class="space-y-4 w-full">
+                <!-- UNIAI STUDY COPILOT CARD -->
+                <section class="bg-dark-850/90 backdrop-blur-md rounded-2xl p-4 border border-dark-800 shadow-md relative overflow-hidden shrink-0">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-2.5">
+                            <div class="w-9 h-9 rounded-xl bg-[#7CA5B8]/10 border border-[#7CA5B8]/20 flex items-center justify-center text-[#7CA5B8] shadow-sm">
+                                <i data-lucide="sparkles" class="w-5 h-5"></i>
+                            </div>
                             <div>
-                                <h2 class="text-sm font-bold text-white flex items-center gap-1.5">
-                                    UniAI Study Copilot <span class="text-[10px] px-1.5 py-0.5 rounded bg-[#9D8EC4]/20 text-[#9D8EC4] font-mono">AI 2.0</span>
-                                </h2>
-                                <p class="text-[11px] text-gray-400">Instant syllabus & coding assistance</p>
+                                <div class="flex items-center space-x-1.5">
+                                    <h2 class="text-sm font-semibold tracking-wide">UniAI Study Copilot</h2>
+                                    <span class="px-1.5 py-0.5 bg-[#7CA5B8]/10 text-[#7CA5B8] text-[10px] font-semibold rounded-md border border-[#7CA5B8]/20">AI 2.0</span>
+                                </div>
+                                <p class="text-xs text-slate-400">Instant syllabus & coding assistance</p>
                             </div>
                         </div>
-                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-[#78A88E]/20 text-[#78A88E] border border-[#78A88E]/40 font-semibold flex items-center gap-1">
-                            <span class="w-1.5 h-1.5 rounded-full bg-[#78A88E]"></span> Active
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-medium bg-[#78A88E]/10 text-[#78A88E] border border-[#78A88E]/20">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#78A88E] mr-1.5 animate-pulse"></span> Active
                         </span>
                     </div>
 
-                    <!-- Prompt Input Bar -->
-                    <div class="relative flex items-center">
-                        <input type="text" id="homeAiInput" placeholder="Ask anything (e.g. quantum mechanics, binary search)..." class="w-full pl-3.5 pr-10 py-2.5 rounded-xl bg-[#171A21] border border-[#262A33] text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#7CA5B8]">
-                        <button onclick="askHomeAi()" class="absolute right-2 p-1.5 rounded-lg bg-[#090A0F] border border-[#262A33] text-gray-300 hover:text-white transition">
-                            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                    <div class="relative mb-3">
+                        <input type="text" id="aiCopilotInput" placeholder="Ask anything (e.g. quantum mechanics, binary search)..."
+                               class="w-full bg-dark-900 border border-dark-750 text-slate-200 placeholder-slate-500 text-xs rounded-xl pl-3.5 pr-10 py-2.5 focus:outline-none focus:border-[#7CA5B8] transition-all shadow-inner">
+                        <button id="aiCopilotBtn" onclick="askAiCopilot()" class="absolute right-1 top-1/2 -translate-y-1/2 bg-[#7CA5B8] hover:bg-[#6c93a4] text-dark-950 p-1.5 rounded-lg transition-all shadow-sm">
+                            <i data-lucide="arrow-right" class="w-4 h-4 text-dark-950"></i>
                         </button>
                     </div>
 
-                    <!-- Quick Chips -->
-                    <div class="flex gap-2 overflow-x-auto custom-scrollbar pb-1 text-[11px]">
-                        <button onclick="setAiPrompt('Explain Quantum Mechanics')" class="px-2.5 py-1 rounded-xl bg-[#171A21] border border-[#262A33] text-gray-300 hover:border-[#7CA5B8] whitespace-nowrap">Explain Quantum Mechanics</button>
-                        <button onclick="setAiPrompt('Binary Search Tree Code')" class="px-2.5 py-1 rounded-xl bg-[#171A21] border border-[#262A33] text-gray-300 hover:border-[#7CA5B8] whitespace-nowrap">Binary Search Tree Code</button>
+                    <div class="flex space-x-2 overflow-x-auto pb-1 scrollbar-none text-[11px]">
+                        <button onclick="setAiInput('Explain Quantum Mechanics')" class="ai-prompt-chip bg-dark-800 hover:bg-dark-750 text-slate-300 border border-dark-750 px-3 py-1.5 rounded-lg shrink-0 transition-colors">Explain Quantum Mechanics</button>
+                        <button onclick="setAiInput('Binary Search Tree Code')" class="ai-prompt-chip bg-dark-800 hover:bg-dark-750 text-slate-300 border border-dark-750 px-3 py-1.5 rounded-lg shrink-0 transition-colors">Binary Search Tree Code</button>
+                        <button onclick="setAiInput('Tech Resume Review')" class="ai-prompt-chip bg-dark-800 hover:bg-dark-750 text-slate-300 border border-dark-750 px-3 py-1.5 rounded-lg shrink-0 transition-colors">Tech Resume Review</button>
                     </div>
-                </div>
+                </section>
 
-                <!-- Campus Hackathon Event Post Card (Image 3 Specification) -->
-                <div class="p-4 rounded-2xl bg-[#090A0F] border border-[#171A21] space-y-3">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 rounded-full bg-[#171A21] border border-[#262A33] flex items-center justify-center font-bold text-xs text-white">H</div>
-                            <div>
-                                <div class="text-xs font-bold text-white flex items-center gap-1">
-                                    Campus Hackathon Board <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-[#7CA5B8]"></i>
+                <!-- HACKATHON ANNOUNCEMENT POST CARD -->
+                <article class="bg-dark-850/90 backdrop-blur-md rounded-2xl border border-dark-800 overflow-hidden shadow-md transition-all flex flex-col justify-between w-full shrink-0 aspect-[4/5]">
+                    <div class="px-3.5 py-3 flex items-center justify-between border-b border-dark-800 bg-dark-900/60 shrink-0">
+                        <div class="flex items-center space-x-2.5 overflow-hidden">
+                            <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-[#7CA5B8] to-[#9D8EC4] flex items-center justify-center font-bold text-dark-950 text-xs shrink-0 shadow-sm">H</div>
+                            <div class="overflow-hidden">
+                                <div class="flex items-center gap-1 text-xs font-semibold">
+                                    <span class="truncate">Campus Hackathon Board</span>
+                                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-[#78A88E] shrink-0"></i>
                                 </div>
-                                <div class="text-[10px] text-gray-500">Official Campus Event • 2h ago</div>
+                                <div class="text-[10px] text-slate-400">Official Campus Event • 2h ago</div>
                             </div>
                         </div>
-                        <i data-lucide="more-horizontal" class="w-4 h-4 text-gray-500 cursor-pointer"></i>
+                        <button class="text-slate-400 hover:text-white p-1"><i data-lucide="more-horizontal" class="w-4 h-4 text-slate-400"></i></button>
                     </div>
 
-                    <!-- Badge Tag -->
-                    <div>
-                        <span class="text-[10px] px-2 py-0.5 rounded-md bg-[#D4B27C]/15 text-[#D4B27C] border border-[#D4B27C]/30 font-semibold">🏆 Hackathon Announcement</span>
-                    </div>
-
-                    <!-- Title & Content -->
-                    <div class="space-y-1">
-                        <h3 class="text-sm font-bold text-white">🚀 HackNIT 2026: 48-Hour Campus Hackathon Announced!</h3>
-                        <p class="text-xs text-gray-300 leading-relaxed">Join 500+ student developers! ₹50,000 cash prize pool, direct mentorship from tech founders, and free food vouchers. Build solutions for AI/ML & Web3 tracks!</p>
-                    </div>
-
-                    <!-- Location & Progress Container -->
-                    <div class="p-3 rounded-xl bg-[#171A21] border border-[#262A33] space-y-2">
-                        <div class="flex justify-between text-[11px] text-gray-400 font-mono">
-                            <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3 text-[#D4B27C]"></i> Nov 10</span>
-                            <span class="flex items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3 text-[#7CA5B8]"></i> Main Auditorium</span>
+                    <div class="p-4 flex-1 flex flex-col justify-between bg-dark-900/50 overflow-y-auto scrollbar-none space-y-3">
+                        <div>
+                            <span class="px-2 py-0.5 rounded-md bg-[#7CA5B8]/10 text-[#7CA5B8] text-[10px] font-medium border border-[#7CA5B8]/20 inline-block mb-2">🏆 Hackathon Announcement</span>
+                            <h3 class="text-base font-bold leading-snug mb-1.5">🚀 HackNIT 2026: 48-Hour Campus Hackathon Announced!</h3>
+                            <p class="text-xs text-slate-300 leading-relaxed">Join 500+ student developers! ₹50,000 cash prize pool, direct mentorship from tech founders, and free food vouchers. Build solutions for AI/ML & Web3 tracks!</p>
                         </div>
-                        <!-- Progress Bar -->
-                        <div class="w-full h-1.5 rounded-full bg-[#090A0F] overflow-hidden">
-                            <div class="h-full bg-[#D4B27C] rounded-full" style="width: 75%;"></div>
+                        <div class="p-3 bg-dark-900 rounded-xl border border-dark-800 space-y-2">
+                            <div class="flex items-center justify-between text-xs text-slate-300">
+                                <span class="flex items-center gap-1.5 font-medium"><i data-lucide="calendar" class="w-3.5 h-3.5 text-[#7CA5B8]"></i> Nov 10</span>
+                                <span class="flex items-center gap-1.5 font-medium"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-[#C48484]"></i> Main Auditorium</span>
+                            </div>
+                            <div class="w-full bg-dark-800 rounded-full h-2 overflow-hidden border border-dark-750">
+                                <div class="bg-gradient-to-r from-[#7CA5B8] to-[#9D8EC4] h-full rounded-full" style="width: 75%;"></div>
+                            </div>
+                            <div class="text-[10px] text-right text-slate-400 font-mono">375/500 Teams Registered</div>
                         </div>
-                        <div class="text-right text-[10px] text-gray-500 font-mono">375/500 Teams Registered</div>
                     </div>
-                </div>
-            </section>
 
-            <!-- SEARCH TAB -->
-            <section id="tab-search" class="hidden space-y-4">
-                <div class="space-y-2">
-                    <h2 class="text-base font-bold text-white">Campus Search & Vaults</h2>
+                    <div class="px-4 py-3 bg-dark-900/90 border-t border-dark-800 flex items-center justify-between text-slate-300 shrink-0">
+                        <div class="flex items-center space-x-4">
+                            <button onclick="toggleLike(this)" class="reel-like-btn flex items-center space-x-1.5 hover:text-[#C48484] transition-colors">
+                                <i data-lucide="heart" class="w-5 h-5 text-[#C48484]"></i>
+                                <span class="font-medium text-xs">342</span>
+                            </button>
+                            <button class="flex items-center space-x-1.5 hover:text-[#7CA5B8] transition-colors">
+                                <i data-lucide="message-circle" class="w-5 h-5 text-[#7CA5B8]"></i>
+                                <span class="font-medium text-xs">48</span>
+                            </button>
+                            <button class="flex items-center space-x-1.5 hover:text-[#9D8EC4] transition-colors">
+                                <i data-lucide="send" class="w-5 h-5 text-[#9D8EC4]"></i>
+                            </button>
+                        </div>
+                        <button class="hover:text-[#D4B27C] transition-colors"><i data-lucide="bookmark" class="w-5 h-5 text-[#D4B27C]"></i></button>
+                    </div>
+                </article>
+            </div>
+
+            <!-- SCREEN 2: SEARCH -->
+            <div id="screenSearch" class="space-y-4 w-full hidden">
+                <div class="bg-dark-850 rounded-2xl p-4 border border-dark-800 space-y-3">
+                    <h2 class="text-sm font-bold">Campus Discovery & Search</h2>
                     <div class="relative">
-                        <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3 text-gray-400"></i>
-                        <input id="searchInput" oninput="filterSearch()" type="text" placeholder="Search hackathons, notes, peers, vaults..." class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#090A0F] border border-[#262A33] text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#7CA5B8]">
+                        <input type="text" id="liveSearchInput" placeholder="Search hackathons, notes, peers, projects..." class="w-full bg-dark-900 border border-dark-750 text-slate-200 placeholder-slate-500 text-xs rounded-xl pl-9 pr-3 py-2.5 focus:outline-none focus:border-[#7CA5B8]">
+                        <i data-lucide="search" class="w-4 h-4 text-[#7CA5B8] absolute left-3 top-3"></i>
                     </div>
                 </div>
-
-                <!-- Search Results Grid -->
-                <div id="searchResults" class="space-y-2.5">
-                    <div class="search-item p-3.5 rounded-xl bg-[#090A0F] border border-[#171A21] flex justify-between items-center" data-category="hackathon">
+                <div id="searchResultsList" class="space-y-2">
+                    <div class="p-3 bg-dark-850 rounded-xl border border-dark-800 flex items-center justify-between search-item" data-keywords="hackathon hacknit registered">
                         <div>
-                            <div class="text-xs font-bold text-white">0G AI Decentralized Compute Hackathon</div>
-                            <div class="text-[10px] text-[#7CA5B8]">Hackathon • $50,000 Prize Pool</div>
+                            <div class="text-xs font-bold">🚀 HackNIT 2026 (Registered)</div>
+                            <div class="text-[10px] text-slate-400">Hackathon Event • Nov 10 Main Auditorium</div>
                         </div>
-                        <span class="text-[10px] px-2 py-1 rounded-md bg-[#7CA5B8]/10 text-[#7CA5B8] border border-[#7CA5B8]/30">Active</span>
+                        <span class="px-2 py-1 bg-[#7CA5B8]/10 text-[#7CA5B8] rounded text-[10px] font-semibold border border-[#7CA5B8]/20">Joined</span>
                     </div>
-
-                    <div class="search-item p-3.5 rounded-xl bg-[#090A0F] border border-[#171A21] flex justify-between items-center" data-category="notes">
+                    <div class="p-3 bg-dark-850 rounded-xl border border-dark-800 flex items-center justify-between search-item" data-keywords="notes data structures algorithms pdf">
                         <div>
-                            <div class="text-xs font-bold text-white">Calculus III & Differential Equations Notes</div>
-                            <div class="text-[10px] text-[#D4B27C]">Lecture Notes • Verified PDF</div>
+                            <div class="text-xs font-bold">📚 Data Structures & Algorithms Notes</div>
+                            <div class="text-[10px] text-slate-400">Study Notes • PDF • Shared by Prof. Alan</div>
                         </div>
-                        <span class="text-[10px] px-2 py-1 rounded-md bg-[#D4B27C]/10 text-[#D4B27C] border border-[#D4B27C]/30">+20 🪙</span>
+                        <button class="px-2 py-1 bg-dark-800 hover:bg-dark-750 text-slate-300 rounded text-[10px]">Open</button>
+                    </div>
+                    <div class="p-3 bg-dark-850 rounded-xl border border-dark-800 flex items-center justify-between search-item" data-keywords="peer study group ai ml">
+                        <div>
+                            <div class="text-xs font-bold">👥 AI/ML Study Peer Group</div>
+                            <div class="text-[10px] text-slate-400">Community • 142 Members Active</div>
+                        </div>
+                        <button class="px-2 py-1 bg-[#7CA5B8]/10 text-[#7CA5B8] rounded text-[10px]">Join</button>
                     </div>
                 </div>
-            </section>
+            </div>
 
-            <!-- CHAT TAB -->
-            <section id="tab-chat" class="hidden space-y-4">
-                <div class="flex justify-between items-center">
-                    <h2 class="text-base font-bold text-white">Direct Messaging</h2>
-                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-[#78A88E]/20 text-[#78A88E] border border-[#78A88E]/30">2-Way Theme Sync</span>
+            <!-- SCREEN 3: CHAT -->
+            <div id="screenChat" class="space-y-3 w-full hidden">
+                <div class="bg-dark-850 rounded-2xl p-4 border border-dark-800 flex items-center justify-between">
+                    <h2 class="text-sm font-bold">Campus Messages</h2>
+                    <button onclick="triggerFeatureModal('New Message')" class="px-2.5 py-1 bg-[#7CA5B8]/10 text-[#7CA5B8] text-xs rounded-lg font-medium border border-[#7CA5B8]/20">New Chat</button>
                 </div>
-
                 <div class="space-y-2">
-                    <div onclick="openChatRoom('Sneha Kapoor')" class="p-3.5 rounded-xl bg-[#090A0F] border border-[#171A21] flex items-center justify-between cursor-pointer hover:border-[#262A33] transition">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-[#78A88E]/20 border border-[#78A88E] flex items-center justify-center font-bold text-xs text-[#78A88E]">SK</div>
-                            <div>
-                                <div class="text-xs font-bold text-white">Sneha Kapoor</div>
-                                <div class="text-[10px] text-gray-400">Shared custom wallpaper theme! ✨</div>
-                            </div>
+                    <div class="p-3 bg-dark-850 rounded-xl border border-dark-800 flex items-center space-x-3 cursor-pointer hover:border-slate-600 transition-colors">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-[#7CA5B8] to-[#9D8EC4] flex items-center font-bold justify-center text-dark-950 text-xs">HN</div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between"><span class="text-xs font-bold">HackNIT 2026 Team</span><span class="text-[10px] text-slate-400">12:34 PM</span></div>
+                            <p class="text-[11px] text-slate-400 truncate">Alex: Let's finalize the React frontend codebase...</p>
                         </div>
-                        <span class="text-[10px] text-gray-500 font-mono">11:42 AM</span>
+                    </div>
+                    <div class="p-3 bg-dark-850 rounded-xl border border-dark-800 flex items-center space-x-3 cursor-pointer hover:border-slate-600 transition-colors">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-[#78A88E] to-[#7CA5B8] flex items-center font-bold justify-center text-dark-950 text-xs">DS</div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between"><span class="text-xs font-bold">Prof. David Sterling</span><span class="text-[10px] text-slate-400">Yesterday</span></div>
+                            <p class="text-[11px] text-slate-400 truncate">Your assignment submission was received successfully.</p>
+                        </div>
                     </div>
                 </div>
-            </section>
+            </div>
 
-            <!-- PROJECTS TAB -->
-            <section id="tab-projects" class="hidden space-y-4">
-                <div class="flex justify-between items-center">
-                    <h2 class="text-base font-bold text-white">Active Campus Projects</h2>
-                    <button onclick="openCreateProjectModal()" class="px-3 py-1.5 rounded-xl bg-[#7CA5B8] text-black text-xs font-bold hover:bg-[#7CA5B8]/90 transition flex items-center gap-1">
-                        <i data-lucide="plus" class="w-3.5 h-3.5"></i> New Project
+            <!-- SCREEN 4: PROJECTS -->
+            <div id="screenProjects" class="space-y-4 w-full hidden">
+                <div class="bg-dark-850 rounded-2xl p-4 border border-dark-800 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-sm font-bold">My Vault & Projects</h2>
+                        <p class="text-[11px] text-slate-400">Active campus research & repositories</p>
+                    </div>
+                    <button onclick="triggerFeatureModal('Add Project')" class="px-3 py-1.5 bg-[#7CA5B8]/10 text-[#7CA5B8] rounded-xl text-xs font-semibold border border-[#7CA5B8]/20">+ New</button>
+                </div>
+                <div id="projectsVaultList" class="space-y-3">
+                    <div class="p-3.5 bg-dark-850 rounded-xl border border-dark-800 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xs font-bold">CampusStudy AI Assistant</h3>
+                            <span class="px-2 py-0.5 bg-[#78A88E]/10 text-[#78A88E] text-[10px] rounded border border-[#78A88E]/20">Active</span>
+                        </div>
+                        <p class="text-[11px] text-slate-300">An automated study copilot trained on university syllabus notes.</p>
+                        <div class="flex items-center justify-between pt-1">
+                            <a href="https://github.com/CrackerHacker451/UniLink_v2" target="_blank" class="text-[10px] text-[#7CA5B8] hover:underline flex items-center gap-1"><i data-lucide="external-link" class="w-3 h-3 text-[#7CA5B8]"></i> View Repository</a>
+                            <span class="text-[10px] text-slate-400">Python, React</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCREEN 5: PROFILE -->
+            <div id="screenProfile" class="space-y-4 w-full hidden">
+                <div class="bg-dark-850 rounded-2xl p-5 border border-dark-800 text-center space-y-3">
+                    <div id="profileAvatarBox" class="w-16 h-16 rounded-full bg-gradient-to-tr from-[#7CA5B8] to-[#9D8EC4] mx-auto flex items-center justify-center font-bold text-dark-950 text-xl shadow-lg overflow-hidden">
+                        <span id="profileAvatarInitials">SR</span>
+                    </div>
+                    <div>
+                        <h2 id="profileDisplayName" class="text-base font-bold">Student Scholar</h2>
+                        <p id="profileDisplayBio" class="text-xs text-slate-400">B.Tech Computer Science • Year 3</p>
+                    </div>
+                    <button onclick="openEditProfileModal()" class="px-4 py-1.5 bg-dark-800 hover:bg-dark-750 text-xs font-medium text-slate-200 rounded-xl border border-dark-750 transition-all inline-flex items-center gap-1.5">
+                        <i data-lucide="edit-3" class="w-3.5 h-3.5 text-[#7CA5B8]"></i> Edit Profile
                     </button>
                 </div>
 
-                <div class="space-y-3">
-                    <div class="p-4 rounded-2xl bg-[#090A0F] border border-[#171A21] space-y-3">
-                        <div class="flex justify-between items-start">
+                <!-- PROJECT SHOWCASE DASHBOARD -->
+                <div class="bg-dark-850 rounded-2xl p-4 border border-dark-800 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xs font-bold flex items-center gap-1.5">
+                            <i data-lucide="folder-git-2" class="w-4 h-4 text-[#7CA5B8]"></i> Project Showcase & Links
+                        </h3>
+                        <button onclick="openEditProfileModal()" class="text-[10px] text-[#7CA5B8] hover:underline">+ Add Project</button>
+                    </div>
+                    <p class="text-[11px] text-slate-400">Share your projects so friends & peers can visit them directly!</p>
+                    <div id="profileProjectsList" class="space-y-2">
+                        <div class="p-3 bg-dark-900 rounded-xl border border-dark-750 flex items-center justify-between">
                             <div>
-                                <h3 class="text-sm font-bold text-white">Newton's Lobby Smart Agent Engine</h3>
-                                <p class="text-xs text-gray-400 mt-0.5">Autonomous student assistant & 0G AI Private Computer.</p>
+                                <div class="text-xs font-bold">CampusStudy AI Copilot</div>
+                                <div class="text-[10px] text-slate-400 truncate max-w-[200px]">AI-powered lecture summarizer</div>
                             </div>
-                            <span class="text-[10px] px-2 py-0.5 rounded-md bg-[#78A88E]/20 text-[#78A88E] border border-[#78A88E]/30 font-semibold">1.0x Boost</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- PROFILE TAB (Images 1 & 2 Exact Specifications) -->
-            <section id="tab-profile" class="hidden space-y-4">
-                <!-- Scholar Profile Card -->
-                <div class="p-5 rounded-2xl bg-[#090A0F] border border-[#171A21] relative overflow-hidden text-center space-y-3">
-                    <!-- Circular Avatar -->
-                    <div class="w-16 h-16 rounded-full bg-[#171A21] border border-[#7CA5B8]/50 flex items-center justify-center font-bold text-sm text-[#7CA5B8] mx-auto shadow-md">
-                        SR
-                    </div>
-
-                    <div>
-                        <h2 id="profileName" class="text-base font-bold text-white">Student Scholar</h2>
-                        <p id="profileBranch" class="text-xs text-gray-400 mt-0.5">B.Tech Computer Science • Year 3</p>
-                    </div>
-
-                    <!-- Inner Enrollment Info Card -->
-                    <div class="p-3 rounded-xl bg-[#171A21] border border-[#262A33] text-left text-xs space-y-1">
-                        <div class="flex items-center gap-1.5 text-white font-semibold">
-                            <i data-lucide="graduation-cap" class="w-3.5 h-3.5 text-[#7CA5B8]"></i>
-                            <span>National Institute of Technology</span>
-                        </div>
-                        <div class="text-[11px] text-gray-400 font-mono pl-5">Enrollment ID: NIT2024CS882 • Semester 6</div>
-                    </div>
-
-                    <!-- Stat Pills Grid (100,175 UniCoins | 955 Impact Score) -->
-                    <div class="grid grid-cols-2 gap-3 pt-2">
-                        <div class="p-2.5 rounded-xl bg-[#171A21] border border-[#262A33] text-center">
-                            <div class="text-xs font-bold text-[#D4B27C] font-mono">100,175</div>
-                            <div class="text-[9px] text-[#D4B27C] font-mono">UniCoins</div>
-                        </div>
-                        <div class="p-2.5 rounded-xl bg-[#171A21] border border-[#262A33] text-center">
-                            <div class="text-xs font-bold text-white font-mono">955</div>
-                            <div class="text-[9px] text-gray-400 uppercase font-mono">Impact Score</div>
+                            <a href="https://github.com/CrackerHacker451/UniLink_v2" target="_blank" class="px-2.5 py-1 bg-[#7CA5B8]/10 text-[#7CA5B8] hover:bg-[#7CA5B8]/20 rounded-lg text-[10px] font-semibold border border-[#7CA5B8]/20 flex items-center gap-1">
+                                Visit <i data-lucide="external-link" class="w-3 h-3 text-[#7CA5B8]"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Project Showcase & Links Card (Image 1 & 2 Specification) -->
-                <div class="p-4 rounded-2xl bg-[#090A0F] border border-[#171A21] space-y-3">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                                <i data-lucide="folder-git-2" class="w-3.5 h-3.5 text-[#D4B27C]"></i> PROJECT SHOWCASE & LINKS
-                            </h3>
-                            <p class="text-[10px] text-gray-400 mt-0.5">Add projects for friends and peers to visit</p>
-                        </div>
-                        <button onclick="openAddLinkModal()" class="px-2.5 py-1 rounded-xl bg-[#171A21] border border-[#262A33] text-[#D4B27C] text-xs font-semibold hover:border-[#D4B27C] transition">+ Add</button>
+                <!-- MY POSTS HISTORY & MANAGEMENT -->
+                <div class="bg-dark-850 rounded-2xl p-4 border border-dark-800 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xs font-bold flex items-center gap-1.5">
+                            <i data-lucide="file-text" class="w-4 h-4 text-[#9D8EC4]"></i> My Posted History
+                        </h3>
+                        <span id="profilePostCount" class="px-2 py-0.5 bg-dark-800 text-slate-300 rounded-md text-[10px] font-mono border border-dark-750">1 Post</span>
                     </div>
+                    <p class="text-[11px] text-slate-400">Manage or delete your active campus announcements and posts.</p>
 
-                    <div id="projectLinksList" class="space-y-3">
-                        <!-- Project Item 1 -->
-                        <div class="p-3.5 rounded-xl bg-[#171A21] border border-[#262A33] space-y-2">
-                            <div class="flex justify-between items-start">
-                                <h4 class="text-xs font-bold text-white">Autonomous Campus Nav Bot</h4>
-                                <span class="text-[9px] px-1.5 py-0.5 rounded bg-[#7CA5B8]/20 text-[#7CA5B8] font-mono">AI/ML</span>
+                    <div id="profilePostsContainer" class="space-y-2.5">
+                        <div id="profile-post-1" class="p-3 bg-dark-900 rounded-xl border border-dark-750 space-y-2">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <span class="px-2 py-0.5 rounded bg-[#7CA5B8]/10 text-[#7CA5B8] text-[10px] font-medium border border-[#7CA5B8]/20 inline-block mb-1">Hackathon Announcement</span>
+                                    <h4 class="text-xs font-bold">🚀 HackNIT 2026: 48-Hour Campus Hackathon</h4>
+                                </div>
+                                <button onclick="deleteUserProfilePost('profile-post-1')" class="text-slate-400 hover:text-[#C48484] p-1 transition-colors" title="Delete Post">
+                                    <i data-lucide="trash-2" class="w-4 h-4 text-[#C48484]"></i>
+                                </button>
                             </div>
-                            <p class="text-[11px] text-gray-400">SLAM mapping and LiDAR obstacle navigation code for indoor campus delivery.</p>
-                            <div class="flex justify-between items-center pt-1 text-[10px]">
-                                <span class="text-gray-500 font-mono">v1.4 updated</span>
-                                <a href="https://github.com/CrackerHacker451/UniLink_v2" target="_blank" class="text-gray-300 hover:text-white flex items-center gap-1">
-                                    Visit Project <i data-lucide="external-link" class="w-3 h-3"></i>
-                                </a>
-                            </div>
-                        </div>
-
-                        <!-- Project Item 2 -->
-                        <div class="p-3.5 rounded-xl bg-[#171A21] border border-[#262A33] space-y-2">
-                            <div class="flex justify-between items-start">
-                                <h4 class="text-xs font-bold text-white">UniLink Peer Study Vault</h4>
-                                <span class="text-[9px] px-1.5 py-0.5 rounded bg-[#9D8EC4]/20 text-[#9D8EC4] font-mono">Web App</span>
-                            </div>
-                            <p class="text-[11px] text-gray-400">Collaborative student portal with real-time markdown notes and AI copilot.</p>
-                            <div class="flex justify-between items-center pt-1 text-[10px]">
-                                <span class="text-gray-500 font-mono">v2.4 live</span>
-                                <a href="https://github.com/CrackerHacker451/UniLink_v2" target="_blank" class="text-gray-300 hover:text-white flex items-center gap-1">
-                                    Visit Project <i data-lucide="external-link" class="w-3 h-3"></i>
-                                </a>
+                            <p class="text-[11px] text-slate-300 line-clamp-2">Join 500+ student developers! ₹50,000 cash prize pool, direct mentorship from tech founders...</p>
+                            <div class="flex items-center justify-between text-[10px] text-slate-400 pt-1 border-t border-dark-800">
+                                <span class="flex items-center gap-1"><i data-lucide="heart" class="w-3 h-3 text-[#C48484]"></i> 342 likes</span>
+                                <span class="font-mono">2h ago</span>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Account Options Card (Image 2 Specification) -->
-                <div class="p-4 rounded-2xl bg-[#090A0F] border border-[#171A21] space-y-3">
-                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">ACCOUNT OPTIONS</h3>
-
-                    <div class="space-y-2 text-xs">
-                        <button onclick="openEditProfileModal()" class="w-full p-3 rounded-xl bg-[#171A21] border border-[#262A33] text-gray-200 flex justify-between items-center hover:border-[#7CA5B8] transition">
-                            <span>Edit Profile Details</span>
-                            <i data-lucide="edit-3" class="w-4 h-4 text-gray-400"></i>
-                        </button>
-
-                        <button onclick="alert('SRM University • Computer Science • Semester 6')" class="w-full p-3 rounded-xl bg-[#171A21] border border-[#262A33] text-gray-200 flex justify-between items-center hover:border-[#7CA5B8] transition">
-                            <span>View College & Semester Info</span>
-                            <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
-                        </button>
-
-                        <button onclick="openSettingsModal()" class="w-full p-3 rounded-xl bg-[#171A21] border border-[#262A33] text-gray-200 flex justify-between items-center hover:border-[#7CA5B8] transition">
-                            <span>Settings & Notifications</span>
-                            <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
-                        </button>
-
-                        <button onclick="signOutUser()" class="w-full p-3 rounded-xl bg-[#171A21] border border-[#C48484]/30 text-[#C48484] flex justify-between items-center hover:bg-[#C48484]/10 transition">
-                            <span>Sign Out Account</span>
-                            <i data-lucide="log-out" class="w-4 h-4 text-[#C48484]"></i>
-                        </button>
-                    </div>
-                </div>
-            </section>
         </main>
 
-        <!-- Bottom 5-Tab Navigation -->
-        <nav class="w-full px-2 py-2.5 border-t border-[#171A21] glass-panel z-20 flex justify-around items-center">
-            <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center gap-1 text-[#7CA5B8] transition">
-                <i data-lucide="home" class="w-5 h-5"></i>
-                <span class="text-[10px] font-medium">Home</span>
+        <!-- BOTTOM NAVIGATION BAR -->
+        <nav class="fixed bottom-0 left-0 right-0 w-full max-w-md mx-auto bg-dark-900/95 backdrop-blur-md border-t border-dark-800 px-4 py-2.5 flex items-center justify-around z-40">
+            <button id="navHomeBtn" class="flex flex-col items-center text-[#7CA5B8] space-y-1 transition-colors">
+                <i data-lucide="home" class="w-5 h-5 text-[#7CA5B8]"></i>
+                <span id="labelHome" class="text-[10px] font-semibold text-[#7CA5B8]">Home</span>
             </button>
-
-            <button onclick="switchTab('search')" id="nav-search" class="flex flex-col items-center gap-1 text-gray-500 hover:text-gray-300 transition">
-                <i data-lucide="search" class="w-5 h-5"></i>
-                <span class="text-[10px] font-medium">Search</span>
+            <button id="navSearchBtn" class="flex flex-col items-center text-slate-400 hover:text-slate-200 space-y-1 transition-colors">
+                <i data-lucide="search" class="w-5 h-5 text-slate-400"></i>
+                <span id="labelSearch" class="text-[10px] font-normal">Search</span>
             </button>
-
-            <button onclick="switchTab('chat')" id="nav-chat" class="flex flex-col items-center gap-1 text-gray-500 hover:text-gray-300 transition">
-                <i data-lucide="message-square" class="w-5 h-5"></i>
-                <span class="text-[10px] font-medium">Chat</span>
+            <button id="navChatBtn" class="flex flex-col items-center text-slate-400 hover:text-slate-200 space-y-1 transition-colors relative">
+                <i data-lucide="message-square" class="w-5 h-5 text-slate-400"></i>
+                <span id="labelChat" class="text-[10px] font-normal">Chat</span>
             </button>
-
-            <button onclick="switchTab('projects')" id="nav-projects" class="flex flex-col items-center gap-1 text-gray-500 hover:text-gray-300 transition">
-                <i data-lucide="folder-kanban" class="w-5 h-5"></i>
-                <span class="text-[10px] font-medium">Projects</span>
+            <button id="navProjectsBtn" class="flex flex-col items-center text-slate-400 hover:text-slate-200 space-y-1 transition-colors">
+                <i data-lucide="folder-kanban" class="w-5 h-5 text-slate-400"></i>
+                <span id="labelProjects" class="text-[10px] font-normal">Projects</span>
             </button>
-
-            <button onclick="switchTab('profile')" id="nav-profile" class="flex flex-col items-center gap-1 text-gray-500 hover:text-gray-300 transition">
-                <i data-lucide="user" class="w-5 h-5"></i>
-                <span class="text-[10px] font-medium">Profile</span>
+            <button id="navProfileBtn" class="flex flex-col items-center text-slate-400 hover:text-slate-200 space-y-1 transition-colors">
+                <i data-lucide="user" class="w-5 h-5 text-slate-400"></i>
+                <span id="labelProfile" class="text-[10px] font-normal">Profile</span>
             </button>
         </nav>
 
-        <!-- EDIT PROFILE MODAL -->
-        <div id="editProfileModal" class="hidden absolute inset-0 z-50 bg-black/70 backdrop-blur-sm flex justify-center items-end sm:items-center p-4">
-            <div class="w-full max-w-sm rounded-2xl bg-[#090A0F] border border-[#262A33] p-5 space-y-4">
-                <h3 class="text-sm font-bold text-white">Edit Profile Details</h3>
-
-                <div class="space-y-3 text-xs">
-                    <div>
-                        <label class="block text-gray-400 mb-1">Full Name</label>
-                        <input type="text" id="editNameInput" value="Student Scholar" class="w-full p-2.5 rounded-xl bg-[#171A21] border border-[#262A33] text-white focus:outline-none focus:border-[#7CA5B8]">
-                    </div>
-                    <div>
-                        <label class="block text-gray-400 mb-1">Branch & Year</label>
-                        <input type="text" id="editBranchInput" value="B.Tech Computer Science • Year 3" class="w-full p-2.5 rounded-xl bg-[#171A21] border border-[#262A33] text-white focus:outline-none focus:border-[#7CA5B8]">
-                    </div>
+        <!-- MODALS -->
+        <div id="genericFeatureModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 flex items-center justify-center p-4">
+            <div id="genericFeatureContent" class="w-full max-w-sm bg-dark-850 border border-dark-800 rounded-2xl p-5 shadow-2xl transform scale-95 transition-transform duration-300">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 id="modalFeatureTitle" class="font-bold text-sm text-slate-200"></h3>
+                    <button onclick="closeGenericModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
                 </div>
-
-                <div class="flex justify-end space-x-2 pt-2">
-                    <button onclick="closeEditProfileModal()" class="px-4 py-2 rounded-xl bg-[#171A21] text-xs text-gray-300">Cancel</button>
-                    <button onclick="saveProfileChanges()" class="px-4 py-2 rounded-xl bg-[#7CA5B8] text-xs font-bold text-black">Save</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- SETTINGS MODAL -->
-        <div id="settingsModal" class="hidden absolute inset-0 z-50 bg-black/70 backdrop-blur-sm flex justify-center items-end sm:items-center p-4">
-            <div class="w-full max-w-sm rounded-2xl bg-[#090A0F] border border-[#262A33] p-5 space-y-4">
-                <h3 class="text-sm font-bold text-white">Settings & Themes</h3>
-
-                <div class="space-y-3 text-xs">
-                    <div>
-                        <label class="block text-gray-400 mb-2">Theme</label>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button onclick="setTheme('dark')" class="p-2.5 rounded-xl bg-[#171A21] border border-[#7CA5B8] text-white font-semibold">Dark Academic</button>
-                            <button onclick="setTheme('light')" class="p-2.5 rounded-xl bg-gray-200 text-black font-semibold">Light Mode</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex justify-end pt-2">
-                    <button onclick="closeSettingsModal()" class="px-4 py-2 rounded-xl bg-[#171A21] text-xs text-gray-300">Close</button>
-                </div>
+                <div id="modalFeatureBody" class="text-xs text-slate-300 space-y-3"></div>
             </div>
         </div>
 
     </div>
 
-    <!-- JavaScript Logic -->
+    <!-- JavaScript Interactions -->
     <script>
         lucide.createIcons();
 
-        let warmTintActive = false;
-
-        function toggleWhatsappDropdown() {
-            const dd = document.getElementById('whatsappDropdown');
-            dd.classList.toggle('hidden');
-        }
-
-        function toggleWarmTint() {
-            warmTintActive = !warmTintActive;
-            const overlay = document.getElementById('warmTintOverlay');
-            if (warmTintActive) {
-                overlay.classList.remove('opacity-0');
-                overlay.classList.add('opacity-100');
-            } else {
-                overlay.classList.remove('opacity-100');
-                overlay.classList.add('opacity-0');
+        function closeGenericModal() {
+            const genericModal = document.getElementById('genericFeatureModal');
+            if (genericModal) {
+                genericModal.classList.add('opacity-0', 'pointer-events-none');
             }
         }
+        window.closeGenericModal = closeGenericModal;
 
-        function switchTab(tabId) {
-            const tabs = ['home', 'search', 'chat', 'projects', 'profile'];
-            tabs.forEach(t => {
-                document.getElementById(`tab-${t}`).classList.add('hidden');
-                document.getElementById(`nav-${t}`).classList.remove('text-[#7CA5B8]');
-                document.getElementById(`nav-${t}`).classList.add('text-gray-500');
-            });
+        function triggerFeatureModal(title) {
+            const genericModal = document.getElementById('genericFeatureModal');
+            const titleEl = document.getElementById('modalFeatureTitle');
+            const bodyEl = document.getElementById('modalFeatureBody');
 
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            document.getElementById(`nav-${tabId}`).classList.remove('text-gray-500');
-            document.getElementById(`nav-${tabId}`).classList.add('text-[#7CA5B8]');
+            titleEl.textContent = title;
 
-            // Dynamic Top-Right Header Swap for Profile Screen
-            const standardHeader = document.getElementById('headerRightStandard');
-            const profileHeader = document.getElementById('headerRightProfile');
-
-            if (tabId === 'profile') {
-                standardHeader.classList.add('hidden');
-                standardHeader.classList.remove('flex');
-                profileHeader.classList.remove('hidden');
-                profileHeader.classList.add('flex');
+            if (title === 'Profile Settings') {
+                bodyEl.innerHTML = `
+                    <div class="space-y-3">
+                        <label class="block text-xs font-medium text-slate-300">Select Theme</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="setThemeMode('dark')" class="p-2.5 rounded-xl bg-dark-900 border border-dark-750 text-center hover:border-cyan-500 text-xs font-semibold text-slate-200">Jet Black</button>
+                            <button onclick="setThemeMode('light')" class="p-2.5 rounded-xl bg-white border border-slate-300 text-center hover:border-cyan-500 text-xs font-semibold text-slate-800">Pure White</button>
+                            <button onclick="document.getElementById('customBgFileInput').click()" class="p-2.5 rounded-xl bg-dark-900 border border-dark-750 text-center hover:border-cyan-500 text-xs font-semibold text-cyan-400">Custom Photo</button>
+                        </div>
+                        <input type="file" id="customBgFileInput" accept="image/*" class="hidden" onchange="handleCustomBgUpload(event)">
+                        <button onclick="openEditProfileModal(); closeGenericModal();" class="w-full py-2 bg-cyan-500 hover:bg-cyan-600 text-dark-950 font-bold rounded-xl text-xs mt-2">Edit Profile Details</button>
+                    </div>
+                `;
+            } else if (title === 'College Details') {
+                bodyEl.innerHTML = `
+                    <div class="space-y-2">
+                        <p class="font-semibold text-slate-200">National Institute of Technology (NIT)</p>
+                        <p class="text-slate-400">Department of Computer Science & Engineering</p>
+                        <p class="font-mono text-cyan-400 text-[11px]">Enrollment ID: NIT-2024-CSE-892</p>
+                    </div>
+                `;
             } else {
-                profileHeader.classList.add('hidden');
-                profileHeader.classList.remove('flex');
-                standardHeader.classList.remove('hidden');
-                standardHeader.classList.add('flex');
+                bodyEl.innerHTML = `<p>Feature <strong>${title}</strong> is active and connected to your campus ID.</p>`;
             }
+
+            genericModal.classList.remove('opacity-0', 'pointer-events-none');
+            lucide.createIcons();
+        }
+        window.triggerFeatureModal = triggerFeatureModal;
+
+        function setThemeMode(mode) {
+            const body = document.body;
+            const container = document.getElementById('appContainer');
+            if (mode === 'light') {
+                body.className = "bg-slate-100 text-slate-900 font-sans antialiased min-h-screen flex justify-center";
+                container.className = "w-full max-w-md bg-white text-slate-900 min-h-screen flex flex-col relative shadow-2xl overflow-hidden border-x border-slate-200 transition-colors duration-300";
+            } else {
+                body.className = "bg-black text-slate-100 font-sans antialiased min-h-screen flex justify-center";
+                container.className = "w-full max-w-md bg-dark-900 text-slate-100 min-h-screen flex flex-col relative shadow-2xl overflow-hidden border-x border-dark-800 transition-colors duration-300";
+            }
+            closeGenericModal();
         }
 
-        function setAiPrompt(text) {
-            document.getElementById('homeAiInput').value = text;
-        }
-
-        function askHomeAi() {
-            const text = document.getElementById('homeAiInput').value;
-            if (text) alert(`UniAI Study Copilot processing: "${text}"`);
+        function handleCustomBgUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const container = document.getElementById('appContainer');
+                    container.style.backgroundImage = `url('${e.target.result}')`;
+                    container.style.backgroundSize = 'cover';
+                    container.style.backgroundPosition = 'center';
+                    closeGenericModal();
+                };
+                reader.readAsDataURL(file);
+            }
         }
 
         function openEditProfileModal() {
-            document.getElementById('editProfileModal').classList.remove('hidden');
+            const genericModal = document.getElementById('genericFeatureModal');
+            const titleEl = document.getElementById('modalFeatureTitle');
+            const bodyEl = document.getElementById('modalFeatureBody');
+
+            titleEl.textContent = "Edit Profile & Showcase";
+            bodyEl.innerHTML = `
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">Profile Photo</label>
+                        <input type="file" id="editAvatarFile" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-cyan-500/10 file:text-cyan-400 hover:file:bg-cyan-500/20">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">Display Name</label>
+                        <input type="text" id="editNameInput" value="Student Scholar" class="w-full bg-dark-900 border border-dark-750 text-slate-200 text-xs rounded-xl px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">Bio / Branch</label>
+                        <input type="text" id="editBioInput" value="B.Tech Computer Science • Year 3" class="w-full bg-dark-900 border border-dark-750 text-slate-200 text-xs rounded-xl px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-slate-400 mb-1">Project Link (URL)</label>
+                        <input type="text" id="editProjectUrl" placeholder="https://github.com/my-project" class="w-full bg-dark-900 border border-dark-750 text-slate-200 text-xs rounded-xl px-3 py-2">
+                    </div>
+                    <button onclick="saveProfileEdits()" class="w-full py-2 bg-cyan-500 hover:bg-cyan-600 text-dark-950 font-bold rounded-xl text-xs mt-2">Save Changes</button>
+                </div>
+            `;
+            genericModal.classList.remove('opacity-0', 'pointer-events-none');
         }
 
-        function closeEditProfileModal() {
-            document.getElementById('editProfileModal').classList.add('hidden');
+        function saveProfileEdits() {
+            const name = document.getElementById('editNameInput').value;
+            const bio = document.getElementById('editBioInput').value;
+            const projUrl = document.getElementById('editProjectUrl').value;
+
+            if (name) document.getElementById('profileDisplayName').textContent = name;
+            if (bio) document.getElementById('profileDisplayBio').textContent = bio;
+
+            const avatarFile = document.getElementById('editAvatarFile').files[0];
+            if (avatarFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const avatarBox = document.getElementById('profileAvatarBox');
+                    avatarBox.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover">`;
+                };
+                reader.readAsDataURL(avatarFile);
+            }
+
+            if (projUrl) {
+                const list = document.getElementById('profileProjectsList');
+                list.innerHTML += `
+                    <div class="p-3 bg-dark-900 rounded-xl border border-dark-750 flex items-center justify-between">
+                        <div>
+                            <div class="text-xs font-bold text-slate-200">Custom Project</div>
+                            <div class="text-[10px] text-slate-400 truncate max-w-[200px]">${projUrl}</div>
+                        </div>
+                        <a href="${projUrl}" target="_blank" class="px-2.5 py-1 bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 rounded-lg text-[10px] font-semibold border border-cyan-500/20 flex items-center gap-1">
+                            Visit <i data-lucide="external-link" class="w-3 h-3"></i>
+                        </a>
+                    </div>
+                `;
+                lucide.createIcons();
+            }
+
+            closeGenericModal();
         }
 
-        function saveProfileChanges() {
-            document.getElementById('profileName').innerText = document.getElementById('editNameInput').value;
-            document.getElementById('profileBranch').innerText = document.getElementById('editBranchInput').value;
-            closeEditProfileModal();
-        }
+        const screens = {
+            home: document.getElementById('screenHome'),
+            search: document.getElementById('screenSearch'),
+            chat: document.getElementById('screenChat'),
+            projects: document.getElementById('screenProjects'),
+            profile: document.getElementById('screenProfile')
+        };
 
-        function openSettingsModal() {
-            document.getElementById('settingsModal').classList.remove('hidden');
-        }
+        const defaultHeaderRight = document.getElementById('defaultHeaderRight');
+        const profileHeaderRight = document.getElementById('profileHeaderRight');
 
-        function closeSettingsModal() {
-            document.getElementById('settingsModal').classList.add('hidden');
-        }
+        const navButtons = {
+            home: { btn: document.getElementById('navHomeBtn'), label: document.getElementById('labelHome'), icon: document.querySelector('#navHomeBtn i') },
+            search: { btn: document.getElementById('navSearchBtn'), label: document.getElementById('labelSearch'), icon: document.querySelector('#navSearchBtn i') },
+            chat: { btn: document.getElementById('navChatBtn'), label: document.getElementById('labelChat'), icon: document.querySelector('#navChatBtn i') },
+            projects: { btn: document.getElementById('navProjectsBtn'), label: document.getElementById('labelProjects'), icon: document.querySelector('#navProjectsBtn i') },
+            profile: { btn: document.getElementById('navProfileBtn'), label: document.getElementById('labelProfile'), icon: document.querySelector('#navProfileBtn i') }
+        };
 
-        function setTheme(theme) {
-            const container = document.getElementById('appContainer');
-            if (theme === 'light') {
-                container.style.backgroundColor = '#F8FAFC';
-                container.style.color = '#0F172A';
+        function switchScreen(activeKey) {
+            Object.keys(screens).forEach(key => {
+                if (screens[key]) {
+                    if (key === activeKey) screens[key].classList.remove('hidden');
+                    else screens[key].classList.add('hidden');
+                }
+            });
+
+            if (activeKey === 'profile') {
+                defaultHeaderRight.classList.add('hidden');
+                profileHeaderRight.classList.remove('hidden');
+                profileHeaderRight.classList.add('flex');
             } else {
-                container.style.backgroundColor = '#060709';
-                container.style.color = '#E2E8F0';
+                profileHeaderRight.classList.add('hidden');
+                profileHeaderRight.classList.remove('flex');
+                defaultHeaderRight.classList.remove('hidden');
+            }
+
+            Object.keys(navButtons).forEach(key => {
+                const item = navButtons[key];
+                if (item && item.btn) {
+                    if (key === activeKey) {
+                        item.btn.classList.add('text-[#7CA5B8]');
+                        if (item.label) { item.label.classList.add('font-semibold', 'text-[#7CA5B8]'); item.label.classList.remove('font-normal'); }
+                        if (item.icon) { item.icon.classList.add('text-[#7CA5B8]'); item.icon.classList.remove('text-slate-400'); }
+                    } else {
+                        item.btn.classList.remove('text-[#7CA5B8]');
+                        if (item.label) { item.label.classList.remove('font-semibold', 'text-[#7CA5B8]'); item.label.classList.add('font-normal'); }
+                        if (item.icon) { item.icon.classList.remove('text-[#7CA5B8]'); item.icon.classList.add('text-slate-400'); }
+                    }
+                }
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        document.getElementById('navHomeBtn').addEventListener('click', () => switchScreen('home'));
+        document.getElementById('navSearchBtn').addEventListener('click', () => switchScreen('search'));
+        document.getElementById('navChatBtn').addEventListener('click', () => switchScreen('chat'));
+        document.getElementById('navProjectsBtn').addEventListener('click', () => switchScreen('projects'));
+        document.getElementById('navProfileBtn').addEventListener('click', () => switchScreen('profile'));
+
+        // Live Search Filter
+        document.getElementById('liveSearchInput').addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            const items = document.querySelectorAll('.search-item');
+            items.forEach(item => {
+                const keywords = item.getAttribute('data-keywords');
+                if (keywords.includes(query) || item.textContent.toLowerCase().includes(query)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        // Warm Tint Toggle
+        let warmActive = false;
+        document.getElementById('eyeComfortToggle').addEventListener('click', () => {
+            warmActive = !warmActive;
+            const overlay = document.getElementById('warmTintOverlay');
+            overlay.className = `fixed inset-0 z-50 transition-colors duration-300 ${warmActive ? 'bg-amber-500/10' : 'bg-amber-500/0'}`;
+        });
+
+        // Delete User Profile Post Function
+        function deleteUserProfilePost(postId) {
+            const postEl = document.getElementById(postId);
+            if (postEl) {
+                postEl.style.transition = 'all 0.3s ease';
+                postEl.style.opacity = '0';
+                postEl.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    postEl.remove();
+                    // Update count
+                    const container = document.getElementById('profilePostsContainer');
+                    const remaining = container.children.length;
+                    document.getElementById('profilePostCount').textContent = `${remaining} Post${remaining === 1 ? '' : 's'}`;
+                    if (remaining === 0) {
+                        container.innerHTML = `<div class="p-4 text-center text-xs text-slate-500 italic">No posts remaining.</div>`;
+                    }
+                }, 300);
             }
         }
+        window.deleteUserProfilePost = deleteUserProfilePost;
 
-        function signOutUser() {
-            alert('Signed out from UniLink Campus Platform!');
+        function setAiInput(text) {
+            document.getElementById('aiCopilotInput').value = text;
         }
+        window.setAiInput = setAiInput;
+
+        function askAiCopilot() {
+            const val = document.getElementById('aiCopilotInput').value;
+            if (val) alert(`UniAI Study Copilot processing: "${val}"`);
+        }
+        window.askAiCopilot = askAiCopilot;
+
+        function toggleLike(btn) {
+            const countEl = btn.querySelector('span');
+            let val = parseInt(countEl.textContent) || 0;
+            countEl.textContent = val + 1;
+        }
+        window.toggleLike = toggleLike;
     </script>
 </body>
 </html>
