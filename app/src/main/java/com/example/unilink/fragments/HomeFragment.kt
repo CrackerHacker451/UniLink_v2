@@ -91,8 +91,12 @@ class HomeFragment : Fragment() {
         binding.rvActivityFeed.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = postAdapter
-            isNestedScrollingEnabled = false
-            setItemViewCacheSize(25)
+            setHasFixedSize(true)
+            setItemViewCacheSize(30)
+            overScrollMode = View.OVER_SCROLL_NEVER
+            itemAnimator = androidx.recyclerview.widget.DefaultItemAnimator().apply {
+                supportsChangeAnimations = false
+            }
         }
     }
 
