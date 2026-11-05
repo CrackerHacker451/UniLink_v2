@@ -75,26 +75,15 @@ class HomeFragment : Fragment() {
         userRepository.getCurrentUser { }
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.swipeRefreshHome) { _, insets ->
-            binding.homeRootScroll.updatePadding(top = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top)
+            binding.swipeRefreshHome.updatePadding(top = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top)
             insets
         }
 
         setupAdapters()
-        setupUI()
         setupClickListeners()
         fetchFeed()
-        fetchStories()
-        setupDoubtBoard()
-        setupSkillDuels()
-        setupFocusRooms()
-        setupDashboard()
-        setupHighlights()
-        updateCampusVibe()
-        startFloatingAnimations()
         setupRefreshLayout()
         observeNotifications()
-
-        binding.tvLivePulse.isSelected = true
     }
 
     private fun setupAdapters() {
@@ -105,73 +94,13 @@ class HomeFragment : Fragment() {
             isNestedScrollingEnabled = false
             setItemViewCacheSize(25)
         }
-
-        homeDoubtAdapter = DoubtAdapter(::answerDoubt)
-        binding.rvDoubtBoard.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = homeDoubtAdapter
-            isNestedScrollingEnabled = false
-            setItemViewCacheSize(25)
-        }
-
-        storyAdapter = StoryAdapter()
-        binding.rvStories.apply {
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-            adapter = storyAdapter
-        }
-    }
-
-    private fun setupDashboard() {
-        val db = FirebaseFirestore.getInstance()
-
-        db.collection("users").whereEqualTo("isOnline", true).get()
-            .addOnSuccessListener { snap ->
-                _binding?.let { animateCount(it.tvOnlineCount, if (snap.size() > 0) snap.size() else (12..48).random(), " Students") }
-            }
-            .addOnFailureListener {
-                _binding?.let { animateCount(it.tvOnlineCount, (12..48).random(), " Students") }
-            }
-
-        db.collection("chats").whereEqualTo("isGroup", true).get()
-            .addOnSuccessListener { snap ->
-                _binding?.let { animateCount(it.tvActiveTeamsCount, if (snap.size() > 0) snap.size() else (4..12).random(), " Teams") }
-            }
-            .addOnFailureListener {
-                _binding?.let { animateCount(it.tvActiveTeamsCount, (4..12).random(), " Teams") }
-            }
-
-        db.collection("vaults").get()
-            .addOnSuccessListener { snap ->
-                _binding?.let { animateCount(it.tvNewVaultsCount, if (snap.size() > 0) snap.size() else (8..20).random(), " Vaults") }
-            }
-            .addOnFailureListener {
-                _binding?.let { animateCount(it.tvNewVaultsCount, (5..15).random(), " Vaults") }
-            }
-    }
-
-    private fun animateCount(textView: TextView, target: Int, suffix: String) {
-        ValueAnimator.ofInt(0, target).apply {
-            duration = 250
-            addUpdateListener { anim ->
-                _binding?.let { textView.text = "${anim.animatedValue}$suffix" }
-            }
-            start()
-        }
-    }
-
-    private fun updateCampusVibe() {
-        _binding?.tvLivePulse?.text = "Campus Pulse 📡"
     }
 
     private fun setupRefreshLayout() {
         binding.swipeRefreshHome.apply {
             setOnRefreshListener {
                 fetchFeed()
-                fetchStories()
-                setupDoubtBoard()
-                setupSkillDuels()
-                setupDashboard()
-                postDelayed({ _binding?.swipeRefreshHome?.isRefreshing = false }, 1500)
+                postDelayed({ _binding?.swipeRefreshHome?.isRefreshing = false }, 1200)
             }
             setColorSchemeResources(R.color.cyan_brand, R.color.purple_brand)
         }
@@ -188,33 +117,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun setupHighlights() {
-        val highlights = listOf(
-            CampusHighlight("system", "Aryan Sharma", "Earned 'Top Mentor' badge", true),
-            CampusHighlight("system", "Sneha Reddy", "Shared new Java notes"),
-            CampusHighlight("system", "Kurt", "Completed 'AI Assistant' project", true),
-            CampusHighlight("system", "Meera", "Started a 10-day study streak"),
-            CampusHighlight("system", "Lalit", "Boosted 'Aura Glass' theme", true)
-        ).shuffled()
-
-        binding.rvCampusHighlights.apply {
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-            adapter = HighlightAdapter(highlights) { highlight ->
-                if (highlight.userId != null && highlight.userId != "system") {
-                    startActivity(Intent(context, ProfileActivity::class.java).putExtra("userId", highlight.userId))
-                } else {
-                    Toast.makeText(context, "${highlight.name} is a campus star! ⭐", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
-
-    private fun startFloatingAnimations() {
-        binding.btnAiAssistant.clearAnimation()
-        binding.ivLogo.clearAnimation()
-        binding.livePulseBadge.visibility = View.VISIBLE
-    }
-
     private fun formatCompactCount(count: Int): String {
         return when {
             count >= 1_000_000 -> String.format("%.1fM", count / 1_000_000.0)
@@ -228,81 +130,81 @@ class HomeFragment : Fragment() {
         userListener = userRepository.observeCurrentUser { user ->
             _binding?.apply {
                 user?.let {
-                    tvCollegeName.text = it.collegeName ?: "SRM University"
-                    tvUniCoins.text = it.uniCoins.toString()
                     tvHeaderUniCoins.text = formatCompactCount(it.uniCoins)
                     tvHeaderStreak.text = it.streakDays.toString()
-                    tvXpStreak.text = if (it.streakDays == 1) "🔥 1-day streak" else "🔥 ${it.streakDays}-day streak"
-
-                    if (it.streakDays >= 3) {
-                        tvXpStreak.setTextColor(Color.parseColor("#FACC15"))
-                        tvXpStreak.startAnimation(AlphaAnimation(0.6f, 1.0f).apply {
-                            duration = 1000
-                            repeatMode = Animation.REVERSE
-                            repeatCount = Animation.INFINITE
-                        })
-                    }
-                    tvTotalXp.text = "Impact: ${it.impactScore}"
-                    progressXp.progress = (it.totalXp % 1000) / 10
                 }
             }
         }
     }
 
     private fun setupClickListeners() {
-        // Campus Radar Hero Spotlight
-        binding.cardHeroCampusRadar.setOnClickListener { navigateTo(NearbyStudentsActivity::class.java, it) }
-        binding.btnScanCampusRadarHero.setOnClickListener { navigateTo(NearbyStudentsActivity::class.java, it) }
+        binding.btnDashboardMenu.setOnClickListener {
+            HapticUtils.playSelection(it)
+            showCampusDashboardSheet()
+        }
 
-        // Random Peer Speed Match Hero Spotlight
-        binding.cardHeroRandomMatch.setOnClickListener { navigateTo(RandomMatchActivity::class.java, it) }
-        binding.btnStartRandomMatchHero.setOnClickListener { navigateTo(RandomMatchActivity::class.java, it) }
-
-        binding.cardCampusArena.setOnClickListener { navigateTo(com.example.unilink.activities.CampusArenaActivity::class.java, it) }
-        binding.btnEnterArena.setOnClickListener { navigateTo(com.example.unilink.activities.CampusArenaActivity::class.java, it) }
-        binding.btnGoLiveStream.setOnClickListener { navigateTo(com.example.unilink.activities.LiveStreamActivity::class.java, it) }
-
-        binding.tvLivePulse.setOnClickListener { navigateTo(com.example.unilink.activities.CampusArenaActivity::class.java, it) }
-        binding.livePulseBadge.setOnClickListener { navigateTo(com.example.unilink.activities.CampusArenaActivity::class.java, it) }
-        binding.btnLeaderboard.setOnClickListener { navigateTo(LeaderboardActivity::class.java, it) }
         binding.btnNotifications.setOnClickListener { navigateTo(NotificationsActivity::class.java, it) }
-
+        binding.btnLeaderboard.setOnClickListener { navigateTo(LeaderboardActivity::class.java, it) }
         binding.cardHeaderStats.setOnClickListener { HapticUtils.playSelection(it); showStreakModal() }
-        binding.tvUniCoins.setOnClickListener { HapticUtils.playSelection(it); showProPassDialog() }
-        binding.tvNewVaultsCount.setOnClickListener { navigateTo(VaultActivity::class.java, it) }
+    }
 
-        binding.btnAiAssistant.setOnClickListener {
+    private fun showCampusDashboardSheet() {
+        val ctx = context ?: return
+        val dialogView = layoutInflater.inflate(R.layout.dialog_campus_dashboard, null)
+        val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(ctx)
+        dialog.setContentView(dialogView)
+
+        dialogView.findViewById<View>(R.id.btnCloseDashboard)?.setOnClickListener { dialog.dismiss() }
+
+        dialogView.findViewById<View>(R.id.cardDashSpeedLink)?.setOnClickListener {
             HapticUtils.playSelection(it)
-            (activity as? MainActivity)?.showAiAssistant()
+            dialog.dismiss()
+            startActivity(Intent(ctx, RandomMatchActivity::class.java))
         }
 
-        binding.tvViewAllDoubts.setOnClickListener { navigateTo(DoubtBoardActivity::class.java, it) }
-
-        binding.btnPostDoubt.setOnClickListener {
+        dialogView.findViewById<View>(R.id.cardDashRadar)?.setOnClickListener {
             HapticUtils.playSelection(it)
-            showPostDoubtDialog()
+            dialog.dismiss()
+            startActivity(Intent(ctx, NearbyStudentsActivity::class.java))
         }
 
-        binding.tvJoinFocusRoom.setOnClickListener { navigateTo(FocusRoomActivity::class.java) }
-
-        binding.btnUniAiHomeAsk.setOnClickListener {
-            val prompt = binding.etUniAiHomePrompt.text.toString().trim()
-            if (prompt.isNotEmpty()) {
-                HapticUtils.playSelection(it)
-                (activity as? MainActivity)?.showAiAssistantWithPrompt(prompt)
-                binding.etUniAiHomePrompt.setText("")
-            } else {
-                (activity as? MainActivity)?.showAiAssistant()
-            }
+        dialogView.findViewById<View>(R.id.cardDashArena)?.setOnClickListener {
+            HapticUtils.playSelection(it)
+            dialog.dismiss()
+            startActivity(Intent(ctx, com.example.unilink.activities.CampusArenaActivity::class.java))
         }
 
-        binding.etSearchAll.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                val query = binding.etSearchAll.text.toString().trim()
-                if (query.isNotEmpty()) navigateToSearchWithQuery(query)
-                true
-            } else false
+        dialogView.findViewById<View>(R.id.cardDashBroadcast)?.setOnClickListener {
+            HapticUtils.playSelection(it)
+            dialog.dismiss()
+            startActivity(Intent(ctx, LiveStreamActivity::class.java))
         }
+
+        dialogView.findViewById<View>(R.id.cardDashBarter)?.setOnClickListener {
+            HapticUtils.playSelection(it)
+            dialog.dismiss()
+            startActivity(Intent(ctx, BarterBlockActivity::class.java))
+        }
+
+        dialogView.findViewById<View>(R.id.cardDashDoubts)?.setOnClickListener {
+            HapticUtils.playSelection(it)
+            dialog.dismiss()
+            startActivity(Intent(ctx, DoubtBoardActivity::class.java))
+        }
+
+        dialogView.findViewById<View>(R.id.cardDashFocus)?.setOnClickListener {
+            HapticUtils.playSelection(it)
+            dialog.dismiss()
+            startActivity(Intent(ctx, FocusRoomActivity::class.java))
+        }
+
+        dialogView.findViewById<View>(R.id.cardDashVault)?.setOnClickListener {
+            HapticUtils.playSelection(it)
+            dialog.dismiss()
+            startActivity(Intent(ctx, VaultActivity::class.java))
+        }
+
+        dialog.show()
     }
 
     private fun showComposeBottomSheet(content: @androidx.compose.runtime.Composable (com.google.android.material.bottomsheet.BottomSheetDialog) -> Unit) {
@@ -418,105 +320,6 @@ class HomeFragment : Fragment() {
         startActivity(Intent(context, clazz))
     }
 
-    private fun navigateToSearchWithQuery(query: String) {
-        if (query.lowercase().contains("doubt")) {
-            startActivity(Intent(context, DoubtBoardActivity::class.java).apply { putExtra("search_query", query) })
-        } else {
-            val searchFragment = SearchFragment().apply { arguments = Bundle().apply { putString("search_query", query) } }
-            parentFragmentManager.beginTransaction().replace(R.id.fragmentContainer, searchFragment).addToBackStack(null).commit()
-        }
-    }
-
-    private fun showPostDoubtDialog() {
-        val input = EditText(requireContext()).apply { hint = "Your doubt..." }
-        AlertDialog.Builder(requireContext())
-            .setTitle("Post a Doubt")
-            .setView(input)
-            .setPositiveButton("Post") { _, _ ->
-                val question = input.text.toString().trim()
-                if (question.isNotEmpty()) {
-                    doubtRepository.postDoubt(question, 10, listOf("General")) { success ->
-                        if (success) Toast.makeText(context, "Posted!", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-            .show()
-    }
-
-    private fun setupDoubtBoard() {
-        doubtsListener?.remove()
-        doubtsListener = doubtRepository.observeDoubts { doubts ->
-            _binding?.let { binding ->
-                binding.rvDoubtBoard.visibility = View.VISIBLE
-                homeDoubtAdapter.submitList(doubts.take(3)) {
-                    try { binding.rvDoubtBoard.requestLayout() } catch (_: Exception) {}
-                }
-            }
-        }
-    }
-
-    private fun answerDoubt(doubt: Doubt) {
-        val currentUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        if (doubt.userId == currentUid) return
-
-        doubtRepository.incrementAnswerCount(doubt.doubtId)
-
-        val chatId = chatRepository.getChatId(currentUid, doubt.userId)
-        val introMsg = "Hi ${doubt.userName}, I can help with: \"${doubt.question}\""
-
-        chatRepository.sendMessage(chatId, introMsg, "Me", false, doubt.userId) { success ->
-            if (success) {
-                startActivity(Intent(context, ChatActivity::class.java).apply {
-                    putExtra("chatId", chatId)
-                    putExtra("receiverId", doubt.userId)
-                    putExtra("chatName", doubt.userName)
-                })
-            }
-        }
-    }
-
-    private fun setupSkillDuels() {
-        binding.rvSkillDuels.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        duelsListener?.remove()
-        duelsListener = duelRepository.getOnlinePeers { peers ->
-            _binding?.let {
-                binding.rvSkillDuels.adapter = DuelPeerAdapter(peers) { peer ->
-                    challengeUserToDuel(peer.id, peer.name, peer.major)
-                }
-            }
-        }
-    }
-
-    private fun challengeUserToDuel(userId: String, name: String, subject: String) {
-        val currentUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val chatId = chatRepository.getChatId(currentUid, userId)
-        chatRepository.sendDuelRequest(chatId, userId, 10, subject) { success ->
-            if (success) {
-                startActivity(Intent(context, ChatActivity::class.java).apply {
-                    putExtra("chatId", chatId)
-                    putExtra("receiverId", userId)
-                    putExtra("chatName", name)
-                })
-            }
-        }
-    }
-
-    private fun setupFocusRooms() {
-        val mockRooms = listOf(
-            FocusRoom("midterm_grind", "Midterm Grind", "#EC4899", "Deep Focus", 24, true),
-            FocusRoom("robotics_lab", "Robotics Lab", "#22D3EE", "Project work", 15, true)
-        )
-        binding.rvFocusRooms.apply {
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-            adapter = FocusRoomAdapter(mockRooms)
-        }
-    }
-
-    private fun fetchStories() {
-        storiesListener?.remove()
-        _binding?.rvStories?.visibility = View.GONE
-    }
-
     private fun fetchFeed() {
         feedListener?.remove()
         feedListener = liveFeedRepository.observeCampusPulse { posts ->
@@ -533,17 +336,7 @@ class HomeFragment : Fragment() {
         super.onDestroyView()
         userListener?.remove()
         feedListener?.remove()
-        storiesListener?.remove()
-        doubtsListener?.remove()
-        duelsListener?.remove()
         notificationListener?.remove()
-
-        _binding?.apply {
-            btnAiAssistant.clearAnimation()
-            livePulseBadge.clearAnimation()
-            ivLogo.clearAnimation()
-            tvXpStreak.clearAnimation()
-        }
         _binding = null
     }
 }
