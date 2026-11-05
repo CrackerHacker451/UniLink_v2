@@ -135,20 +135,35 @@ class HomeFragment : Fragment() {
             _binding?.apply {
                 user?.let {
                     tvHeaderUniCoins.text = formatCompactCount(it.uniCoins)
-                    tvHeaderStreak.text = it.streakDays.toString()
                 }
             }
         }
     }
 
     private fun setupClickListeners() {
-        binding.btnWhatsappMenu.setOnClickListener {
+        binding.btnSparklesHighlights.setOnClickListener {
             HapticUtils.playSelection(it)
-            showWhatsappPopupMenu(it)
+            Toast.makeText(context, "✨ Campus Highlights & Aura Spotlight Active!", Toast.LENGTH_SHORT).show()
         }
 
-        binding.btnNotifications.setOnClickListener { navigateTo(NotificationsActivity::class.java, it) }
-        binding.cardHeaderStats.setOnClickListener { HapticUtils.playSelection(it); showStreakModal() }
+        binding.cardHeaderStats.setOnClickListener {
+            HapticUtils.playSelection(it)
+            showStreakModal()
+        }
+
+        binding.btnEyeComfort.setOnClickListener {
+            HapticUtils.playSelection(it)
+            Toast.makeText(context, "🔆 Eye Comfort Warm Tint Toggled!", Toast.LENGTH_SHORT).show()
+        }
+
+        binding.btnNotifications.setOnClickListener {
+            navigateTo(NotificationsActivity::class.java, it)
+        }
+
+        binding.btnMenuDrawer.setOnClickListener {
+            HapticUtils.playSelection(it)
+            showCampusDashboardSheet()
+        }
     }
 
     private fun showWhatsappPopupMenu(view: View) {
