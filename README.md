@@ -42,8 +42,9 @@ const results = await publicClient
 console.log("Arkiv Query Results:", results);
 ```
 
-### 4. Arkiv Track Documentation Links
+### 4. Arkiv Track & Swarm Bonus Documentation Links
 - **`/arkiv/schema.md`**: [Entity Schemas, Fields Queried, Expiration Policies](./arkiv/schema.md)
+- **`/arkiv/swarm.md`**: [Arkiv + Swarm Bonus Track Technical Report](./arkiv/swarm.md)
 - **`/arkiv/friction.md`**: [Developer Friction & Feedback Report](./arkiv/friction.md)
 - **`/arkiv/judge_criteria.md`**: [Judging Criteria Index & Links](./arkiv/judge_criteria.md)
 
