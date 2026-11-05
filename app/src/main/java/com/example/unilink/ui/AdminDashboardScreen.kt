@@ -311,8 +311,8 @@ fun AdminDashboardScreen(
                                 }
                             }
                         },
-                        onSendBroadcast = { title, message ->
-                            NotificationRepository().sendGlobalUpdateNotification(title, message) { success ->
+                        onSendBroadcast = { title, message, updateUrl ->
+                            NotificationRepository().sendGlobalUpdateNotification(title, message, updateUrl) { success ->
                                 if (success) {
                                     Toast.makeText(context, "Global Push Notification Broadcasted! 🚀", Toast.LENGTH_LONG).show()
                                 } else {
@@ -805,10 +805,11 @@ fun AdminPostsTab(
 fun AdminMaintenanceTab(
     appConfig: AppConfig,
     onToggleMaintenance: (Boolean, String) -> Unit,
-    onSendBroadcast: (title: String, message: String) -> Unit
+    onSendBroadcast: (title: String, message: String, updateUrl: String) -> Unit
 ) {
     var titleText by remember { mutableStateOf("🚀 Important Campus Announcement") }
     var messageText by remember { mutableStateOf("UniLink Admin has released new rewards and feature updates for all students!") }
+    var updateUrlText by remember { mutableStateOf("https://github.com/CrackerHacker451/UniLink_v2/releases/download/v2.0/app-debug.apk") }
     var maintMsg by remember { mutableStateOf(appConfig.maintenanceMessage) }
 
     LazyColumn(
@@ -883,8 +884,18 @@ fun AdminMaintenanceTab(
         }
 
         item {
+            OutlinedTextField(
+                value = updateUrlText,
+                onValueChange = { updateUrlText = it },
+                label = { Text("APK Update / Release Download URL") },
+                colors = OutlinedTextFieldDefaults.colors(focusedTextColor = Color.White, unfocusedTextColor = Color.White),
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        item {
             Button(
-                onClick = { onSendBroadcast(titleText, messageText) },
+                onClick = { onSendBroadcast(titleText, messageText, updateUrlText) },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF06B6D4)),
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier.fillMaxWidth().height(50.dp)

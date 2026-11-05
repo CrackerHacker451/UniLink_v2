@@ -117,12 +117,14 @@ class NotificationRepository {
 
     fun sendGlobalUpdateNotification(title: String, message: String, updateUrl: String? = null, onComplete: (Boolean) -> Unit) {
         val currentUid = auth.currentUser?.uid ?: return onComplete(false)
+        val defaultApkUrl = "https://github.com/CrackerHacker451/UniLink_v2/releases/download/v2.0/app-debug.apk"
+        val finalUrl = if (!updateUrl.isNullOrBlank()) updateUrl else defaultApkUrl
 
         val updateData = hashMapOf(
             "minVersionCode" to System.currentTimeMillis().toInt(),
             "updateTitle" to title,
             "updateMessage" to message,
-            "updateUrl" to (updateUrl ?: "https://drive.google.com"),
+            "updateUrl" to finalUrl,
             "isForceUpdate" to false,
             "updatedAt" to FieldValue.serverTimestamp()
         )
@@ -141,7 +143,7 @@ class NotificationRepository {
                     "message" to message,
                     "senderId" to currentUid,
                     "senderName" to "UniLink Broadcast 🚀",
-                    "targetId" to updateUrl,
+                    "targetId" to finalUrl,
                     "isRead" to false,
                     "timestamp" to FieldValue.serverTimestamp()
                 )

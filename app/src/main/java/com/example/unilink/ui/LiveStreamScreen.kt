@@ -491,15 +491,23 @@ fun LiveStreamScreen(
                         },
                         modifier = Modifier.fillMaxSize()
                     )
-                } else if (!isHost && remoteVideoTrack != null && webRtcClient != null) {
+                } else if (!isHost && remoteVideoTrack != null) {
+                    androidx.compose.runtime.DisposableEffect(remoteVideoTrack) {
+                        onDispose {
+                            try {
+                                remoteVideoTrack.removeSink(null)
+                            } catch (_: Exception) {}
+                        }
+                    }
                     AndroidView(
                         factory = { ctx ->
                             SurfaceViewRenderer(ctx).apply {
-                                init(webRtcClient.getEglContext(), null)
-                                setEnableHardwareScaler(true)
+                                val eglContext = webRtcClient?.getEglContext() ?: org.webrtc.EglBase.create().eglBaseContext
+                                init(eglContext, null)
+                                setEnableHardwareScaler(false)
+                                setScalingType(org.webrtc.RendererCommon.ScalingType.SCALE_ASPECT_FILL)
                                 setMirror(false)
-                                setZOrderMediaOverlay(false)
-                                setZOrderOnTop(false)
+                                setZOrderMediaOverlay(true)
                                 remoteVideoTrack.addSink(this)
                             }
                         },

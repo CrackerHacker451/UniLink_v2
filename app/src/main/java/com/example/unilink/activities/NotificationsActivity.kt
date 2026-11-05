@@ -62,9 +62,10 @@ class NotificationsActivity : AppCompatActivity() {
                     }
                 }
                 "system_update" -> {
-                    val url = notification.targetId?.ifEmpty { "https://drive.google.com" } ?: "https://drive.google.com"
+                    val defaultApkUrl = "https://github.com/CrackerHacker451/UniLink_v2/releases/download/v2.0/app-debug.apk"
+                    val url = if (!notification.targetId.isNullOrBlank()) notification.targetId!! else defaultApkUrl
                     try {
-                        android.widget.Toast.makeText(this, "Opening update download link... 🚀", android.widget.Toast.LENGTH_SHORT).show()
+                        android.widget.Toast.makeText(this, "Opening APK update download link... 🚀", android.widget.Toast.LENGTH_SHORT).show()
                         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
                     } catch (_: Exception) {
                         android.widget.Toast.makeText(this, "Opening browser for update...", android.widget.Toast.LENGTH_SHORT).show()
