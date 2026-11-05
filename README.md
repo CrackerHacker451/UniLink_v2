@@ -1,17 +1,62 @@
 # 🚀 Newton's Lobby (`UniLink`) — The Campus Operating System & AI Trust Layer
 
 [![Build Status](https://img.shields.io/badge/Build-Passing-10B981?style=for-the-badge&logo=android)](https://github.com/CrackerHacker451/UniLink_v2)
+[![Arkiv DB-Chain](https://img.shields.io/badge/Arkiv_Network-Web3_Database-84CC16?style=for-the-badge)](https://arkiv.network)
 [![0G Private Computer](https://img.shields.io/badge/0G_AI_Compute-Verified_Run-06B6D4?style=for-the-badge)](https://0g.ai)
 [![World ID 4.0](https://img.shields.io/badge/World_ID_4.0-IDKit_Liveness_Verified-10B981?style=for-the-badge)](https://worldcoin.org)
 [![License](https://img.shields.io/badge/License-MIT-F59E0B?style=for-the-badge)](LICENSE)
 
-**Newton's Lobby** is an unrestricted, AI-native, privacy-preserving Campus Operating System built for modern university students. Powered by **0G Private Computer** (verifiable zero-knowledge AI inference & decentralized encrypted storage), **World ID 4.0 IDKit Proportional Trust Engine**, and **WebRTC Full HD 1080p SpeedLink**, Newton's Lobby unifies academic collaboration, campus networking, barter trading, and real-time social connection into a single minimal dark glass interface.
+**Newton's Lobby** is an unrestricted, AI-native, privacy-preserving Campus Operating System built for modern university students. Powered by **Arkiv Network DB-Chain** (`@arkiv-network/sdk`), **0G Private Computer** (verifiable zero-knowledge AI inference & decentralized encrypted storage), **World ID 4.0 IDKit Proportional Trust Engine**, and **WebRTC Full HD 1080p SpeedLink**, Newton's Lobby unifies academic collaboration, campus networking, barter trading, and real-time social connection into a single minimal dark glass interface.
+
+---
+
+## 🏛️ ETHGlobal Mumbai — Arkiv Network Track Qualification
+
+Newton's Lobby is an existing project in **ETHGlobal's Continuity Batch**. The Arkiv DB-Chain integration was built from scratch during **ETHGlobal Mumbai**.
+
+### 1. Work Done During ETHGlobal Mumbai vs. Continuity Baseline
+- **Existing Baseline (Pre-Event)**: Mobile UI frame, basic Firebase Auth & Firestore chat.
+- **Added at ETHGlobal Mumbai**:
+  - Full **Arkiv DB-Chain Integration** (`ArkivDatabaseService.kt`, `arkiv/schema.md`, `arkiv/friction.md`, `arkiv/judge_criteria.md`).
+  - **World ID 4.0 IDKit Liveness Trust Package** (`com.example.unilink.trust`, `proofOfHuman` account verification, `selfieCheck` team creation gate).
+  - **0G Private Computer** verifiable AI inference (`0gm-1.0` / `qwen-omni`) & daily iAI compute credits.
+  - **Chainlink CRE** workflow trigger.
+  - **Atomic Firestore transaction-based SpeedLink peer selection** (`db.runTransaction`).
+  - **Android 15/16 16 KB Page-Size Device Compatibility** (`useLegacyPackaging = false`, `android:extractNativeLibs="false"`).
+
+### 2. Wallet Address Writing Entities
+- **Writer Wallet Address**: `0x3F89a019b88127cA9b4e5f6A10B981C48D7C0F4D`
+
+### 3. Runnable Arkiv Query
+```typescript
+import { publicClient, eq } from "@arkiv-network/sdk";
+import { Posts } from "./arkiv/schema";
+
+const results = await publicClient
+    .select({ author: true, title: true, body: true, publishedAt: true })
+    .from(Posts)
+    .where(eq("title", "Newton's Lobby Smart Agent Engine"))
+    .ownedBy("0x3F89a019b88127cA9b4e5f6A10B981C48D7C0F4D")
+    .fetch();
+
+console.log("Arkiv Query Results:", results);
+```
+
+### 4. Arkiv Track Documentation Links
+- **`/arkiv/schema.md`**: [Entity Schemas, Fields Queried, Expiration Policies](./arkiv/schema.md)
+- **`/arkiv/friction.md`**: [Developer Friction & Feedback Report](./arkiv/friction.md)
+- **`/arkiv/judge_criteria.md`**: [Judging Criteria Index & Links](./arkiv/judge_criteria.md)
 
 ---
 
 ## 🌟 Core Highlights & Feature Architecture
 
-### 🤖 1. UniAI Powered by 0G Private Computer
+### 🗄️ 1. Arkiv Network Web3 DB-Chain (`ArkivDatabaseService.kt`)
+- **`@arkiv-network/sdk` Integration**: Writes queryable, time-scoped entities on Arkiv testnet DB-Chains (`createEntityOnArkivChain`).
+- **Time-Scoped Data Expiration (`ExpirationTime.fromDays`)**: Lecture notes and AI summaries expire after 30 or 90 days, keeping data fresh while maintaining immutability.
+- **GLM DB-Engine Interop**: Powered by Golem DB-Engine (GLM) for deterministic Web3 query execution.
+
+### 🤖 2. UniAI Powered by 0G Private Computer
 - **Verified Zero-Knowledge Inference**: Every AI prompt or autonomous command in UniAI executes on **0G Private Computer** (`0gm-1.0` / `qwen-omni` / `whisper-large-v3`) with full request traceability:
   - **`0G Request ID`**: `0g_req_${timestamp}_zkProof`
   - **`0G Storage CID`**: `0g_cid_${hash}`
