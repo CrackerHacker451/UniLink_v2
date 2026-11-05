@@ -43,6 +43,7 @@ object ThemeUtils {
 
         val themeResId = when (theme) {
             "DarkzMidnight" -> R.style.Theme_UniLink_DarkzMidnight
+            "DarkOlive" -> R.style.Theme_UniLink_DarkOlive
             "Light" -> R.style.Theme_UniLink_Light
             "Teal" -> R.style.Theme_UniLink_Teal
             "Indigo" -> R.style.Theme_UniLink_Indigo

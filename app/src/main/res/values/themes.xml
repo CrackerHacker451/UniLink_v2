@@ -304,6 +304,44 @@
         <item name="materialAlertDialogTheme">@style/Theme.UniLink.Dialog</item>
     </style>
 
+    <!-- Theme 8: Dark Olive Midnight (Dark Olive Green #4D7C0F Accent) -->
+    <style name="Theme.UniLink.DarkOlive" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/theme_dark_olive_accent</item>
+        <item name="colorPrimaryVariant">@color/theme_dark_olive_accent_variant</item>
+        <item name="colorOnPrimary">@color/theme_dark_olive_bg</item>
+        <item name="colorSecondary">@color/theme_dark_olive_accent</item>
+        <item name="colorSecondaryVariant">@color/theme_dark_olive_accent_variant</item>
+        <item name="colorOnSecondary">@color/theme_dark_olive_bg</item>
+        <item name="colorSurface">@color/theme_dark_olive_bg</item>
+        <item name="colorOnSurface">@color/theme_dark_olive_text_primary</item>
+        <item name="colorSurfaceVariant">@color/theme_dark_olive_card</item>
+        <item name="colorOnSurfaceVariant">@color/theme_dark_olive_text_secondary</item>
+        <item name="colorError">@color/error</item>
+        <item name="colorOnError">@color/white</item>
+
+        <item name="appBackgroundColor">@color/theme_dark_olive_bg</item>
+        <item name="cardBackgroundColor">@color/theme_dark_olive_card</item>
+        <item name="textPrimaryColor">@color/theme_dark_olive_text_primary</item>
+        <item name="textSecondaryColor">@color/theme_dark_olive_text_secondary</item>
+        <item name="accentColor">@color/theme_dark_olive_accent</item>
+        <item name="borderStrokeColor">@color/theme_dark_olive_border</item>
+        <item name="inputBackgroundColor">@color/theme_dark_olive_input</item>
+        <item name="bottomNavBackground">@color/theme_dark_olive_bg</item>
+        <item name="navItemSelectedColor">@color/theme_dark_olive_accent</item>
+        <item name="navItemUnselectedColor">@color/theme_dark_olive_text_secondary</item>
+        <item name="tagBackgroundColor">@color/theme_dark_olive_input</item>
+        <item name="tagTextColor">@color/theme_dark_olive_accent</item>
+
+        <item name="android:statusBarColor">@color/theme_dark_olive_bg</item>
+        <item name="android:windowBackground">@color/theme_dark_olive_bg</item>
+        <item name="android:textColorPrimary">@color/theme_dark_olive_text_primary</item>
+        <item name="android:textColorSecondary">@color/theme_dark_olive_text_secondary</item>
+        <item name="android:textColorAlertDialogListItem">@color/theme_dark_olive_text_primary</item>
+
+        <item name="alertDialogTheme">@style/Theme.UniLink.Dialog</item>
+        <item name="materialAlertDialogTheme">@style/Theme.UniLink.Dialog</item>
+    </style>
+
     <!-- Dialog Style -->
     <style name="Theme.UniLink.Dialog" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
         <item name="android:background">?attr/cardBackgroundColor</item>
