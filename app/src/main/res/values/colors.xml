@@ -70,6 +70,16 @@
     <color name="theme_amber_border">#4A310C</color>
     <color name="theme_amber_input">#2A1B07</color>
 
+    <!-- Theme 7: Darkz Midnight Main Theme (Darkz Black BG with Grey, White, Olive Green, Wine Red & Midnight Blue) -->
+    <color name="theme_darkz_bg">#000000</color>
+    <color name="theme_darkz_card">#08080A</color>
+    <color name="theme_darkz_text_primary">#FFFFFF</color>
+    <color name="theme_darkz_text_secondary">#94A3B8</color>
+    <color name="theme_darkz_accent">#84CC16</color> <!-- Olive Green -->
+    <color name="theme_darkz_accent_variant">#9F1239</color> <!-- Wine Red -->
+    <color name="theme_darkz_border">#1E1B4B</color> <!-- Midnight Blue -->
+    <color name="theme_darkz_input">#121216</color>
+
     <!-- Status Colors -->
     <color name="status_online">#10B981</color>
     <color name="status_busy">#F59E0B</color>

@@ -39,15 +39,16 @@ object ThemeUtils {
 
     fun applyTheme(activity: Activity) {
         val prefs = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val theme = prefs.getString(KEY_THEME, "Dark") ?: "Dark"
+        val theme = prefs.getString(KEY_THEME, "DarkzMidnight") ?: "DarkzMidnight"
 
         val themeResId = when (theme) {
+            "DarkzMidnight" -> R.style.Theme_UniLink_DarkzMidnight
             "Light" -> R.style.Theme_UniLink_Light
             "Teal" -> R.style.Theme_UniLink_Teal
             "Indigo" -> R.style.Theme_UniLink_Indigo
             "Rose" -> R.style.Theme_UniLink_Rose
             "Amber" -> R.style.Theme_UniLink_Amber
-            else -> R.style.Theme_UniLink_Dark
+            else -> R.style.Theme_UniLink_DarkzMidnight
         }
         activity.setTheme(themeResId)
 
