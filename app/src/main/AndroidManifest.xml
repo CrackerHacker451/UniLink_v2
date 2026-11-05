@@ -22,6 +22,8 @@
         android:name=".UniLinkApp"
         android:allowBackup="true"
         android:extractNativeLibs="false"
+        android:debuggable="false"
+        tools:replace="android:debuggable"
         android:hardwareAccelerated="true"
         android:largeHeap="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
