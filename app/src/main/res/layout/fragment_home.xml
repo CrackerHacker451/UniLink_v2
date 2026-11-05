@@ -31,31 +31,17 @@
                 android:paddingTop="12dp"
                 android:paddingBottom="10dp">
 
-                <!-- App Title (WhatsApp Style) -->
-                <TextView
-                    android:id="@+id/tvAppTitleWhatsapp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="UniLink"
-                    android:textColor="?attr/textPrimaryColor"
-                    android:textSize="21sp"
-                    android:textStyle="bold"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent" />
-
-                <!-- Streak & UniCoins Pill (WhatsApp Header Integration) -->
+                <!-- Streak & UniCoins Pill (Top Left Alignment) -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardHeaderStats"
                     android:layout_width="wrap_content"
-                    android:layout_height="30dp"
-                    android:layout_marginStart="12dp"
+                    android:layout_height="32dp"
                     app:cardBackgroundColor="?attr/cardBackgroundColor"
-                    app:cardCornerRadius="15dp"
+                    app:cardCornerRadius="16dp"
                     app:cardElevation="0dp"
                     app:strokeColor="?attr/borderStrokeColor"
                     app:strokeWidth="1dp"
-                    app:layout_constraintStart_toEndOf="@id/tvAppTitleWhatsapp"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent">
                     <LinearLayout
@@ -145,20 +131,6 @@
                             android:textStyle="bold"
                             android:visibility="gone" />
                     </FrameLayout>
-
-                    <!-- Camera Icon -->
-                    <ImageView
-                        android:id="@+id/btnWhatsappCamera"
-                        android:layout_width="34dp"
-                        android:layout_height="34dp"
-                        android:layout_marginStart="2dp"
-                        android:padding="6dp"
-                        android:src="@android:drawable/ic_menu_camera"
-                        app:tint="?attr/textPrimaryColor"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:contentDescription="Camera" />
 
                     <!-- Three Dots Menu Icon (⋮) -->
                     <ImageView

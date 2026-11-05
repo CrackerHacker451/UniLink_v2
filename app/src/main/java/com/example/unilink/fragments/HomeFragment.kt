@@ -147,11 +147,6 @@ class HomeFragment : Fragment() {
             showWhatsappPopupMenu(it)
         }
 
-        binding.btnWhatsappCamera.setOnClickListener {
-            HapticUtils.playSelection(it)
-            startActivity(Intent(context, ImageEditorActivity::class.java))
-        }
-
         binding.btnNotifications.setOnClickListener { navigateTo(NotificationsActivity::class.java, it) }
         binding.cardHeaderStats.setOnClickListener { HapticUtils.playSelection(it); showStreakModal() }
     }
