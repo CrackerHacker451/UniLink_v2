@@ -169,6 +169,19 @@
                 app:cornerRadius="16dp" />
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnArkivWeb3Ledger"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="12dp"
+                android:text="🌐 View Permanent Web3 Arkiv Record (0xARKIV)"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                app:backgroundTint="#4D7C0F"
+                app:cornerRadius="16dp" />
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnChainlinkCre"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
