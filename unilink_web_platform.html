@@ -71,24 +71,23 @@
     <!-- Main Container (Mobile First Max-Width Layout) -->
     <div id="appContainer" class="w-full max-w-md h-[94vh] max-h-[920px] bg-[#060709] border border-[#171A21] rounded-3xl shadow-2xl flex flex-col relative overflow-hidden transition-all duration-300">
 
-        <!-- Top Header Bar -->
+        <!-- Top WhatsApp-Style Header Bar -->
         <header id="mainHeader" class="w-full px-4 py-3 border-b border-[#171A21] glass-panel z-20 flex justify-between items-center">
-            <!-- Top Left Actions -->
-            <div id="headerLeft" class="flex items-center space-x-2">
-                <button onclick="openHighlightsModal()" class="p-2 rounded-xl bg-[#090A0F] border border-[#262A33] text-[#7CA5B8] hover:bg-[#171A21] transition flex items-center justify-center">
-                    <i data-lucide="sparkles" class="w-4 h-4 text-[#7CA5B8]"></i>
-                </button>
+            <!-- Top Left: App Title & Stats Pill -->
+            <div class="flex items-center space-x-3">
+                <h1 class="text-lg font-bold text-white font-sans tracking-wide">UniLink</h1>
 
-                <div onclick="openCoinsModal()" class="cursor-pointer px-3 py-1.5 rounded-full bg-[#090A0F] border border-[#262A33] text-[#D4B27C] text-xs font-bold font-mono flex items-center gap-1.5 hover:border-[#D4B27C] transition">
-                    <span>🪙</span>
-                    <span id="uniCoinsDisplay">100,175</span>
+                <div onclick="openCoinsModal()" class="cursor-pointer px-2.5 py-1 rounded-full bg-[#090A0F] border border-[#262A33] text-[#D4B27C] text-[11px] font-bold font-mono flex items-center gap-1 hover:border-[#D4B27C] transition">
+                    <span>🔥 7</span>
+                    <span class="text-gray-500">•</span>
+                    <span>🪙 100,175</span>
                 </div>
             </div>
 
-            <!-- Top Right Actions (Standard Mode) -->
-            <div id="headerRightStandard" class="flex items-center space-x-2">
-                <button onclick="toggleWarmTint()" title="Toggle Eye Comfort Warm Tint" class="p-2 rounded-xl bg-[#090A0F] border border-[#262A33] text-[#D4B27C] hover:bg-[#171A21] transition">
-                    <i data-lucide="sun" class="w-4 h-4"></i>
+            <!-- Top Right: WhatsApp Action Icons (Camera, Notifications, Three Dots Menu) -->
+            <div class="flex items-center space-x-1.5">
+                <button onclick="alert('Camera Viewfinder Ready! 📷')" title="Camera" class="p-2 rounded-xl bg-[#090A0F] border border-[#262A33] text-gray-300 hover:text-white transition">
+                    <i data-lucide="camera" class="w-4 h-4"></i>
                 </button>
 
                 <div class="relative">
@@ -98,25 +97,30 @@
                     </button>
                 </div>
 
-                <button onclick="toggleMenuDrawer()" class="p-2 rounded-xl bg-[#090A0F] border border-[#262A33] text-gray-300 hover:bg-[#171A21] transition">
-                    <i data-lucide="menu" class="w-4 h-4"></i>
-                </button>
-            </div>
+                <div class="relative">
+                    <button onclick="toggleWhatsappDropdown()" title="Menu" class="p-2 rounded-xl bg-[#090A0F] border border-[#262A33] text-gray-300 hover:text-white transition">
+                        <i data-lucide="more-vertical" class="w-4 h-4"></i>
+                    </button>
 
-            <!-- Top Right Actions (Dynamic Profile Mode) -->
-            <div id="headerRightProfile" class="hidden items-center space-x-2">
-                <button class="px-2.5 py-1.5 rounded-xl bg-[#090A0F] border border-[#262A33] text-[#7CA5B8] text-xs font-medium flex items-center gap-1">
-                    <i data-lucide="graduation-cap" class="w-3.5 h-3.5"></i>
-                    <span>College</span>
-                </button>
-
-                <button onclick="openSettingsModal()" class="p-2 rounded-xl bg-[#090A0F] border border-[#262A33] text-gray-300 hover:bg-[#171A21] transition">
-                    <i data-lucide="settings" class="w-4 h-4"></i>
-                </button>
-
-                <button onclick="signOutUser()" class="p-2 rounded-xl bg-[#090A0F] border border-[#C48484]/40 text-[#C48484] hover:bg-[#C48484]/20 transition">
-                    <i data-lucide="log-out" class="w-4 h-4"></i>
-                </button>
+                    <!-- WhatsApp Dropdown Menu -->
+                    <div id="whatsappDropdown" class="hidden absolute right-0 top-11 w-52 rounded-xl bg-[#090A0F] border border-[#262A33] shadow-2xl p-1.5 z-50 text-xs text-gray-200 space-y-1">
+                        <div onclick="alert('Creating New Squad...')" class="p-2.5 rounded-lg hover:bg-[#171A21] cursor-pointer flex items-center gap-2">
+                            <i data-lucide="users" class="w-3.5 h-3.5 text-[#7CA5B8]"></i> New Hackathon Squad
+                        </div>
+                        <div onclick="switchTab('projects')" class="p-2.5 rounded-lg hover:bg-[#171A21] cursor-pointer flex items-center gap-2">
+                            <i data-lucide="zap" class="w-3.5 h-3.5 text-[#EC4899]"></i> SpeedLink 1080p Match
+                        </div>
+                        <div onclick="switchTab('search')" class="p-2.5 rounded-lg hover:bg-[#171A21] cursor-pointer flex items-center gap-2">
+                            <i data-lucide="radar" class="w-3.5 h-3.5 text-[#06B6D4]"></i> Campus Radar
+                        </div>
+                        <div onclick="switchTab('profile')" class="p-2.5 rounded-lg hover:bg-[#171A21] cursor-pointer flex items-center gap-2">
+                            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-[#78A88E]"></i> World ID Verification
+                        </div>
+                        <div onclick="openSettingsModal()" class="p-2.5 rounded-lg hover:bg-[#171A21] cursor-pointer flex items-center gap-2 border-t border-[#171A21]">
+                            <i data-lucide="settings" class="w-3.5 h-3.5 text-gray-400"></i> Settings
+                        </div>
+                    </div>
+                </div>
             </div>
         </header>
 
@@ -460,6 +464,11 @@
         lucide.createIcons();
 
         let warmTintActive = false;
+
+        function toggleWhatsappDropdown() {
+            const dd = document.getElementById('whatsappDropdown');
+            dd.classList.toggle('hidden');
+        }
 
         function toggleWarmTint() {
             warmTintActive = !warmTintActive;

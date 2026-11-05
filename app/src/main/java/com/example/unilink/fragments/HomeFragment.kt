@@ -142,14 +142,47 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
-        binding.btnDashboardMenu.setOnClickListener {
+        binding.btnWhatsappMenu.setOnClickListener {
             HapticUtils.playSelection(it)
-            showCampusDashboardSheet()
+            showWhatsappPopupMenu(it)
+        }
+
+        binding.btnWhatsappCamera.setOnClickListener {
+            HapticUtils.playSelection(it)
+            startActivity(Intent(context, ImageEditorActivity::class.java))
         }
 
         binding.btnNotifications.setOnClickListener { navigateTo(NotificationsActivity::class.java, it) }
-        binding.btnLeaderboard.setOnClickListener { navigateTo(LeaderboardActivity::class.java, it) }
         binding.cardHeaderStats.setOnClickListener { HapticUtils.playSelection(it); showStreakModal() }
+    }
+
+    private fun showWhatsappPopupMenu(view: View) {
+        val ctx = context ?: return
+        val popup = androidx.appcompat.widget.PopupMenu(ctx, view)
+        popup.menu.add(0, 1, 0, "👥 New Hackathon Squad / Group")
+        popup.menu.add(0, 2, 1, "⚡ SpeedLink 1080p Match")
+        popup.menu.add(0, 3, 2, "📡 Campus Radar")
+        popup.menu.add(0, 4, 3, "🎪 Campus Arena & Live Stage")
+        popup.menu.add(0, 5, 4, "🌐 World ID Human Verification")
+        popup.menu.add(0, 6, 5, "🪙 Daily Rewards & Pro Pass")
+        popup.menu.add(0, 7, 6, "🤖 UniAI Study Copilot")
+        popup.menu.add(0, 8, 7, "⚙️ Settings")
+
+        popup.setOnMenuItemClickListener { item ->
+            HapticUtils.playSelection(view)
+            when (item.itemId) {
+                1 -> startActivity(Intent(ctx, CreateTeamActivity::class.java))
+                2 -> startActivity(Intent(ctx, RandomMatchActivity::class.java))
+                3 -> startActivity(Intent(ctx, NearbyStudentsActivity::class.java))
+                4 -> startActivity(Intent(ctx, com.example.unilink.activities.CampusArenaActivity::class.java))
+                5 -> startActivity(Intent(ctx, ProfileActivity::class.java))
+                6 -> showStreakModal()
+                7 -> (activity as? MainActivity)?.showAiAssistant()
+                8 -> startActivity(Intent(ctx, SettingsActivity::class.java))
+            }
+            true
+        }
+        popup.show()
     }
 
     private fun showCampusDashboardSheet() {

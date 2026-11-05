@@ -15,98 +15,114 @@
             android:id="@+id/auraParticles"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:alpha="0.4" />
+            android:alpha="0.3" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <!-- Ultra-Clean Minimal Top Header -->
+            <!-- WhatsApp-Style Top Header Bar -->
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/homeHeader"
+                android:id="@+id/whatsappHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="16dp"
                 android:paddingTop="12dp"
-                android:paddingBottom="12dp">
+                android:paddingBottom="10dp">
 
-                <!-- Actions Transferred to Top Left -->
+                <!-- App Title (WhatsApp Style) -->
+                <TextView
+                    android:id="@+id/tvAppTitleWhatsapp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="UniLink"
+                    android:textColor="?attr/textPrimaryColor"
+                    android:textSize="21sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+                <!-- Streak & UniCoins Pill (WhatsApp Header Integration) -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardHeaderStats"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="12dp"
+                    app:cardBackgroundColor="?attr/cardBackgroundColor"
+                    app:cardCornerRadius="15dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="?attr/borderStrokeColor"
+                    app:strokeWidth="1dp"
+                    app:layout_constraintStart_toEndOf="@id/tvAppTitleWhatsapp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent">
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="8dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="🔥"
+                            android:textSize="10sp" />
+
+                        <TextView
+                            android:id="@+id/tvHeaderStreak"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="2dp"
+                            android:text="7"
+                            android:textColor="#FF7A00"
+                            android:textSize="10sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="4dp"
+                            android:text="·"
+                            android:textColor="?attr/textSecondaryColor"
+                            android:textSize="10sp" />
+
+                        <ImageView
+                            android:layout_width="10dp"
+                            android:layout_height="10dp"
+                            android:src="@android:drawable/btn_star_big_on"
+                            app:tint="#FFD700"
+                            android:contentDescription="Coins" />
+
+                        <TextView
+                            android:id="@+id/tvHeaderUniCoins"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="2dp"
+                            android:text="100"
+                            android:textColor="?attr/textPrimaryColor"
+                            android:textSize="10sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Header Actions (Camera, Notifications, Three Dots Menu) -->
                 <LinearLayout
-                    android:id="@+id/llHeaderActions"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent">
 
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/cardHeaderStats"
-                        android:layout_width="wrap_content"
-                        android:layout_height="34dp"
-                        android:layout_marginEnd="8dp"
-                        app:cardBackgroundColor="?attr/cardBackgroundColor"
-                        app:cardCornerRadius="17dp"
-                        app:cardElevation="0dp"
-                        app:strokeColor="?attr/borderStrokeColor"
-                        app:strokeWidth="1dp">
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:gravity="center_vertical"
-                            android:paddingHorizontal="10dp"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="🔥"
-                                android:textSize="11sp" />
-
-                            <TextView
-                                android:id="@+id/tvHeaderStreak"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="3dp"
-                                android:text="7"
-                                android:textColor="#FF7A00"
-                                android:textSize="11sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginHorizontal="5dp"
-                                android:text="·"
-                                android:textColor="?attr/textSecondaryColor"
-                                android:textSize="12sp" />
-
-                            <ImageView
-                                android:layout_width="11dp"
-                                android:layout_height="11dp"
-                                android:src="@android:drawable/btn_star_big_on"
-                                app:tint="#FFD700"
-                                android:contentDescription="Coins" />
-
-                            <TextView
-                                android:id="@+id/tvHeaderUniCoins"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="3dp"
-                                android:text="100"
-                                android:textColor="?attr/textPrimaryColor"
-                                android:textSize="11sp"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
+                    <!-- Notifications Bell -->
                     <FrameLayout
                         android:id="@+id/btnNotifications"
                         android:layout_width="34dp"
                         android:layout_height="34dp"
-                        android:layout_marginEnd="6dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:clickable="true"
                         android:focusable="true">
@@ -130,39 +146,38 @@
                             android:visibility="gone" />
                     </FrameLayout>
 
+                    <!-- Camera Icon -->
                     <ImageView
-                        android:id="@+id/btnLeaderboard"
+                        android:id="@+id/btnWhatsappCamera"
                         android:layout_width="34dp"
                         android:layout_height="34dp"
+                        android:layout_marginStart="2dp"
                         android:padding="6dp"
-                        android:src="@android:drawable/btn_star_big_on"
-                        app:tint="#FFD700"
+                        android:src="@android:drawable/ic_menu_camera"
+                        app:tint="?attr/textPrimaryColor"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:clickable="true"
                         android:focusable="true"
-                        android:contentDescription="Leaderboard" />
+                        android:contentDescription="Camera" />
 
+                    <!-- Three Dots Menu Icon (⋮) -->
+                    <ImageView
+                        android:id="@+id/btnWhatsappMenu"
+                        android:layout_width="34dp"
+                        android:layout_height="34dp"
+                        android:layout_marginStart="2dp"
+                        android:padding="6dp"
+                        android:src="@android:drawable/ic_menu_more"
+                        app:tint="?attr/textPrimaryColor"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:contentDescription="Menu" />
                 </LinearLayout>
-
-                <!-- Top Right Three-Dot Menu Button for Campus Dashboard -->
-                <ImageView
-                    android:id="@+id/btnDashboardMenu"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:padding="6dp"
-                    android:src="@android:drawable/ic_menu_more"
-                    app:tint="?attr/textPrimaryColor"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:contentDescription="Campus Dashboard"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- Only Posts Feed on Home Page -->
+            <!-- Clean Posts Feed -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvActivityFeed"
                 android:layout_width="match_parent"

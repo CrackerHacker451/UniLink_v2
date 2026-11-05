@@ -114,11 +114,13 @@
                 android:stateListAnimator="@animator/btn_press_scale" />
 
             <!-- Secondary Action -->
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnNewtonLogin"
                 style="@style/PrimaryButton"
                 android:layout_height="56dp"
                 android:layout_marginTop="12dp"
+                android:stateListAnimator="@animator/btn_press_scale"
                 android:text="@string/continue_newton"
                 android:textAllCaps="false"
                 android:textColor="@color/white"
@@ -130,8 +132,7 @@
                 app:iconPadding="12dp"
                 app:iconSize="20dp"
                 app:strokeColor="#33FFFFFF"
-                app:strokeWidth="1dp"
-                android:stateListAnimator="@animator/btn_press_scale" />
+                app:strokeWidth="1dp" />
 
             <TextView
                 android:id="@+id/tvAltLogin"
