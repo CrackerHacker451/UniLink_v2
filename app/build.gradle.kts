@@ -36,6 +36,9 @@ android {
         jniLibs {
             useLegacyPackaging = false
         }
+        resources {
+            excludes += "META-INF/**"
+        }
     }
     lint {
         checkReleaseBuilds = false
