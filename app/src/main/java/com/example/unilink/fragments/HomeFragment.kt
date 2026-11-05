@@ -166,7 +166,8 @@ class HomeFragment : Fragment() {
         popup.menu.add(0, 5, 4, "🌐 World ID Human Verification")
         popup.menu.add(0, 6, 5, "🪙 Daily Rewards & Pro Pass")
         popup.menu.add(0, 7, 6, "🤖 UniAI Study Copilot")
-        popup.menu.add(0, 8, 7, "⚙️ Settings")
+        popup.menu.add(0, 8, 7, "📡 Campus IoT & Nav Bot Stream")
+        popup.menu.add(0, 9, 8, "⚙️ Settings")
 
         popup.setOnMenuItemClickListener { item ->
             HapticUtils.playSelection(view)
@@ -178,7 +179,8 @@ class HomeFragment : Fragment() {
                 5 -> startActivity(Intent(ctx, ProfileActivity::class.java))
                 6 -> showStreakModal()
                 7 -> (activity as? MainActivity)?.showAiAssistant()
-                8 -> startActivity(Intent(ctx, SettingsActivity::class.java))
+                8 -> startActivity(Intent(ctx, IotCampusActivity::class.java))
+                9 -> startActivity(Intent(ctx, SettingsActivity::class.java))
             }
             true
         }
