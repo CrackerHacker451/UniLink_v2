@@ -85,9 +85,9 @@ class ProjectDetailsActivity : AppCompatActivity() {
             val title = project?.displayTitle ?: "Student Project"
             lifecycleScope.launch {
                 val service = com.example.unilink.repository.ArkivDatabaseService()
-                val record = service.saveToArkivPermanentDatabase(title, "https://uni-link-b7f2c.web.app/#team/$id", "Hackathon Showcase")
-                val explorerUrl = service.getArkivExplorerUrl(record.txId)
-                Toast.makeText(this@ProjectDetailsActivity, "🌐 Permanent Web3 Arkiv Record: ${record.txId.take(16)}...", Toast.LENGTH_LONG).show()
+                val entity = service.createEntityOnArkivChain("posts", title, "https://uni-link-b7f2c.web.app/#team/$id", 30)
+                val explorerUrl = service.getArkivExplorerUrl(entity.txHash)
+                Toast.makeText(this@ProjectDetailsActivity, "🌐 Arkiv DB-Chain Entity: ${entity.txHash.take(16)}...", Toast.LENGTH_LONG).show()
                 try {
                     startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(explorerUrl)))
                 } catch (_: Exception) {}

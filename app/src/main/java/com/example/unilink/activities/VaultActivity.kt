@@ -92,10 +92,10 @@ class VaultActivity : AppCompatActivity() {
                 .setPositiveButton("Save to Vault (+20 UniCoins)") { _, _ ->
                     val title = "AI Summary - ${System.currentTimeMillis() / 1000}"
                     lifecycleScope.launch {
-                        val arkivRecord = com.example.unilink.repository.ArkivDatabaseService().saveToArkivPermanentDatabase(title, summary, "AI Lecture Notes")
-                        vaultRepository.uploadItem("$title (${arkivRecord.txId.take(12)})", "Notes", 0, summary, listOf("AI Notes", "Arkiv Web3")) { success ->
+                        val arkivEntity = com.example.unilink.repository.ArkivDatabaseService().createEntityOnArkivChain("posts", title, summary, 30)
+                        vaultRepository.uploadItem("$title (${arkivEntity.txHash.take(12)})", "Notes", 0, summary, listOf("AI Notes", "Arkiv DB-Chain")) { success ->
                             if (success) {
-                                Toast.makeText(this@VaultActivity, "Saved to Vault & Permanent Web3 Arkiv DB! +20 🪙", Toast.LENGTH_LONG).show()
+                                Toast.makeText(this@VaultActivity, "Saved to Vault & Arkiv DB-Chain! (${arkivEntity.txHash.take(10)}) +20 🪙", Toast.LENGTH_LONG).show()
                                 loadVault()
                             }
                         }
