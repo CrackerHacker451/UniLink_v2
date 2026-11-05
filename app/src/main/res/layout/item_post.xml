@@ -73,22 +73,12 @@
             app:tint="?attr/textSecondaryColor"
             android:background="?attr/selectableItemBackgroundBorderless" />
 
-        <TextView
-            android:id="@+id/tvPostContent"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            style="@style/TextBody"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/ivPostAvatar"
-            tools:text="Post content goes here with professional typography and better line spacing for readability." />
-
+        <!-- FIRST PICS -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cvPostImage"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="14dp"
             android:visibility="gone"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
@@ -96,7 +86,7 @@
             app:strokeColor="?attr/borderStrokeColor"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvPostContent">
+            app:layout_constraintTop_toBottomOf="@id/ivPostAvatar">
             <ImageView
                 android:id="@+id/ivPostImage"
                 android:layout_width="match_parent"
@@ -104,14 +94,26 @@
                 android:scaleType="centerCrop" />
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- THEN DESCRIPTION -->
+        <TextView
+            android:id="@+id/tvPostContent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            style="@style/TextBody"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cvPostImage"
+            tools:text="Post content goes here with professional typography and better line spacing for readability." />
+
         <LinearLayout
             android:id="@+id/llActions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="16dp"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            app:layout_constraintTop_toBottomOf="@id/cvPostImage">
+            app:layout_constraintTop_toBottomOf="@id/tvPostContent">
 
             <LinearLayout
                 android:id="@+id/btnLikeContainer"
