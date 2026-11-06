@@ -47,7 +47,7 @@
                         android:id="@+id/btnSparklesHighlights"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
-                        android:layout_marginEnd="8dp"
+                        android:layout_marginEnd="6dp"
                         app:cardBackgroundColor="?attr/cardBackgroundColor"
                         app:cardCornerRadius="20dp"
                         app:cardElevation="0dp"
@@ -59,6 +59,26 @@
                             android:gravity="center"
                             android:text="✨"
                             android:textColor="#7CA5B8"
+                            android:textSize="18sp" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Leaderboard Trophy Button -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/btnLeaderboardHeader"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_marginEnd="6dp"
+                        app:cardBackgroundColor="?attr/cardBackgroundColor"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="?attr/borderStrokeColor"
+                        app:strokeWidth="1dp">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:text="🏆"
+                            android:textColor="#FFD700"
                             android:textSize="18sp" />
                     </com.google.android.material.card.MaterialCardView>
 

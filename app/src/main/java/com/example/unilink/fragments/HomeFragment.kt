@@ -146,6 +146,11 @@ class HomeFragment : Fragment() {
             Toast.makeText(context, "✨ Campus Highlights & Aura Spotlight Active!", Toast.LENGTH_SHORT).show()
         }
 
+        binding.btnLeaderboardHeader.setOnClickListener {
+            HapticUtils.playSelection(it)
+            navigateTo(LeaderboardActivity::class.java, it)
+        }
+
         binding.cardHeaderStats.setOnClickListener {
             HapticUtils.playSelection(it)
             showStreakModal()
