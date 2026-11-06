@@ -104,8 +104,8 @@ dependencies {
     implementation(libs.webrtc)
     implementation(libs.googleai)
 
-    // CameraX for Live IDKit Face Liveness Scanner
-    val cameraVersion = "1.3.4"
+    // CameraX (1.4.1+ officially compiled with 16 KB page alignment for Android 15+)
+    val cameraVersion = "1.4.1"
     implementation("androidx.camera:camera-core:$cameraVersion")
     implementation("androidx.camera:camera-camera2:$cameraVersion")
     implementation("androidx.camera:camera-lifecycle:$cameraVersion")
