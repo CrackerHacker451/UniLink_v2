@@ -122,12 +122,13 @@
         <activity
             android:name=".worldid.HumanVerificationActivity"
             android:exported="true"
-            android:launchMode="singleTop">
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="unilink" android:host="human-verified" />
+                <data android:scheme="unilink" android:host="worldid-callback" />
             </intent-filter>
         </activity>
 

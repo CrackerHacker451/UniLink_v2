@@ -150,6 +150,28 @@ class HumanVerificationActivity : AppCompatActivity() {
         if (waiting && !handled) lifecycleScope.launch { if (HumanGate.isVerified(true)) proceed() }
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        val dataUri = intent.data
+        if (dataUri != null && (dataUri.host == "worldid-callback" || dataUri.host == "human-verified")) {
+            lifecycleScope.launch {
+                show("Verifying World ID External App Proof… 🌐")
+                val trustManager = com.example.unilink.trust.WorldTrustManager(this@HumanVerificationActivity)
+                val result = trustManager.executeRewardHumanProofFlow { msg, progress ->
+                    runOnUiThread { show("$msg (${(progress * 100).toInt()}%)") }
+                }
+
+                if (result.success) {
+                    show("World ID Orb Verified Successfully! 🌐")
+                    proceed()
+                } else {
+                    fail(result.message ?: "Verification failed. Try again.")
+                }
+            }
+        }
+    }
+
     private fun begin() {
         lifecycleScope.launch {
             retry.visibility = View.GONE
