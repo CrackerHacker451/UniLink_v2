@@ -65,6 +65,16 @@ class HumanVerificationActivity : AppCompatActivity() {
             setPadding(0, pad / 2, 0, pad / 2)
         }
         root.addView(status)
+
+        val btnOpenWorldApp = Button(this).apply {
+            text = "🌐 Open World App for Human Verification"
+            setBackgroundColor(0xFF06B6D4.toInt())
+            setTextColor(Color.BLACK)
+            textSize = 15f
+            setOnClickListener { openWorldAppDirectly() }
+        }
+        root.addView(btnOpenWorldApp)
+
         webView = WebView(this).apply {
             visibility = View.GONE
             layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
@@ -163,6 +173,37 @@ class HumanVerificationActivity : AppCompatActivity() {
                     proceed()
                 } else {
                     fail(result.message ?: "World ID Orb Verification failed. Try again.")
+                }
+            }
+        }
+    }
+
+    private fun openWorldAppDirectly() {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: "user_id"
+        val worldAppUrl = "https://worldcoin.org/verify?app_id=app_staging_f692019b88127cA&action=orb-proof-of-human&signal=$uid"
+
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(worldAppUrl)).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            startActivity(intent)
+            show("Opening World App... Complete human verification and return back!")
+            waiting = true
+        } catch (_: Exception) {
+            try {
+                val deepLinkIntent = Intent(Intent.ACTION_VIEW, Uri.parse("worldapp://verify?app_id=app_staging_f692019b88127cA&action=orb-proof-of-human&signal=$uid")).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                startActivity(deepLinkIntent)
+                show("Opening World App... Complete human verification and return back!")
+                waiting = true
+            } catch (_: Exception) {
+                try {
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.worldcoin")).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    })
+                } catch (_: Exception) {
+                    fail("World App could not be opened. Install World App from Play Store.")
                 }
             }
         }
