@@ -475,6 +475,38 @@ fun LiveStreamScreen(
         } else {
             // Active Live Video Broadcast Stage View
             Box(modifier = Modifier.fillMaxSize()) {
+
+                // Instagram Reels-Style Vertical Swipe / Live Switcher Bar for Viewers
+                if (!isHost && activeStreams.size > 1) {
+                    val currentIndex = activeStreams.indexOfFirst { it.streamId == currentActiveStream?.streamId }.coerceAtLeast(0)
+                    Surface(
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .padding(end = 12.dp)
+                            .zIndex(15f)
+                            .clickable {
+                                val nextIndex = (currentIndex + 1) % activeStreams.size
+                                val nextStream = activeStreams[nextIndex]
+                                currentActiveStream = nextStream
+                                onJoinStream(nextStream)
+                                Toast.makeText(context, "📺 Switched to ${nextStream.hostName}'s Live Stream!", Toast.LENGTH_SHORT).show()
+                            },
+                        shape = RoundedCornerShape(20.dp),
+                        color = Color(0xCC06B6D4),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, Color.White)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 12.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text("▲", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Text("REEL", color = Color.White, fontSize = 8.sp, fontWeight = FontWeight.Black)
+                            Text("${currentIndex + 1}/${activeStreams.size}", color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                            Text("LIVE", color = Color.White, fontSize = 8.sp, fontWeight = FontWeight.Black)
+                            Text("▼", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
                 if (isHost && webRtcClient != null) {
                     AndroidView(
                         factory = { ctx ->

@@ -70,10 +70,10 @@
       </SelectionState>
       <SelectionState runConfigName="Unnamed (3)">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-10-26T10:41:29.685530Z">
+        <DropdownSelection timestamp="2026-11-06T06:21:14.119529Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=RZGL623H19B" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=/Users/Lalit/.android/avd/Pixel_10.avd" />
             </handle>
           </Target>
         </DropdownSelection>

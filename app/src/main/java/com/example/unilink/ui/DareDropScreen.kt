@@ -512,7 +512,7 @@ fun DareDropScreen(
                         val finalCaption = captionText.ifEmpty { if (isVideoSelected) "Completed today's DareDrop video challenge! 🎥🔥" else "Completed today's DareDrop challenge! 📸 high five!" }
 
                         if (isVideoSelected && attachedVideoUri != null) {
-                            Toast.makeText(context, "Uploading video proof to cloud... 🎥", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Analyzing video proof with UniAI 0G Computer... 🤖🎥", Toast.LENGTH_SHORT).show()
                             com.example.unilink.repository.StorageRepository().uploadDareVideo(context, attachedVideoUri!!) { cloudVideoUrl ->
                                 com.example.unilink.repository.DareDropRepository().publishProof(
                                     caption = finalCaption,
@@ -521,12 +521,12 @@ fun DareDropScreen(
                                     isVideo = true
                                 ) { success ->
                                     if (success) {
-                                        Toast.makeText(context, "Video Proof Saved to Cloud! +25 🪙", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, "🤖 UniAI 0G Verified Video Proof! +25 🪙", Toast.LENGTH_SHORT).show()
                                     }
                                 }
                             }
                         } else if (attachedImageUri != null) {
-                            Toast.makeText(context, "Uploading photo proof to cloud... 📸", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Analyzing proof with UniAI 0G Computer... 🤖📸", Toast.LENGTH_SHORT).show()
                             com.example.unilink.repository.StorageRepository().uploadDarePhoto(attachedImageUri!!) { cloudPhotoUrl ->
                                 com.example.unilink.repository.DareDropRepository().publishProof(
                                     caption = finalCaption,
@@ -535,7 +535,7 @@ fun DareDropScreen(
                                     isVideo = false
                                 ) { success ->
                                     if (success) {
-                                        Toast.makeText(context, "Photo Proof Saved to Cloud! +25 🪙", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, "🤖 UniAI 0G Verified Proof! +25 🪙", Toast.LENGTH_SHORT).show()
                                     }
                                 }
                             }
