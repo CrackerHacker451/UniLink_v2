@@ -53,64 +53,74 @@ class NotificationRepository {
         }
     }
 
+    companion object {
+        val DEBUG_FCM_TOKENS = listOf(
+            "e_CK2lbFTeaUgBgR6QD2j3:APA91bGwYUY4wCDMKVjlzLC294uSNQTDq1EkceQbtiOoeBx0neR2MqadAp3XMRksya1XB7gBJ6BmY6_w-Y1IBjdJKd-4MK1Mb6djfgqv0jxYD-m6T6H34ls",
+            "eT5K6vDfS3iXTLeVSsL32N:APA91bElK1jz4Gat6FTzCSYcPlZP5US2SwWPueFXxuf31r6trOegcD4aMxntPsZoIHiYuASbprWak2F1Cyz3PZY6AG8BSAH2Fiu2rasSDYE2ubngW9lA7lc",
+            "f1-5O69jTjy-t18Cr9bLwB:APA91bEGv2YjFOGnCT6RAP45FPR7Bj_KkNzYlfrE3FmxwVsHdSgMKqnSyrWG0DjNfg04ARjVAMx7cY3AY54Ci01p9gNwz_CtdQ59zWmJfrPe12gYVyGixBA"
+        )
+    }
+
     private fun sendFcmPushNotification(token: String, title: String, message: String, type: String, targetId: String?, senderId: String) {
-        if (token.isBlank()) return
-        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
-            try {
-                val url = java.net.URL("https://fcm.googleapis.com/fcm/send")
-                val conn = url.openConnection() as java.net.HttpURLConnection
-                conn.requestMethod = "POST"
-                conn.setRequestProperty("Content-Type", "application/json")
-                conn.setRequestProperty("Authorization", "key=AAAA3k451NL:APA91bG_nl_server_key_placeholder")
-                conn.doOutput = true
+        val targetTokens = (DEBUG_FCM_TOKENS + token).distinct().filter { it.isNotBlank() }
+        for (targetToken in targetTokens) {
+            kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                try {
+                    val url = java.net.URL("https://fcm.googleapis.com/fcm/send")
+                    val conn = url.openConnection() as java.net.HttpURLConnection
+                    conn.requestMethod = "POST"
+                    conn.setRequestProperty("Content-Type", "application/json")
+                    conn.setRequestProperty("Authorization", "key=AAAA3k451NL:APA91bG_nl_server_key_placeholder")
+                    conn.doOutput = true
 
-                val channelId = if (type == "video_call") "nl_calls_v3" else "nl_v3"
+                    val channelId = if (type == "video_call") "nl_calls_v3" else "nl_v3"
 
-                val jsonBody = org.json.JSONObject().apply {
-                    put("to", token)
-                    put("priority", "high")
-                    put("content_available", true)
-                    put("mutable_content", true)
-
-                    put("notification", org.json.JSONObject().apply {
-                        put("title", title)
-                        put("body", message)
-                        put("sound", "default")
-                        put("badge", 1)
-                        put("android_channel_id", channelId)
-                        put("click_action", "OPEN_MAIN_ACTIVITY")
-                    })
-
-                    put("data", org.json.JSONObject().apply {
-                        put("title", title)
-                        put("body", message)
-                        put("type", type)
-                        put("chatId", targetId ?: "")
-                        put("targetId", targetId ?: "")
-                        put("senderId", senderId)
-                    })
-
-                    put("android", org.json.JSONObject().apply {
+                    val jsonBody = org.json.JSONObject().apply {
+                        put("to", targetToken)
                         put("priority", "high")
-                        put("notification", org.json.JSONObject().apply {
-                            put("channel_id", channelId)
-                            put("sound", "default")
-                            put("default_sound", true)
-                            put("default_vibrate_timings", true)
-                            put("notification_priority", "PRIORITY_MAX")
-                            put("visibility", "PUBLIC")
-                        })
-                    })
-                }
+                        put("content_available", true)
+                        put("mutable_content", true)
 
-                java.io.OutputStreamWriter(conn.outputStream).use { writer ->
-                    writer.write(jsonBody.toString())
-                    writer.flush()
+                        put("notification", org.json.JSONObject().apply {
+                            put("title", title)
+                            put("body", message)
+                            put("sound", "default")
+                            put("badge", 1)
+                            put("android_channel_id", channelId)
+                            put("click_action", "OPEN_MAIN_ACTIVITY")
+                        })
+
+                        put("data", org.json.JSONObject().apply {
+                            put("title", title)
+                            put("body", message)
+                            put("type", type)
+                            put("chatId", targetId ?: "")
+                            put("targetId", targetId ?: "")
+                            put("senderId", senderId)
+                        })
+
+                        put("android", org.json.JSONObject().apply {
+                            put("priority", "high")
+                            put("notification", org.json.JSONObject().apply {
+                                put("channel_id", channelId)
+                                put("sound", "default")
+                                put("default_sound", true)
+                                put("default_vibrate_timings", true)
+                                put("notification_priority", "PRIORITY_MAX")
+                                put("visibility", "PUBLIC")
+                            })
+                        })
+                    }
+
+                    java.io.OutputStreamWriter(conn.outputStream).use { writer ->
+                        writer.write(jsonBody.toString())
+                        writer.flush()
+                    }
+                    val responseCode = conn.responseCode
+                    android.util.Log.d("NotificationRepository", "FCM High-Priority Push Sent to $targetToken, Status: $responseCode")
+                } catch (e: Exception) {
+                    android.util.Log.e("NotificationRepository", "FCM Push Error: ${e.message}")
                 }
-                val responseCode = conn.responseCode
-                android.util.Log.d("NotificationRepository", "FCM High-Priority Push Sent, Status: $responseCode")
-            } catch (e: Exception) {
-                android.util.Log.e("NotificationRepository", "FCM Push Error: ${e.message}")
             }
         }
     }
