@@ -1,0 +1,13 @@
+{
+  "name": "unilink-human-gate-server",
+  "private": true,
+  "description": "Zero-cost server for the UniLink World ID human gate (Netlify free plan)",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@worldcoin/idkit-core": "4.6.0",
+    "firebase-admin": "^12.7.0"
+  }
+}
