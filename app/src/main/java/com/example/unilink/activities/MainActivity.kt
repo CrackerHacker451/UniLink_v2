@@ -55,17 +55,6 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // Human gate: check if verified or snoozed for 24 hours
-        lifecycleScope.launch {
-            val isVerified = com.example.unilink.worldid.HumanGate.isVerified()
-            val isSnoozed = com.example.unilink.worldid.HumanGate.isSnoozedActive(this@MainActivity)
-
-            if (!isVerified && !isSnoozed) {
-                startActivity(Intent(this@MainActivity, com.example.unilink.worldid.HumanVerificationActivity::class.java))
-                finish()
-            }
-        }
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

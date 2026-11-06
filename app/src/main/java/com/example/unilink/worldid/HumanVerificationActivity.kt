@@ -66,36 +66,14 @@ class HumanVerificationActivity : AppCompatActivity() {
         }
         root.addView(status)
 
-        val btnOpenWorldApp = Button(this).apply {
-            text = "🌐 Open World App for Human Verification"
+        val btnEnterApp = Button(this).apply {
+            text = "🚀 Enter Newton's Lobby Campus App"
             setBackgroundColor(0xFF06B6D4.toInt())
             setTextColor(Color.BLACK)
             textSize = 15f
-            setOnClickListener { openWorldAppDirectly() }
+            setOnClickListener { proceed() }
         }
-        root.addView(btnOpenWorldApp)
-
-        val btnDirectOrbVerification = Button(this).apply {
-            text = "👁️ Complete World ID Orb Verification (Direct)"
-            setBackgroundColor(0xFF84CC16.toInt())
-            setTextColor(Color.BLACK)
-            textSize = 15f
-            setOnClickListener { executeDirectOrbVerification() }
-        }
-        root.addView(btnDirectOrbVerification)
-
-        val btnSnooze24Hours = Button(this).apply {
-            text = "⏰ Verify Later (Snooze 24 Hours)"
-            setBackgroundColor(0xFF334155.toInt())
-            setTextColor(Color.WHITE)
-            textSize = 14f
-            setOnClickListener {
-                HumanGate.snooze24Hours(this@HumanVerificationActivity)
-                android.widget.Toast.makeText(this@HumanVerificationActivity, "⏰ Verification Snoozed for 24 Hours! Enjoy Newton's Lobby!", android.widget.Toast.LENGTH_LONG).show()
-                proceed()
-            }
-        }
-        root.addView(btnSnooze24Hours)
+        root.addView(btnEnterApp)
 
         webView = WebView(this).apply {
             visibility = View.GONE
@@ -187,38 +165,7 @@ class HumanVerificationActivity : AppCompatActivity() {
 
     private fun begin() {
         lifecycleScope.launch {
-            retry.visibility = View.GONE
-            webView.visibility = View.GONE
-            show("Connecting to World ID 4.0 Orb Verification… 🌐")
-
-            if (HumanGate.isVerified(true)) { proceed(); return@launch }
-
-            val idToken = idToken()
-            if (idToken == null) { fail("Please sign in again."); return@launch }
-            val appCheck = appCheckToken()
-            val session = withContext(Dispatchers.IO) { startSession(idToken, appCheck) }
-
-            if (session != null && !session.optString("pairingId").isNullOrEmpty()) {
-                val pairingId = session.optString("pairingId")
-                waiting = true
-                show("Complete World ID Orb Proof of Human in World App.")
-                webView.visibility = View.VISIBLE
-                webView.loadUrl("$baseUrl/verify.html#p=$pairingId")
-            } else {
-                // Direct World ID Orb Verification Execution
-                show("Scanning World ID Orb Iris Biometric Pattern… 👁️🌐")
-                val trustManager = com.example.unilink.trust.WorldTrustManager(this@HumanVerificationActivity)
-                val result = trustManager.executeRewardHumanProofFlow { msg, progress ->
-                    runOnUiThread { show("$msg (${(progress * 100).toInt()}%)") }
-                }
-
-                if (result.success) {
-                    show("World ID Orb Verified Successfully! 🌐")
-                    proceed()
-                } else {
-                    fail(result.message ?: "World ID Orb Verification failed. Try again.")
-                }
-            }
+            proceed()
         }
     }
 
