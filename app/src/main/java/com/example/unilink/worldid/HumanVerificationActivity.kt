@@ -113,6 +113,12 @@ class HumanVerificationActivity : AppCompatActivity() {
         if (waiting && !handled) lifecycleScope.launch { if (HumanGate.isVerified(true)) proceed() }
     }
 
+    private data class StartSessionResult(
+        val httpCode: Int,
+        val json: JSONObject? = null,
+        val errorMsg: String? = null
+    )
+
     private fun begin() {
         lifecycleScope.launch {
             retry.visibility = View.GONE
@@ -127,19 +133,45 @@ class HumanVerificationActivity : AppCompatActivity() {
             val idToken = idToken()
             if (idToken == null) { fail("Please sign in again."); return@launch }
             val appCheck = appCheckToken()
-            val session = withContext(Dispatchers.IO) { startSession(idToken, appCheck) }
+            val sessionResult = withContext(Dispatchers.IO) { startSession(idToken, appCheck) }
+
+            val sessionJson = sessionResult.json
+            val error = sessionResult.errorMsg
+
             when {
-                session == null -> fail("Could not start verification. Check your connection, and make sure UniLink was installed from Google Play.")
-                session.optBoolean("alreadyVerified", false) -> {
+                sessionResult.httpCode == 200 && sessionJson?.optBoolean("alreadyVerified", false) == true -> {
                     if (HumanGate.isVerified(true)) proceed() else fail("Verification could not be confirmed. Try again.")
                 }
-                else -> {
-                    val pairingId = session.optString("pairingId")
+                sessionResult.httpCode == 200 && sessionJson?.has("pairingId") == true -> {
+                    val pairingId = sessionJson.optString("pairingId")
                     if (pairingId.isEmpty()) { fail("Could not start verification."); return@launch }
                     waiting = true
                     show("Complete the selfie check in World App. You will come back here automatically.")
                     webView.visibility = View.VISIBLE
                     webView.loadUrl("$baseUrl/verify.html#p=$pairingId")
+                }
+                error == "app_check_failed" || (sessionResult.httpCode == 401 && sessionJson?.optString("error") == "app_check_failed") -> {
+                    fail("App verification failed (App Check). Make sure you are using an official, untampered build of UniLink.")
+                }
+                error == "unauthenticated" || sessionResult.httpCode == 401 -> {
+                    fail("Please sign in again.")
+                }
+                error == "human_already_linked" || sessionResult.httpCode == 409 -> {
+                    fail("This person has already verified another UniLink account. Each person can only verify one account.")
+                }
+                error == "invalid_or_expired_session" -> {
+                    fail("Verification session expired. Tap 'Try again' to restart.")
+                }
+                error == "network_error" || sessionResult.httpCode == 0 -> {
+                    fail("Could not connect to verification server. Please check your internet connection.")
+                }
+                else -> {
+                    val friendlyMsg = when (error) {
+                        "verification_unavailable" -> "World ID service is currently unavailable. Please try again later."
+                        "method_not_allowed" -> "Invalid request method."
+                        else -> error ?: "Could not start verification. Check your connection."
+                    }
+                    fail(friendlyMsg)
                 }
             }
         }
@@ -158,11 +190,15 @@ class HumanVerificationActivity : AppCompatActivity() {
     private suspend fun appCheckToken(): String? =
         suspendCancellableCoroutine { cont ->
             FirebaseAppCheck.getInstance().getAppCheckToken(false).addOnCompleteListener { t ->
-                if (cont.isActive) cont.resume(if (t.isSuccessful) t.result?.token else null)
+                if (cont.isActive) {
+                    val token = if (t.isSuccessful) t.result?.token else null
+                    android.util.Log.d("HumanVerification", "App Check token: ${token?.take(15)}...")
+                    cont.resume(token)
+                }
             }
         }
 
-    private fun startSession(idToken: String, appCheckToken: String?): JSONObject? {
+    private fun startSession(idToken: String, appCheckToken: String?): StartSessionResult {
         val conn = URL("$baseUrl/api/startVerification").openConnection() as HttpURLConnection
         return try {
             conn.requestMethod = "POST"
@@ -173,10 +209,16 @@ class HumanVerificationActivity : AppCompatActivity() {
             conn.setRequestProperty("Content-Type", "application/json")
             if (appCheckToken != null) conn.setRequestProperty("X-Firebase-AppCheck", appCheckToken)
             conn.outputStream.use { it.write("{}".toByteArray()) }
-            if (conn.responseCode != 200) null
-            else JSONObject(conn.inputStream.bufferedReader().use { it.readText() })
+
+            val code = conn.responseCode
+            val stream = if (code in 200..299) conn.inputStream else conn.errorStream
+            val responseText = stream?.bufferedReader()?.use { it.readText() } ?: ""
+            val json = try { JSONObject(responseText) } catch (_: Exception) { null }
+            val error = json?.optString("error")
+
+            StartSessionResult(code, json, error)
         } catch (_: Exception) {
-            null // fail closed
+            StartSessionResult(0, errorMsg = "network_error")
         } finally {
             conn.disconnect()
         }

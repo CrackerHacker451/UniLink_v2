@@ -12,13 +12,25 @@ import kotlin.coroutines.resume
 object HumanGate {
     const val CLAIM = "humanVerified"
 
-    /** True only if the signed-in user's ID token carries the server-issued claim. Any error => false (fail closed). */
+    /** True only if the signed-in user's ID token carries the server-issued claim or Firestore record is verified. Fail closed. */
     suspend fun isVerified(forceRefresh: Boolean = false): Boolean {
         val user = FirebaseAuth.getInstance().currentUser ?: return false
         return suspendCancellableCoroutine { cont ->
             user.getIdToken(forceRefresh).addOnCompleteListener { task ->
-                val ok = task.isSuccessful && task.result?.claims?.get(CLAIM) == true
-                if (cont.isActive) cont.resume(ok)
+                val claimVerified = task.isSuccessful && task.result?.claims?.get(CLAIM) == true
+                if (claimVerified) {
+                    if (cont.isActive) cont.resume(true)
+                } else {
+                    com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                        .collection("users").document(user.uid).get()
+                        .addOnSuccessListener { doc ->
+                            val docVerified = doc.exists() && doc.getBoolean("worldIdVerified") == true
+                            if (cont.isActive) cont.resume(docVerified)
+                        }
+                        .addOnFailureListener {
+                            if (cont.isActive) cont.resume(false)
+                        }
+                }
             }
         }
     }
