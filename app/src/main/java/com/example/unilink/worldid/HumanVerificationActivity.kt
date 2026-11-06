@@ -70,6 +70,19 @@ class HumanVerificationActivity : AppCompatActivity() {
             layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
         }
         root.addView(webView)
+
+        val btnSkip24Hours = Button(this).apply {
+            text = "⏰ Skip Verification for 24 Hours"
+            setBackgroundColor(0xFF334155.toInt())
+            setTextColor(Color.WHITE)
+            textSize = 14f
+            setOnClickListener {
+                HumanGate.snooze24Hours(this@HumanVerificationActivity)
+                android.widget.Toast.makeText(this@HumanVerificationActivity, "⏰ Verification Skipped for 24 Hours! Enjoy Newton's Lobby!", android.widget.Toast.LENGTH_LONG).show()
+                proceed()
+            }
+        }
+        root.addView(btnSkip24Hours)
         retry = Button(this).apply {
             text = "Try again"; visibility = View.GONE
             setOnClickListener { begin() }

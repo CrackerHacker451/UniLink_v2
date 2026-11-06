@@ -11,6 +11,8 @@ import kotlin.coroutines.resume
  */
 object HumanGate {
     const val CLAIM = "humanVerified"
+    private const val PREFS_NAME = "human_gate_skip_prefs"
+    private const val KEY_SKIP_UNTIL = "skip_until_ms"
 
     /** True only if the signed-in user's ID token carries the server-issued claim or Firestore record is verified. Fail closed. */
     suspend fun isVerified(forceRefresh: Boolean = false): Boolean {
@@ -33,5 +35,19 @@ object HumanGate {
                 }
             }
         }
+    }
+
+    fun snooze24Hours(context: android.content.Context) {
+        val skipUntil = System.currentTimeMillis() + 86400000L // 24 Hours
+        context.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
+            .edit()
+            .putLong(KEY_SKIP_UNTIL, skipUntil)
+            .apply()
+    }
+
+    fun isSnoozedActive(context: android.content.Context): Boolean {
+        val skipUntil = context.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
+            .getLong(KEY_SKIP_UNTIL, 0L)
+        return System.currentTimeMillis() < skipUntil
     }
 }
