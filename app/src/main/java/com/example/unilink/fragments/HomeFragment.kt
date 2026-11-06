@@ -214,6 +214,12 @@ class HomeFragment : Fragment() {
             startActivity(Intent(ctx, RandomMatchActivity::class.java))
         }
 
+        dialogView.findViewById<View>(R.id.cardDashDareDrop)?.setOnClickListener {
+            HapticUtils.playSelection(it)
+            dialog.dismiss()
+            startActivity(Intent(ctx, com.example.unilink.activities.DareDropActivity::class.java))
+        }
+
         dialogView.findViewById<View>(R.id.cardDashRadar)?.setOnClickListener {
             HapticUtils.playSelection(it)
             dialog.dismiss()

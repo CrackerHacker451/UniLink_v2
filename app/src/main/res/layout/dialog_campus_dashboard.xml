@@ -91,6 +91,40 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- DareDrop Arena -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardDashDareDrop"
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            android:layout_columnWeight="1"
+            android:layout_margin="4dp"
+            app:cardBackgroundColor="#26EC4899"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#EC4899"
+            app:strokeWidth="1dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="10dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🎯 DareDrop Arena"
+                    android:textColor="#EC4899"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Daily Campus Thrills"
+                    android:textColor="@color/white"
+                    android:textSize="10sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- Campus Radar -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardDashRadar"
