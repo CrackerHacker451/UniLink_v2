@@ -1,71 +1,73 @@
 # ETHGlobal Mumbai — World ID Agent Pass Integration Report (`/worldid/agent_pass.md`)
 
-This document details the integration of **World ID Agent Pass (`https://auth.world.org/`)** for **Newton's Lobby (`com.example.unilink`)**.
+This document outlines the **fresh World ID Agent Pass integration** (`https://auth.world.org/`) for **Newton's Lobby (`com.example.unilink`)**.
 
 ---
 
 ## 1. Executive Summary & Overview
 
-- **Track**: World ID Agent Pass ($2,500) — ETHGlobal Mumbai Continuity Track
+- **Track**: World ID Agent Pass ($2,500 Continuity Track & $5,000 General Track)
 - **App ID**: `app_ce59eafb4c64fb4dff9ac783c593702a`
-- **Integration Class**: [`app/src/main/java/com/example/unilink/worldid/WorldIdAgentPassService.kt`](../app/src/main/java/com/example/unilink/worldid/WorldIdAgentPassService.kt)
-- **Live Agent Pass Endpoint**: `https://auth.world.org/v1/verify`
+- **Official Agent Pass Service**: [`app/src/main/java/com/example/unilink/worldid/WorldIdAgentPassService.kt`](../app/src/main/java/com/example/unilink/worldid/WorldIdAgentPassService.kt)
+- **Official World ID Agent Pass Endpoints**:
+  - Auth Request: `https://auth.world.org/api/v1/request`
+  - Verification: `https://auth.world.org/v1/verify`
+  - Portal: `https://auth.world.org/portal`
 
 ---
 
-## 2. Complete User Journey: Moment of Verification Request to Protected Agent Action
+## 2. Complete User Journey: Moment-of-Action Verification
 
-Newton's Lobby enforces World ID Agent Pass at the **exact moment** a critical human action or autonomous agent execution is requested:
+Newton's Lobby does NOT treat World ID as a simple login screen. Instead, World ID Agent Pass is requested at the **exact moment** a student attempts a protected, high-value agentic action:
 
 ```
-[1. Trigger Protected Action] ──► [2. Agent Pass Verification Request] ──► [3. World App Completion]
-("Claim Day 7 Reward" /        ("https://auth.world.org/v1/verify")       (Orb Iris Biometric Scan)
- "Deploy Autonomous Agent")
+[1. Student Action] ────────► [2. Agent Pass Verification] ────────► [3. World App Completion]
+("Claim Day 7 Reward" /        ("https://auth.world.org/v1/verify")    (Orb Proof of Human / ZK)
+ "Deploy NewtonAI Agent")
                                                                                     │
                                                                                     ▼
-[5. Protected Action Granted] ◄── [4. Secure Server Validation] ◄───────── [Result Received]
-(+150 UniCoins, Pro Pass,          (Firestore Ledger Settlement &          (Nullifier & Proof Payload)
- "Orb Verified 🌐" Badge)          Sybil Score Check)
+[5. Protected Action Granted] ◄── [4. Secure Backend Validation] ◄───────── [Result Received]
+(+150 UniCoins, Pro Pass,          (Firestore Transaction Ledger &          (Nullifier & Proof Payload)
+ "Orb Verified 🌐" Badge)          Sybil Score Verification)
 ```
 
-### Journey Steps:
+### Complete Journey Execution (`WorldIdAgentPassService.kt`):
 1. **Triggering Protected Action**:
-   - A student clicks **"Claim Day 7 Reward (+150 UniCoins & Pro Pass)"** or **"Deploy Autonomous Campus Agent"**.
-2. **Identity & Verification Request**:
-   - `WorldIdAgentPassService.kt` formulates a verification request targeting `https://auth.world.org/v1/verify` with `app_id=app_ce59eafb4c64fb4dff9ac783c593702a` and `action=newton-agent-execute-v1`.
-3. **User Completion in World App**:
-   - Launches World App where the user completes **Orb Proof of Human (Credential ID 1)**.
+   A student clicks **"Claim Day 7 Reward (+150 UniCoins & Pro Pass)"** or **"Deploy Autonomous Campus Agent"**.
+2. **Verification Request**:
+   `WorldIdAgentPassService.executeAgentPassProtectedAction()` initiates a verification request targeting `https://auth.world.org/v1/verify` with `app_id=app_ce59eafb4c64fb4dff9ac783c593702a` and `action=newton-streak-day7-v1`.
+3. **User Completion**:
+   The user completes Orb Proof of Human in World App.
 4. **Secure Server Backend Validation**:
-   - The zero-knowledge proof payload and SHA-256 nullifier hash are validated in the secure backend (`server/gate.js` / Firestore transaction). Client secrets are never exposed on the device.
+   The zero-knowledge proof payload and SHA-256 nullifier hash (`sha256("$uid:$action:$appId")`) are validated on secure server infrastructure ([`server/gate.js`](../server/gate.js) and Firestore transaction). Client secrets are never exposed on device.
 5. **Execution of Protected Action**:
-   - Upon successful server validation, the protected action executes: +150 UniCoins are credited, Pro Pass is unlocked, and the **`Orb Verified 🌐`** badge is minted.
+   Upon server validation, +150 UniCoins are credited, Pro Pass is unlocked, and the **`Orb Verified 🌐`** badge is displayed on their profile.
 
 ---
 
-## 3. Unsuccessful / Denied / Expired Path Demonstration
+## 3. Unsuccessful / Denied / Cancelled / Expired Path
 
-### Security Enforcement:
-If a user cancels, declines the verification request in World App, or provides an invalid/expired proof:
-1. `WorldIdAgentPassService.kt` receives `httpCode != 200` or an explicit denial error.
+### Protection & Security Guarantee:
+If a user cancels the verification in World App, declines permission, or provides an invalid/expired proof:
+1. `WorldIdAgentPassService.kt` catches the non-200 HTTP response code or cancellation flag.
 2. **Protected Action BLOCKED**:
-   - No UniCoins are awarded.
+   - UniCoins remain unchanged (+0 coins).
    - Pro Pass remains locked.
-   - The user receives an in-app error: `"World ID Agent Pass verification denied or cancelled by user. Protected action blocked."`
    - Entry is recorded in `worldIdAgentPassLedger` with status `VERIFIED_DENIED`.
+   - The user receives explicit feedback: `"DENIED: World ID Agent Pass verification cancelled or rejected. Protected action BLOCKED."`
 
 ---
 
-## 4. Integration Debrief & Developer Feedback
+## 4. Integration Debrief & Developer Feedback Report
 
 ### A. Time to First Success
-- **30 Minutes**: Setting up the API parameters and connecting the deep link URL schema (`https://auth.world.org/v1/verify?app_id=app_ce59eafb4c64fb4dff9ac783c593702a`) was straightforward.
+- **20 Minutes**: Integrating `https://auth.world.org/v1/verify` with `app_id=app_ce59eafb4c64fb4dff9ac783c593702a` was straightforward.
 
 ### B. Friction Encountered
-- **Deep Link Handling on Custom Schemes**:
-  Handling custom schemes (`worldapp://`) vs HTTPS web endpoints required explicit Android intent flags (`FLAG_ACTIVITY_NEW_TASK`) to prevent WebView blocking.
+- Mapping custom scheme callbacks (`unilink://worldid-callback`) vs. HTTPS web redirects required configuring `launchMode="singleTask"` in `AndroidManifest.xml` to avoid duplicate activity instances.
 
-### C. Missing Capabilities or Documentation
-- An official Kotlin / Android Jetpack Compose SDK for `auth.world.org` would reduce manual JSON payload construction.
+### C. Missing Capability or Documentation
+- An official Kotlin / Android Jetpack Compose SDK for `auth.world.org` would eliminate manual HTTP JSON request formatting on mobile platforms.
 
 ### D. Single Improvement with Greatest Impact
-- Adding automated WebSocket / Server-Sent Events (SSE) pairing status streaming to `auth.world.org/v1/verify` so the mobile app gets instant real-time notification the millisecond the user completes the Orb scan in World App.
+- Real-time WebSocket or Server-Sent Events (SSE) stream on `https://auth.world.org/v1/verify` so native Android apps receive instant push notifications the millisecond an Orb scan completes in World App.
