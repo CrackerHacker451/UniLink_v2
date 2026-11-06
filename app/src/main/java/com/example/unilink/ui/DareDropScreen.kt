@@ -531,7 +531,7 @@ fun DareDropScreen(
 
                         if (isVideoSelected && attachedVideoUri != null) {
                             Toast.makeText(context, "Uploading video proof to cloud... 🎥", Toast.LENGTH_SHORT).show()
-                            com.example.unilink.repository.StorageRepository().uploadDareVideo(attachedVideoUri!!) { cloudVideoUrl ->
+                            com.example.unilink.repository.StorageRepository().uploadDareVideo(context, attachedVideoUri!!) { cloudVideoUrl ->
                                 com.example.unilink.repository.DareDropRepository().publishProof(
                                     caption = finalCaption,
                                     imageUrl = "",
@@ -544,14 +544,17 @@ fun DareDropScreen(
                                 }
                             }
                         } else if (attachedImageUri != null) {
-                            com.example.unilink.repository.DareDropRepository().publishProof(
-                                caption = finalCaption,
-                                imageUrl = attachedImageUri.toString(),
-                                videoUrl = null,
-                                isVideo = false
-                            ) { success ->
-                                if (success) {
-                                    Toast.makeText(context, "Photo Proof Saved to Cloud! +25 🪙", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Uploading photo proof to cloud... 📸", Toast.LENGTH_SHORT).show()
+                            com.example.unilink.repository.StorageRepository().uploadDarePhoto(attachedImageUri!!) { cloudPhotoUrl ->
+                                com.example.unilink.repository.DareDropRepository().publishProof(
+                                    caption = finalCaption,
+                                    imageUrl = cloudPhotoUrl,
+                                    videoUrl = null,
+                                    isVideo = false
+                                ) { success ->
+                                    if (success) {
+                                        Toast.makeText(context, "Photo Proof Saved to Cloud! +25 🪙", Toast.LENGTH_SHORT).show()
+                                    }
                                 }
                             }
                         }

@@ -53,26 +53,48 @@ class StorageRepository {
         }
     }
 
-    fun uploadDareVideo(videoUri: Uri, onResult: (String?) -> Unit) {
+    fun copyUriToCacheFile(context: android.content.Context, uri: Uri): java.io.File? {
+        return try {
+            val contentResolver = context.contentResolver
+            val inputStream = contentResolver.openInputStream(uri) ?: return null
+            val cacheDir = java.io.File(context.cacheDir, "daredrop_cache").apply { if (!exists()) mkdirs() }
+            val file = java.io.File(cacheDir, "vid_${System.currentTimeMillis()}_${UUID.randomUUID().toString().take(6)}.mp4")
+            val outputStream = java.io.FileOutputStream(file)
+            inputStream.use { input ->
+                outputStream.use { output ->
+                    input.copyTo(output)
+                }
+            }
+            file
+        } catch (e: Exception) {
+            Log.e("StorageRepository", "Error copying video URI to cache file: ${e.message}")
+            null
+        }
+    }
+
+    fun uploadDareVideo(context: android.content.Context, videoUri: Uri, onResult: (String?) -> Unit) {
         val st = storage
+        val localFile = copyUriToCacheFile(context, videoUri)
+        val fileToUpload = if (localFile != null && localFile.exists()) Uri.fromFile(localFile) else videoUri
+
         if (st == null) {
-            onResult(videoUri.toString())
+            onResult(fileToUpload.toString())
             return
         }
         val filename = "daredrop_videos/video_${System.currentTimeMillis()}_${UUID.randomUUID().toString().take(8)}.mp4"
         val ref = st.reference.child(filename)
 
-        ref.putFile(videoUri)
+        ref.putFile(fileToUpload)
             .addOnSuccessListener {
                 ref.downloadUrl.addOnSuccessListener { downloadUri ->
                     onResult(downloadUri.toString())
                 }.addOnFailureListener {
-                    onResult(videoUri.toString())
+                    onResult(fileToUpload.toString())
                 }
             }
             .addOnFailureListener { e ->
-                Log.e("StorageRepository", "Video upload error: ${e.message}, using URI fallback")
-                onResult(videoUri.toString())
+                Log.e("StorageRepository", "Video upload error: ${e.message}, using local URI fallback")
+                onResult(fileToUpload.toString())
             }
     }
 
