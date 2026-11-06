@@ -11,14 +11,17 @@
 
 ---
 
-## 🌐 World ID Agent Pass Track ($2,500) & ETHGlobal Mumbai Qualification
+## 🌐 World ID Agent Pass & IDKit Track Qualifications ($12,500 Total Prize Pool)
 
-Newton's Lobby integrates **World ID Agent Pass** (`https://auth.world.org/`) with App ID **`app_ce59eafb4c64fb4dff9ac783c593702a`**.
+Newton's Lobby integrates **World ID Agent Pass** (`https://auth.world.org/`) and **IDKit Proportional Trust Assurance** with App ID **`app_ce59eafb4c64fb4dff9ac783c593702a`**.
 
 - **Full User Journey**: Initiates human verification at the exact moment a protected action is triggered (Day 7 Streak Claim +150 UniCoins, Hackathon Team Creation Gate, Deploy Autonomous Agent).
+- **Proportional Credential Assurance**: Uses **Orb Proof of Human (ID 1)** for scarce financial rewards, **Selfie Check (ID 11)** for team liveness gates, and **Passport NFC (ID 9303)** for international scholar badges.
 - **Secure Backend Validation**: All ZK proofs and nullifier hashes are validated on secure backend infrastructure (`server/gate.js` / Firestore transaction).
-- **Denied Path Protection**: Cancelling or declining verification in World App immediately blocks protected agent executions and logs the denied state.
-- **Agent Pass Report**: [Read the complete World ID Agent Pass Technical Report (`worldid/agent_pass.md`)](./worldid/agent_pass.md).
+- **Denied Path Protection**: Cancelling or declining verification immediately blocks protected agent executions and logs the denied state.
+- **World ID Technical Reports**:
+  - **[`worldid/agent_pass.md`](./worldid/agent_pass.md)**: [World ID Agent Pass Technical Report ($7,500 Total Tracks)](./worldid/agent_pass.md)
+  - **[`worldid/idkit_trust.md`](./worldid/idkit_trust.md)**: [Best Use of IDKit & Proportional Trust Report ($5,000 Total Tracks)](./worldid/idkit_trust.md)
 
 ---
 
