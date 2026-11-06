@@ -206,17 +206,27 @@ class HumanVerificationActivity : AppCompatActivity() {
 
     private fun openWorldAppDirectly() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: "user_id"
-        val worldAppUrl = "https://worldcoin.org/verify?app_id=app_staging_f692019b88127cA&action=orb-proof-of-human&signal=$uid&credential_types=orb"
+        val appId = "app_ce59eafb4c64fb4dff9ac783c593702a"
+        val worldAppUrl = "https://worldcoin.org/verify?app_id=$appId&action=orb-proof-of-human&signal=$uid&credential_types=orb"
 
         try {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(worldAppUrl)).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             startActivity(intent)
-            show("Opening World App... Complete human verification and return back!")
+            show("Opening World App for $appId… Complete verification and return back!")
             waiting = true
         } catch (_: Exception) {
-            executeDirectOrbVerification()
+            try {
+                val deepLinkIntent = Intent(Intent.ACTION_VIEW, Uri.parse("worldapp://verify?app_id=$appId&action=orb-proof-of-human&signal=$uid")).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                startActivity(deepLinkIntent)
+                show("Opening World App for $appId… Complete verification and return back!")
+                waiting = true
+            } catch (_: Exception) {
+                executeDirectOrbVerification()
+            }
         }
     }
 
