@@ -56,7 +56,7 @@ object ZeroGAiService {
             val conn = url.openConnection() as HttpURLConnection
             conn.requestMethod = "POST"
             conn.setRequestProperty("Content-Type", "application/json")
-            conn.setRequestProperty("Authorization", "Bearer 0g_compute_token_live_hackathon")
+            conn.setRequestProperty("Authorization", "Bearer sk-75e168ed-9217-400e-abe6-b6727da465f5")
             conn.doOutput = true
             conn.connectTimeout = 8000
             conn.readTimeout = 8000
