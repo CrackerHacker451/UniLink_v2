@@ -11,18 +11,37 @@ const crypto = require('crypto');
 
 const PAIRING_TTL_MS = 10 * 60 * 1000;
 
-function createGate({ db, auth, fetchFn, signRequest, hashSignal, Nullifier, serverTimestamp, config }) {
+function createGate({ db, auth, appCheck, fetchFn, signRequest, hashSignal, Nullifier, serverTimestamp, config }) {
   const c = Object.assign({
     action: 'unilink-human-gate-v1',
     environment: 'production',
     acceptedIdentifiers: ['selfie', 'proof_of_human'],
     enforceSignal: true,
+    requireAppCheck: true, // only the genuine, untampered app may start a verification
+    appCheckAppId: null,
     verifyBase: 'https://developer.world.org/api/v4/verify/',
     now: () => Date.now(),
   }, config);
 
   const send = (res, code, body) => res.status(code).json(body);
   const bad = (res, code, error) => send(res, code, { success: false, error });
+
+  const header = (req, name) => {
+    const h = req.headers || {};
+    const k = Object.keys(h).find((x) => x.toLowerCase() === name);
+    return k ? h[k] : '';
+  };
+
+  /** App Check: scripts, agents calling our API directly, emulators and modified apps have no valid token. */
+  async function appIsGenuine(req) {
+    if (!c.requireAppCheck) return true;
+    const token = header(req, 'x-firebase-appcheck');
+    if (!token || !appCheck) return false; // fail closed, including when App Check is not configured
+    try {
+      const r = await appCheck.verifyToken(token);
+      return !c.appCheckAppId || r.appId === c.appCheckAppId;
+    } catch (_) { return false; }
+  }
 
   async function uidFromBearer(req) {
     const h = (req.headers && (req.headers.authorization || req.headers.Authorization)) || '';
@@ -44,6 +63,7 @@ function createGate({ db, auth, fetchFn, signRequest, hashSignal, Nullifier, ser
   /** App -> server (Firebase ID token). Starts a one-time verification session. */
   async function startVerification(req, res) {
     if (req.method !== 'POST') return bad(res, 405, 'method_not_allowed');
+    if (!(await appIsGenuine(req))) return bad(res, 401, 'app_check_failed');
     const uid = await uidFromBearer(req);
     if (!uid) return bad(res, 401, 'unauthenticated');
     const user = await auth.getUser(uid);

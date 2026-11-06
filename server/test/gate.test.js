@@ -52,7 +52,8 @@ function setup(opts = {}) {
     fetchFn: (...a) => portalImpl(...a),
     signRequest, hashSignal, Nullifier,
     serverTimestamp: () => 'TS',
-    config: { signingKeyHex: KEY, appId: 'app_x', rpId: 'rp_x', now: () => now },
+    appCheck: opts.appCheck,
+    config: Object.assign({ signingKeyHex: KEY, appId: 'app_x', rpId: 'rp_x', now: () => now, requireAppCheck: false }, opts.config),
   });
   return { db, auth, gate, setPortal: (f) => { portalImpl = f; }, tick: (ms) => { now += ms; } };
 }
@@ -177,4 +178,38 @@ test('already verified users are told so', async () => {
   const s = setup(); s.auth.claims.userA = { humanVerified: true };
   const r = res(); await s.gate.startVerification({ method: 'POST', headers: { authorization: 'Bearer tokenA' } }, r);
   assert.equal(r.body.alreadyVerified, true);
+});
+
+// ---- App Check: only the genuine app may start a verification ----
+const fakeAppCheck = { async verifyToken(t) { if (t !== 'good-token') throw new Error('invalid'); return { appId: '1:123:android:abc' }; } };
+const startWith = async (s, headers) => { const r = res(); await s.gate.startVerification({ method: 'POST', headers }, r); return r; };
+
+test('App Check enforced: no token -> rejected, no session created', async () => {
+  const s = setup({ appCheck: fakeAppCheck, config: { requireAppCheck: true } });
+  const r = await startWith(s, { authorization: 'Bearer tokenA' });
+  assert.equal(r.code, 401); assert.equal(r.body.error, 'app_check_failed'); assert.equal(s.db.store.size, 0);
+});
+
+test('App Check enforced: invalid token -> rejected', async () => {
+  const s = setup({ appCheck: fakeAppCheck, config: { requireAppCheck: true } });
+  const r = await startWith(s, { authorization: 'Bearer tokenA', 'X-Firebase-AppCheck': 'forged' });
+  assert.equal(r.code, 401);
+});
+
+test('App Check enforced: valid token + valid login -> session starts', async () => {
+  const s = setup({ appCheck: fakeAppCheck, config: { requireAppCheck: true } });
+  const r = await startWith(s, { authorization: 'Bearer tokenA', 'x-firebase-appcheck': 'good-token' });
+  assert.equal(r.code, 200); assert.ok(r.body.pairingId);
+});
+
+test('App Check enforced: token from a different app id -> rejected', async () => {
+  const s = setup({ appCheck: fakeAppCheck, config: { requireAppCheck: true, appCheckAppId: '1:123:android:other' } });
+  const r = await startWith(s, { authorization: 'Bearer tokenA', 'x-firebase-appcheck': 'good-token' });
+  assert.equal(r.code, 401);
+});
+
+test('FAIL CLOSED: App Check required but not configured -> rejected', async () => {
+  const s = setup({ config: { requireAppCheck: true } });
+  const r = await startWith(s, { authorization: 'Bearer tokenA', 'x-firebase-appcheck': 'good-token' });
+  assert.equal(r.code, 401);
 });

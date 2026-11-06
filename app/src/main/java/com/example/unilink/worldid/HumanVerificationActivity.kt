@@ -20,6 +20,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.unilink.R
 import com.example.unilink.activities.LoginActivity
 import com.example.unilink.activities.MainActivity
+import com.google.firebase.appcheck.FirebaseAppCheck
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -125,9 +126,10 @@ class HumanVerificationActivity : AppCompatActivity() {
 
             val idToken = idToken()
             if (idToken == null) { fail("Please sign in again."); return@launch }
-            val session = withContext(Dispatchers.IO) { startSession(idToken) }
+            val appCheck = appCheckToken()
+            val session = withContext(Dispatchers.IO) { startSession(idToken, appCheck) }
             when {
-                session == null -> fail("Could not reach the verification service. Check your connection and try again.")
+                session == null -> fail("Could not start verification. Check your connection, and make sure UniLink was installed from Google Play.")
                 session.optBoolean("alreadyVerified", false) -> {
                     if (HumanGate.isVerified(true)) proceed() else fail("Verification could not be confirmed. Try again.")
                 }
@@ -152,7 +154,15 @@ class HumanVerificationActivity : AppCompatActivity() {
         }
     }
 
-    private fun startSession(idToken: String): JSONObject? {
+    /** Proof that this is the genuine, untampered app on a genuine device (Firebase App Check). */
+    private suspend fun appCheckToken(): String? =
+        suspendCancellableCoroutine { cont ->
+            FirebaseAppCheck.getInstance().getAppCheckToken(false).addOnCompleteListener { t ->
+                if (cont.isActive) cont.resume(if (t.isSuccessful) t.result?.token else null)
+            }
+        }
+
+    private fun startSession(idToken: String, appCheckToken: String?): JSONObject? {
         val conn = URL("$baseUrl/api/startVerification").openConnection() as HttpURLConnection
         return try {
             conn.requestMethod = "POST"
@@ -161,6 +171,7 @@ class HumanVerificationActivity : AppCompatActivity() {
             conn.doOutput = true
             conn.setRequestProperty("Authorization", "Bearer $idToken")
             conn.setRequestProperty("Content-Type", "application/json")
+            if (appCheckToken != null) conn.setRequestProperty("X-Firebase-AppCheck", appCheckToken)
             conn.outputStream.use { it.write("{}".toByteArray()) }
             if (conn.responseCode != 200) null
             else JSONObject(conn.inputStream.bufferedReader().use { it.readText() })

@@ -20,6 +20,7 @@ function realGate() {
   cached = createGate({
     db: admin.firestore(),
     auth: admin.auth(),
+    appCheck: admin.appCheck(),
     fetchFn: fetch,
     signRequest, hashSignal, Nullifier,
     serverTimestamp: () => admin.firestore.FieldValue.serverTimestamp(),
@@ -28,6 +29,8 @@ function realGate() {
       appId: env.WORLD_APP_ID,
       rpId: env.WORLD_RP_ID,
       environment: env.WORLD_ENVIRONMENT || 'production',
+      requireAppCheck: env.APP_CHECK_ENFORCE !== 'false',
+      appCheckAppId: env.FIREBASE_APP_ID || null,
     },
   });
   return cached;
