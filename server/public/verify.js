@@ -47,7 +47,7 @@
         allow_legacy_proofs: false,
         environment: s.environment,
         return_to: 'unilink://human-verified'
-      }).preset(window.IDKit.selfieCheck({ signal: s.signal }));
+      }).preset(window.IDKit.proofOfHuman({ signal: s.signal }));
 
       openBtn.onclick = function () { openExternal(request.connectorURI); };
       openBtn.hidden = false;
