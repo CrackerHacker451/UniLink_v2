@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Your free Netlify site (see server/README.md), e.g. https://your-site.netlify.app -->
-    <string name="human_gate_base_url" translatable="false">https://REPLACE_WITH_YOUR_PROJECT.netlify.app</string>
+    <string name="human_gate_base_url" translatable="false">https://unilink-gate-yourrealname123.netlify.app</string>
 </resources>

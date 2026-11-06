@@ -64,4 +64,4 @@ export function createHandler(getGate) {
 }
 
 export default createHandler(realGate);
-export const config = { path: ROUTES.map((r) => '/api/' + r) };
+export const config = { path: ['/api/startVerification', '/api/rpSignature', '/api/verifyProof'] };
