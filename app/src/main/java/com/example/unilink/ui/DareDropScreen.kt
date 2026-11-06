@@ -155,38 +155,41 @@ fun DareDropScreen(
     var selectedTab by remember { mutableIntStateOf(0) }
     var selectedFeedFilter by remember { mutableStateOf("All") }
 
-    // Community Proofs list (Clean Reset - List starts empty until cloud proof submissions arrive)
+    // Community Proofs list (List starts empty until cloud proof submissions arrive)
     val proofList = remember {
         mutableStateListOf<DareProofItem>()
     }
 
-    // Countdown Timer & Real-time Firestore Proofs Sync
+    // Proposed Dares list (List starts empty until cloud proposed dares arrive)
+    val proposedDaresList = remember {
+        mutableStateListOf<ProposedDareItem>()
+    }
+
+    // Hall of Fame Leaderboard list
+    val leaderboardUsers = remember {
+        mutableStateListOf<DareLeaderboardUser>()
+    }
+
+    // Countdown Timer & Real-time Firestore Proofs & Proposed Dares Sync
     var timeRemainingMillis by remember { mutableLongStateOf(28_800_000L) } // 8 hours countdown
     LaunchedEffect(Unit) {
         val repo = com.example.unilink.repository.DareDropRepository()
-        // Automatically execute a clean cloud reset on launch
-        repo.resetAllDareDropData { }
-
+        
         repo.observeProofs { cloudProofs ->
             proofList.clear()
             proofList.addAll(cloudProofs)
             completedCount = cloudProofs.size
         }
 
+        repo.observeProposedDares { cloudDares ->
+            proposedDaresList.clear()
+            proposedDaresList.addAll(cloudDares)
+        }
+
         while (timeRemainingMillis > 0) {
             delay(1000)
             timeRemainingMillis -= 1000L
         }
-    }
-
-    // Proposed Dares list (Clean Reset - List starts empty)
-    val proposedDaresList = remember {
-        mutableStateListOf<ProposedDareItem>()
-    }
-
-    // Hall of Fame Leaderboard list (Clean Reset - List starts empty until earned)
-    val leaderboardUsers = remember {
-        mutableStateListOf<DareLeaderboardUser>()
     }
 
     Surface(
@@ -619,19 +622,15 @@ fun DareDropScreen(
                 Button(
                     onClick = {
                         if (proposedTitle.isNotEmpty()) {
-                            proposedDaresList.add(
-                                0,
-                                ProposedDareItem(
-                                    id = "prop_${System.currentTimeMillis()}",
-                                    title = proposedTitle,
-                                    description = proposedDesc.ifEmpty { "Fun campus activity" },
-                                    proposedBy = "You",
-                                    votesCount = 1,
-                                    hasVoted = true
-                                )
-                            )
                             showProposeDareDialog = false
-                            Toast.makeText(context, "Proposed dare submitted for campus voting! 🗳️", Toast.LENGTH_SHORT).show()
+                            val titleText = proposedTitle
+                            val descText = proposedDesc.ifEmpty { "Fun campus activity" }
+
+                            com.example.unilink.repository.DareDropRepository().proposeDare(titleText, descText) { success ->
+                                if (success) {
+                                    Toast.makeText(context, "Proposed dare saved to cloud & active for voting! 🗳️", Toast.LENGTH_SHORT).show()
+                                }
+                            }
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = AuraCyanNeon)
