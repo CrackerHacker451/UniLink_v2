@@ -20,7 +20,7 @@ android {
 
     buildTypes {
         debug {
-            isDebuggable = false
+            isDebuggable = true
             signingConfig = signingConfigs.getByName("debug")
         }
         release {
