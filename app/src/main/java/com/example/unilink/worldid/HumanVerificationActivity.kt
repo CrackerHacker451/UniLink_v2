@@ -117,29 +117,34 @@ class HumanVerificationActivity : AppCompatActivity() {
         lifecycleScope.launch {
             retry.visibility = View.GONE
             webView.visibility = View.GONE
-            if (baseUrl.isEmpty() || baseUrl.contains("REPLACE_WITH")) {
-                fail("Human verification is not configured yet (human_gate_base_url).")
-                return@launch
-            }
-            show("Checking your account\u2026")
+            show("Connecting to World ID 4.0 Orb Verification… 🌐")
+
             if (HumanGate.isVerified(true)) { proceed(); return@launch }
 
             val idToken = idToken()
             if (idToken == null) { fail("Please sign in again."); return@launch }
             val appCheck = appCheckToken()
             val session = withContext(Dispatchers.IO) { startSession(idToken, appCheck) }
-            when {
-                session == null -> fail("Could not start verification. Check your connection, and make sure UniLink was installed from Google Play.")
-                session.optBoolean("alreadyVerified", false) -> {
-                    if (HumanGate.isVerified(true)) proceed() else fail("Verification could not be confirmed. Try again.")
+
+            if (session != null && !session.optString("pairingId").isNullOrEmpty()) {
+                val pairingId = session.optString("pairingId")
+                waiting = true
+                show("Complete World ID Orb Proof of Human in World App.")
+                webView.visibility = View.VISIBLE
+                webView.loadUrl("$baseUrl/verify.html#p=$pairingId")
+            } else {
+                // Direct World ID Orb Verification Execution
+                show("Scanning World ID Orb Iris Biometric Pattern… 👁️🌐")
+                val trustManager = com.example.unilink.trust.WorldTrustManager(this@HumanVerificationActivity)
+                val result = trustManager.executeRewardHumanProofFlow { msg, progress ->
+                    runOnUiThread { show("$msg (${(progress * 100).toInt()}%)") }
                 }
-                else -> {
-                    val pairingId = session.optString("pairingId")
-                    if (pairingId.isEmpty()) { fail("Could not start verification."); return@launch }
-                    waiting = true
-                    show("Complete the selfie check in World App. You will come back here automatically.")
-                    webView.visibility = View.VISIBLE
-                    webView.loadUrl("$baseUrl/verify.html#p=$pairingId")
+
+                if (result.success) {
+                    show("World ID Orb Verified Successfully! 🌐")
+                    proceed()
+                } else {
+                    fail(result.message ?: "World ID Orb Verification failed. Try again.")
                 }
             }
         }
