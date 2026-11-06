@@ -550,8 +550,37 @@ fun DareDropScreen(
                         showSubmitProofDialog = false
                         isDareCompleted = true
                         completedCount++
-                        
-                        // Add to proof list
+
+                        val finalCaption = captionText.ifEmpty { if (isVideoSelected) "Completed today's DareDrop video challenge! 🎥🔥" else "Completed today's DareDrop challenge! 📸 high five!" }
+
+                        if (isVideoSelected && attachedVideoUri != null) {
+                            Toast.makeText(context, "Uploading video proof to cloud... 🎥", Toast.LENGTH_SHORT).show()
+                            com.example.unilink.repository.StorageRepository().uploadDareVideo(attachedVideoUri!!) { cloudVideoUrl ->
+                                com.example.unilink.repository.DareDropRepository().publishProof(
+                                    caption = finalCaption,
+                                    imageUrl = "",
+                                    videoUrl = cloudVideoUrl,
+                                    isVideo = true
+                                ) { success ->
+                                    if (success) {
+                                        Toast.makeText(context, "Video Proof Saved to Cloud! +25 🪙", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            }
+                        } else if (attachedImageUri != null) {
+                            com.example.unilink.repository.DareDropRepository().publishProof(
+                                caption = finalCaption,
+                                imageUrl = attachedImageUri.toString(),
+                                videoUrl = null,
+                                isVideo = false
+                            ) { success ->
+                                if (success) {
+                                    Toast.makeText(context, "Photo Proof Saved to Cloud! +25 🪙", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
+
+                        // Local immediate feedback
                         proofList.add(
                             0,
                             DareProofItem(
@@ -559,9 +588,9 @@ fun DareDropScreen(
                                 authorName = "You (Verified Student)",
                                 authorDept = "Campus Hero",
                                 timeAgo = "Just now",
-                                caption = captionText.ifEmpty { if (isVideoSelected) "Completed today's DareDrop video challenge! 🎥🔥" else "Completed today's DareDrop challenge! 📸 high five!" },
-                                imageUrl = if (!isVideoSelected) (attachedImageUri ?: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&auto=format&fit=crop") else null,
-                                videoUrl = if (isVideoSelected) (attachedVideoUri?.toString() ?: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4") else null,
+                                caption = finalCaption,
+                                imageUrl = if (!isVideoSelected) attachedImageUri else null,
+                                videoUrl = if (isVideoSelected) attachedVideoUri?.toString() else null,
                                 isVideo = isVideoSelected,
                                 likesCount = 1,
                                 isLiked = true,
@@ -854,44 +883,62 @@ fun DareProofCard(
                 }
             }
 
-            // Main Media Part (Instagram Post Style Photo or Video Proof)
+            // Main Media Part (Instagram Post Style Photo or Inline Native Video Player)
             if (proof.isVideo && !proof.videoUrl.isNullOrEmpty()) {
-                val context = LocalContext.current
+                var isPlaying by remember { mutableStateOf(false) }
+
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(280.dp)
                         .clip(RoundedCornerShape(16.dp))
-                        .background(Color(0xFF0F172A))
-                        .clickable {
-                            val intent = android.content.Intent(context, com.example.unilink.activities.MediaViewerActivity::class.java).apply {
-                                putExtra("mediaUrl", proof.videoUrl)
-                                putExtra("title", proof.authorName)
-                                putExtra("subtitle", "🎥 Dare Video Proof")
-                            }
-                            context.startActivity(intent)
-                        },
+                        .background(Color(0xFF0F172A)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Surface(
-                            shape = CircleShape,
-                            color = AuraPinkNeon
-                        ) {
-                            Text(
-                                text = "▶",
-                                color = Color.White,
-                                fontSize = 24.sp,
-                                modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp)
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Text(
-                            text = "🎥 Tap to Play Video Proof",
-                            color = Color.White,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
+                    if (isPlaying) {
+                        androidx.compose.ui.viewinterop.AndroidView(
+                            factory = { ctx ->
+                                android.widget.VideoView(ctx).apply {
+                                    setVideoURI(android.net.Uri.parse(proof.videoUrl))
+                                    val controller = android.widget.MediaController(ctx)
+                                    controller.setAnchorView(this)
+                                    setMediaController(controller)
+                                    setOnPreparedListener { mp ->
+                                        mp.isLooping = true
+                                        start()
+                                    }
+                                }
+                            },
+                            modifier = Modifier.fillMaxSize()
                         )
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clickable { isPlaying = true },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Surface(
+                                    shape = CircleShape,
+                                    color = AuraPinkNeon
+                                ) {
+                                    Text(
+                                        text = "▶",
+                                        color = Color.White,
+                                        fontSize = 24.sp,
+                                        modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(10.dp))
+                                Text(
+                                    text = "🎥 Tap to Stream Video Proof",
+                                    color = Color.White,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
                     }
                 }
             } else if (proof.imageUrl != null) {

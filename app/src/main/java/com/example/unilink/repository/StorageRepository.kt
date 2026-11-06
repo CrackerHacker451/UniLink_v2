@@ -53,6 +53,29 @@ class StorageRepository {
         }
     }
 
+    fun uploadDareVideo(videoUri: Uri, onResult: (String?) -> Unit) {
+        val st = storage
+        if (st == null) {
+            onResult(videoUri.toString())
+            return
+        }
+        val filename = "daredrop_videos/video_${System.currentTimeMillis()}_${UUID.randomUUID().toString().take(8)}.mp4"
+        val ref = st.reference.child(filename)
+
+        ref.putFile(videoUri)
+            .addOnSuccessListener {
+                ref.downloadUrl.addOnSuccessListener { downloadUri ->
+                    onResult(downloadUri.toString())
+                }.addOnFailureListener {
+                    onResult(videoUri.toString())
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("StorageRepository", "Video upload error: ${e.message}, using URI fallback")
+                onResult(videoUri.toString())
+            }
+    }
+
     private fun scaleBitmap(bitmap: Bitmap, maxWidth: Int, maxHeight: Int): Bitmap {
         val width = bitmap.width
         val height = bitmap.height

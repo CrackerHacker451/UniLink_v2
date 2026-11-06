@@ -92,7 +92,7 @@ class DareDropRepository {
         }
     }
 
-    fun publishProof(caption: String, imageUrl: String, onComplete: (Boolean) -> Unit) {
+    fun publishProof(caption: String, imageUrl: String, videoUrl: String? = null, isVideo: Boolean = false, onComplete: (Boolean) -> Unit) {
         val uid = auth.currentUser?.uid ?: return onComplete(false)
         val proofId = db.collection("dare_proofs").document().id
 
@@ -107,6 +107,8 @@ class DareDropRepository {
                 "authorDept" to dept,
                 "caption" to caption,
                 "imageUrl" to imageUrl,
+                "videoUrl" to (videoUrl ?: ""),
+                "isVideo" to isVideo,
                 "likesCount" to 1,
                 "cheersCount" to 0,
                 "likedBy" to listOf(uid),
@@ -145,6 +147,8 @@ class DareDropRepository {
                         val dept = doc.getString("authorDept") ?: "Campus"
                         val caption = doc.getString("caption") ?: ""
                         val img = doc.get("imageUrl")
+                        val vid = doc.getString("videoUrl")
+                        val isVid = doc.getBoolean("isVideo") ?: false
                         val likes = (doc.getLong("likesCount") ?: 0L).toInt()
                         val cheers = (doc.getLong("cheersCount") ?: 0L).toInt()
                         val likedBy = (doc.get("likedBy") as? List<*>)?.mapNotNull { it?.toString() } ?: emptyList()
@@ -157,6 +161,8 @@ class DareDropRepository {
                             timeAgo = "Live",
                             caption = caption,
                             imageUrl = img,
+                            videoUrl = vid,
+                            isVideo = isVid || !vid.isNullOrEmpty(),
                             likesCount = likes,
                             isLiked = likedBy.contains(currentUid),
                             cheersCount = cheers,
