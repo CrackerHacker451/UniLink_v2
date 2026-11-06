@@ -246,10 +246,16 @@ class HumanVerificationActivity : AppCompatActivity() {
         @JavascriptInterface
         fun openWorldApp(url: String) {
             val uri = Uri.parse(url)
-            if (uri.scheme != "https") return
             runOnUiThread {
-                try { startActivity(Intent(Intent.ACTION_VIEW, uri)) }
-                catch (_: Exception) { show("World App could not be opened. Install World App and try again.") }
+                try {
+                    val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    startActivity(intent)
+                    show("Complete verification in World ID Simulator (https://simulator.worldcoin.org) or World App.")
+                } catch (e: Exception) {
+                    show("Could not open link: ${e.message}")
+                }
             }
         }
 
