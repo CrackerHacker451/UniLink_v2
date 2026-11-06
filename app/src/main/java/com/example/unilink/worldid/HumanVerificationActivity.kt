@@ -117,7 +117,20 @@ class HumanVerificationActivity : AppCompatActivity() {
             override fun handleOnBackPressed() { moveTaskToBack(true) }
         })
 
-        begin()
+        if (intent?.data?.host == "human-verified") onReturnedFromWorld() else begin()
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent.data?.host == "human-verified") onReturnedFromWorld()
+    }
+
+    private fun onReturnedFromWorld() {
+        lifecycleScope.launch {
+            if (HumanGate.isVerified(true)) proceed()
+            else fail("Verification was not completed. Please try again.")
+        }
     }
 
     override fun onResume() {
