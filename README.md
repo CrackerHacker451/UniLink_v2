@@ -1,12 +1,24 @@
 # 🚀 Newton's Lobby (`UniLink`) — The Campus Operating System & AI Trust Layer
 
 [![Build Status](https://img.shields.io/badge/Build-Passing-10B981?style=for-the-badge&logo=android)](https://github.com/CrackerHacker451/UniLink_v2)
+[![World ID Agent Pass](https://img.shields.io/badge/World_ID_Agent_Pass-Auth_Verified-10B981?style=for-the-badge)](https://auth.world.org)
 [![Arkiv DB-Chain](https://img.shields.io/badge/Arkiv_Network-Web3_Database-84CC16?style=for-the-badge)](https://arkiv.network)
 [![0G Private Computer](https://img.shields.io/badge/0G_AI_Compute-Verified_Run-06B6D4?style=for-the-badge)](https://0g.ai)
 [![World ID 4.0](https://img.shields.io/badge/World_ID_4.0-IDKit_Liveness_Verified-10B981?style=for-the-badge)](https://worldcoin.org)
 [![License](https://img.shields.io/badge/License-MIT-F59E0B?style=for-the-badge)](LICENSE)
 
-**Newton's Lobby** is an unrestricted, AI-native, privacy-preserving Campus Operating System built for modern university students. Powered by **Arkiv Network DB-Chain** (`@arkiv-network/sdk`), **0G Private Computer** (verifiable zero-knowledge AI inference & decentralized encrypted storage), **World ID 4.0 IDKit Proportional Trust Engine**, and **WebRTC Full HD 1080p SpeedLink**, Newton's Lobby unifies academic collaboration, campus networking, barter trading, and real-time social connection into a single minimal dark glass interface.
+**Newton's Lobby** is an unrestricted, AI-native, privacy-preserving Campus Operating System built for modern university students. Powered by **World ID Agent Pass** (`https://auth.world.org/`), **Arkiv Network DB-Chain** (`@arkiv-network/sdk`), **0G Private Computer** (verifiable zero-knowledge AI inference & decentralized encrypted storage), **World ID 4.0 IDKit Proportional Trust Engine**, and **WebRTC Full HD 1080p SpeedLink**, Newton's Lobby unifies academic collaboration, campus networking, barter trading, and real-time social connection into a single minimal dark glass interface.
+
+---
+
+## 🌐 World ID Agent Pass Track ($2,500) & ETHGlobal Mumbai Qualification
+
+Newton's Lobby integrates **World ID Agent Pass** (`https://auth.world.org/`) with App ID **`app_ce59eafb4c64fb4dff9ac783c593702a`**.
+
+- **Full User Journey**: Initiates human verification at the exact moment a protected action is triggered (Day 7 Streak Claim +150 UniCoins, Hackathon Team Creation Gate, Deploy Autonomous Agent).
+- **Secure Backend Validation**: All ZK proofs and nullifier hashes are validated on secure backend infrastructure (`server/gate.js` / Firestore transaction).
+- **Denied Path Protection**: Cancelling or declining verification in World App immediately blocks protected agent executions and logs the denied state.
+- **Agent Pass Report**: [Read the complete World ID Agent Pass Technical Report (`worldid/agent_pass.md`)](./worldid/agent_pass.md).
 
 ---
 
