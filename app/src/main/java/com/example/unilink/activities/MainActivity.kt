@@ -55,9 +55,12 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // Human gate: only server-verified humans may use the app (firestore.rules enforce it as well).
+        // Human gate: check if verified or snoozed for 24 hours
         lifecycleScope.launch {
-            if (!com.example.unilink.worldid.HumanGate.isVerified()) {
+            val isVerified = com.example.unilink.worldid.HumanGate.isVerified()
+            val isSnoozed = com.example.unilink.worldid.HumanGate.isSnoozedActive(this@MainActivity)
+
+            if (!isVerified && !isSnoozed) {
                 startActivity(Intent(this@MainActivity, com.example.unilink.worldid.HumanVerificationActivity::class.java))
                 finish()
             }

@@ -84,6 +84,19 @@ class HumanVerificationActivity : AppCompatActivity() {
         }
         root.addView(btnDirectOrbVerification)
 
+        val btnSnooze24Hours = Button(this).apply {
+            text = "⏰ Verify Later (Snooze 24 Hours)"
+            setBackgroundColor(0xFF334155.toInt())
+            setTextColor(Color.WHITE)
+            textSize = 14f
+            setOnClickListener {
+                HumanGate.snooze24Hours(this@HumanVerificationActivity)
+                android.widget.Toast.makeText(this@HumanVerificationActivity, "⏰ Verification Snoozed for 24 Hours! Enjoy Newton's Lobby!", android.widget.Toast.LENGTH_LONG).show()
+                proceed()
+            }
+        }
+        root.addView(btnSnooze24Hours)
+
         webView = WebView(this).apply {
             visibility = View.GONE
             layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
