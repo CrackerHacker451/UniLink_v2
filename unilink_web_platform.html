@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UniLink Campus Platform</title>
     <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
     <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js"></script>
     <!-- Google Fonts Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
@@ -334,6 +334,9 @@
                 </div>
             </div>
 
+            <!-- SCREEN 6: DAREDROP ARENA -->
+            <div id="screenDares" class="space-y-4 w-full hidden"></div>
+
         </main>
 
         <!-- BOTTOM NAVIGATION BAR -->
@@ -406,6 +409,21 @@
                         <button onclick="openEditProfileModal(); closeGenericModal();" class="w-full py-2 bg-cyan-500 hover:bg-cyan-600 text-dark-950 font-bold rounded-xl text-xs mt-2">Edit Profile Details</button>
                     </div>
                 `;
+            } else if (title === 'Menu Drawer') {
+                titleEl.textContent = 'Menu';
+                const items = [
+                    ['🏠', 'Home', 'home'], ['🔎', 'Search', 'search'], ['💬', 'Chat', 'chat'],
+                    ['🚀', 'Launchpad', 'projects'], ['👤', 'Profile', 'profile'], ['📡', 'Campus Pulse', null],
+                    ['❓', 'Doubt Board', null], ['🔁', 'Barter Block', null], ['🎥', 'Live Stage', null],
+                    ['⚔️', 'Skill Duels', null], ['📚', 'Resource Vault', null], ['⭐', 'Leaderboard', null], ['🎯', 'DareDrop Arena', 'dares']
+                ];
+                bodyEl.innerHTML = `<div class="grid grid-cols-3 gap-2 max-h-[60vh] overflow-y-auto scrollbar-none">` +
+                    items.map(([icon, label, target]) => `
+                        <button onclick="menuGo(${target ? `'${target}'` : 'null'}, '${label}')" class="flex flex-col items-center justify-center space-y-1 p-3 rounded-xl bg-dark-900 border border-dark-750 hover:border-[#7CA5B8] transition-all">
+                            <span class="text-xl">${icon}</span>
+                            <span class="text-[10px] font-medium text-slate-200 text-center">${label}</span>
+                        </button>`).join('') +
+                    `</div>`;
             } else if (title === 'College Details') {
                 bodyEl.innerHTML = `
                     <div class="space-y-2">
@@ -422,6 +440,309 @@
             lucide.createIcons();
         }
         window.triggerFeatureModal = triggerFeatureModal;
+
+        function menuGo(target, label) {
+            if (target) {
+                closeGenericModal();
+                switchScreen(target);
+            } else {
+                triggerFeatureModal(label);
+            }
+        }
+        window.menuGo = menuGo;
+
+        /* ===== DareDrop Arena (prototype; proofs are saved in this browser via IndexedDB) ===== */
+        const MAX_PROOF_MB = 50;
+        const DARE_REWARDS = { Easy: 20, Medium: 30, Hard: 50 };
+        const START_COINS = 100175;
+        function seedDares() {
+            return [
+                { id: 1, title: 'NPC Challenge: Act like a video game NPC for 30 seconds.', level: 'Easy', reward: 20, status: 'open', proof: null },
+                { id: 2, title: 'Developer Face Challenge: Recreate the face of a developer whose code just crashed.', level: 'Easy', reward: 20, status: 'open', proof: null },
+                { id: 3, title: 'Victory Dance: Perform a 10-second victory dance as if you just raised $10 million.', level: 'Easy', reward: 20, status: 'open', proof: null },
+                { id: 4, title: 'ETHGlobal Meme: Create a funny meme about ETHGlobal Mumbai.', level: 'Medium', reward: 30, status: 'open', proof: null },
+                { id: 5, title: 'Funny Startup Slogan: Create a hilarious slogan for a completely ridiculous startup.', level: 'Hard', reward: 50, status: 'open', proof: null },
+                { id: 6, title: 'Find a Developer: Find someone from another college, introduce yourself, and exchange project ideas.', level: 'Hard', reward: 50, status: 'open', proof: null }
+            ];
+        }
+        const daresState = { tab: 'active', completed: 0, streak: 3, coins: START_COINS, active: seedDares(), proposed: [], nextId: 7, error: null, confirmReset: false };
+
+        /* --- browser storage (IndexedDB): meta + one blob per dare proof --- */
+        let _dbp = null;
+        function idb() {
+            if (!_dbp) _dbp = new Promise((res, rej) => {
+                try {
+                    const r = indexedDB.open('unilink-dares', 1);
+                    r.onupgradeneeded = () => r.result.createObjectStore('kv');
+                    r.onsuccess = () => res(r.result);
+                    r.onerror = () => rej(r.error);
+                } catch (e) { rej(e); }
+            });
+            return _dbp;
+        }
+        function idbOp(mode, fn) {
+            return idb().then(db => new Promise((res, rej) => {
+                const tx = db.transaction('kv', mode);
+                const req = fn(tx.objectStore('kv'));
+                tx.oncomplete = () => res(req && req.result);
+                tx.onerror = () => rej(tx.error);
+                tx.onabort = () => rej(tx.error);
+            }));
+        }
+        const idbGet = k => idbOp('readonly', s => s.get(k));
+        const idbSet = (k, v) => idbOp('readwrite', s => s.put(v, k));
+        const idbDel = k => idbOp('readwrite', s => s.delete(k));
+        const idbClear = () => idbOp('readwrite', s => s.clear());
+
+        function saveMeta() {
+            const s = daresState;
+            const meta = {
+                completed: s.completed, streak: s.streak, coins: s.coins, nextId: s.nextId, proposed: s.proposed,
+                active: s.active.map(d => ({
+                    id: d.id, title: d.title, level: d.level, reward: d.reward, status: d.status,
+                    proof: d.proof ? { kind: d.proof.kind, name: d.proof.name, size: d.proof.size } : null
+                }))
+            };
+            idbSet('meta', meta).catch(() => {});
+        }
+        function setCoinsText() { document.getElementById('headerUniCoins').textContent = daresState.coins.toLocaleString('en-US'); }
+        async function loadSavedDares() {
+            try {
+                const meta = await idbGet('meta');
+                if (!meta) return;
+                const active = [];
+                for (const d of meta.active) {
+                    let proof = null;
+                    if (d.proof) {
+                        const blob = await idbGet('blob:' + d.id);
+                        if (blob) proof = { kind: d.proof.kind, name: d.proof.name, size: d.proof.size, blob, url: URL.createObjectURL(blob) };
+                    }
+                    active.push({ id: d.id, title: d.title, level: d.level, reward: d.reward, status: d.status, proof });
+                }
+                Object.assign(daresState, { completed: meta.completed, streak: meta.streak, coins: meta.coins, nextId: meta.nextId, proposed: meta.proposed || [], active });
+                setCoinsText();
+                renderDares();
+                active.filter(d => d.status === 'pending').forEach(dareVerify);
+            } catch (e) { /* storage unavailable: keep the in-memory demo */ }
+        }
+
+        function escHtml(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+        function fmtSize(b) { return (b / 1024 / 1024).toFixed(1) + ' MB'; }
+        function addCoins(n) { daresState.coins += n; setCoinsText(); }
+        function findDare(id) { return daresState.active.find(x => x.id === id); }
+        function commit() { renderDares(); saveMeta(); }
+        function daresSetTab(t) { daresState.tab = t; daresState.error = null; daresState.confirmReset = false; renderDares(); }
+
+        function dareAddActive() {
+            const title = document.getElementById('dareNewTitle').value.trim().slice(0, 120);
+            const level = document.getElementById('dareNewLevel').value;
+            if (!title) return;
+            daresState.active.unshift({ id: daresState.nextId++, title, level, reward: DARE_REWARDS[level] || 20, status: 'open', proof: null });
+            commit();
+        }
+        function dareAddProposal() {
+            const inp = document.getElementById('dareProposalInput');
+            const v = inp.value.trim().slice(0, 120);
+            if (!v) return;
+            daresState.proposed.unshift({ id: daresState.nextId++, title: v, by: 'you', votes: 0, voted: false });
+            commit();
+        }
+        function dareVote(id) {
+            const p = daresState.proposed.find(x => x.id === id);
+            if (!p) return;
+            p.voted = !p.voted;
+            p.votes += p.voted ? 1 : -1;
+            commit();
+        }
+        function dareAdopt(id) {
+            const i = daresState.proposed.findIndex(x => x.id === id);
+            if (i < 0) return;
+            const p = daresState.proposed.splice(i, 1)[0];
+            daresState.active.unshift({ id: daresState.nextId++, title: p.title, level: 'Medium', reward: DARE_REWARDS.Medium, status: 'open', proof: null });
+            daresState.tab = 'active';
+            commit();
+        }
+        function dareAccept(id) {
+            const d = findDare(id);
+            if (d && d.status === 'open') { d.status = 'accepted'; commit(); }
+        }
+        function dareProofChosen(id, input) {
+            const d = findDare(id);
+            const f = input.files && input.files[0];
+            if (!d || !f) return;
+            const isImg = f.type.startsWith('image/');
+            const isVid = f.type.startsWith('video/');
+            if (!isImg && !isVid) { daresState.error = { id, msg: 'Please choose a photo or a video file.' }; renderDares(); return; }
+            if (f.size > MAX_PROOF_MB * 1024 * 1024) { daresState.error = { id, msg: 'File is too large. Max ' + MAX_PROOF_MB + ' MB.' }; renderDares(); return; }
+            if (d.proof) URL.revokeObjectURL(d.proof.url);
+            d.proof = { kind: isImg ? 'image' : 'video', name: f.name, size: f.size, blob: f, url: URL.createObjectURL(f) };
+            daresState.error = null;
+            commit();
+            idbSet('blob:' + id, f).catch(() => {
+                daresState.error = { id, msg: 'Could not save to browser storage. Kept for this session only.' };
+                renderDares();
+            });
+        }
+        function dareRemoveProof(id) {
+            const d = findDare(id);
+            if (!d || !d.proof || d.status !== 'accepted') return;
+            URL.revokeObjectURL(d.proof.url);
+            d.proof = null;
+            idbDel('blob:' + id).catch(() => {});
+            commit();
+        }
+        function dareSubmit(id) {
+            const d = findDare(id);
+            if (!d || d.status !== 'accepted' || !d.proof) return;
+            d.status = 'pending';
+            commit();
+            setTimeout(() => dareVerify(d), 1800);
+        }
+        function dareVerify(d) {
+            if (d.status === 'verified') return;
+            d.status = 'verified';
+            daresState.completed++;
+            addCoins(d.reward);
+            commit();
+        }
+        async function dareReset() {
+            if (!daresState.confirmReset) {
+                daresState.confirmReset = true;
+                renderDares();
+                setTimeout(() => { if (daresState.confirmReset) { daresState.confirmReset = false; renderDares(); } }, 3000);
+                return;
+            }
+            daresState.active.forEach(d => { if (d.proof) URL.revokeObjectURL(d.proof.url); });
+            try { await idbClear(); } catch (e) {}
+            Object.assign(daresState, { tab: 'active', completed: 0, streak: 3, coins: START_COINS, active: seedDares(), proposed: [], nextId: 7, error: null, confirmReset: false });
+            setCoinsText();
+            renderDares();
+        }
+
+        function mediaHtml(proof) {
+            if (proof.kind === 'image') return `<img src='${proof.url}' alt='Proof photo' class='w-full max-h-48 object-cover rounded-lg border border-dark-750'>`;
+            return `<video src='${proof.url}' controls playsinline preload='metadata' class='w-full max-h-48 rounded-lg border border-dark-750 bg-black'></video>`;
+        }
+        function uploadInput(id) {
+            return `<input type='file' accept='image/*,video/*' class='hidden' onchange='dareProofChosen(${id}, this)'>`;
+        }
+
+        function renderDares() {
+            const s = daresState;
+            const lvl = {
+                Easy: 'text-[#78A88E] bg-[#78A88E]/10 border-[#78A88E]/20',
+                Medium: 'text-[#D4B27C] bg-[#D4B27C]/10 border-[#D4B27C]/20',
+                Hard: 'text-[#C48484] bg-[#C48484]/10 border-[#C48484]/20'
+            };
+            const tabBtn = (key, label) => `<button onclick='daresSetTab("${key}")' class='flex-1 py-2 rounded-xl text-xs font-semibold border transition-all ${s.tab === key ? 'bg-[#7CA5B8] text-dark-950 border-[#7CA5B8]' : 'bg-dark-800 text-slate-300 border-dark-750 hover:border-slate-500'}'>${label}</button>`;
+
+            const action = d => {
+                if (d.status === 'open') return `<button onclick='dareAccept(${d.id})' class='px-3 py-1.5 rounded-lg bg-[#7CA5B8] text-dark-950 text-[11px] font-bold'>Accept Dare</button>`;
+                if (d.status === 'accepted') return d.proof
+                    ? `<button onclick='dareSubmit(${d.id})' class='px-3 py-1.5 rounded-lg bg-[#9D8EC4] text-dark-950 text-[11px] font-bold'>Submit Proof</button>`
+                    : `<span class='text-[10px] text-slate-400'>Add proof to submit</span>`;
+                if (d.status === 'pending') return `<span class='px-3 py-1.5 rounded-lg bg-dark-800 text-slate-400 text-[11px] border border-dark-750 animate-pulse'>In peer review…</span>`;
+                return `<span class='px-3 py-1.5 rounded-lg bg-[#78A88E]/10 text-[#78A88E] text-[11px] font-bold border border-[#78A88E]/20'>✅ Verified +${d.reward}</span>`;
+            };
+            const proofSection = d => {
+                if (d.status === 'open') return '';
+                const err = s.error && s.error.id === d.id ? `<p class='text-[10px] text-[#C48484]'>${escHtml(s.error.msg)}</p>` : '';
+                if (!d.proof) {
+                    return `${err}<label class='block cursor-pointer p-3 text-center rounded-xl border border-dashed border-dark-750 hover:border-[#7CA5B8] text-[11px] text-slate-300 transition-all'>
+                        📎 Upload photo or video proof <span class='text-slate-500'>(max ${MAX_PROOF_MB} MB)</span>${uploadInput(d.id)}</label>`;
+                }
+                const controls = d.status === 'accepted' ? `
+                    <div class='flex items-center gap-2'>
+                        <label class='cursor-pointer px-2.5 py-1 rounded-lg bg-dark-800 border border-dark-750 text-[10px] text-slate-300 hover:border-slate-500'>Replace${uploadInput(d.id)}</label>
+                        <button onclick='dareRemoveProof(${d.id})' class='px-2.5 py-1 rounded-lg bg-dark-800 border border-dark-750 text-[10px] text-[#C48484] hover:border-[#C48484]/40'>Remove</button>
+                    </div>` : '';
+                return `${err}${mediaHtml(d.proof)}
+                    <div class='flex items-center justify-between gap-2'>
+                        <span class='text-[10px] text-slate-400 truncate'>${d.proof.kind === 'image' ? '🖼️' : '🎬'} ${escHtml(d.proof.name)} · ${fmtSize(d.proof.size)}</span>
+                        ${controls}
+                    </div>`;
+            };
+
+            let body = '';
+            if (s.tab === 'active') {
+                body = `
+                    <div class='p-3 bg-dark-850 rounded-xl border border-dark-800 space-y-2'>
+                        <input id='dareNewTitle' type='text' maxlength='120' placeholder='Add a dare you want to complete…' class='w-full bg-dark-900 border border-dark-750 text-slate-200 placeholder-slate-500 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-[#7CA5B8]'>
+                        <div class='flex gap-2'>
+                            <select id='dareNewLevel' class='flex-1 bg-dark-900 border border-dark-750 text-slate-200 text-xs rounded-xl px-2 py-2 focus:outline-none'>
+                                <option value='Easy'>Easy · 20 coins</option>
+                                <option value='Medium'>Medium · 30 coins</option>
+                                <option value='Hard'>Hard · 50 coins</option>
+                            </select>
+                            <button onclick='dareAddActive()' class='px-4 rounded-xl bg-[#7CA5B8] text-dark-950 text-xs font-bold'>Add Dare</button>
+                        </div>
+                    </div>` + (s.active.map(d => `
+                    <div class='p-3.5 bg-dark-850 rounded-xl border border-dark-800 space-y-2.5'>
+                        <div class='flex items-start justify-between gap-2'>
+                            <h4 class='text-xs font-bold'>${escHtml(d.title)}</h4>
+                            <span class='shrink-0 px-2 py-0.5 rounded border text-[10px] font-medium ${lvl[d.level]}'>${d.level}</span>
+                        </div>
+                        <div class='flex items-center justify-between'>
+                            <span class='text-[11px] text-[#D4B27C] font-semibold'>🪙 ${d.reward} UniCoins</span>
+                            ${action(d)}
+                        </div>
+                        ${proofSection(d)}
+                    </div>`).join('') || `<div class='p-4 text-center text-xs text-slate-500 italic'>No active dares yet. Add one above.</div>`);
+            } else if (s.tab === 'proposed') {
+                body = `
+                    <div class='flex gap-2'>
+                        <input id='dareProposalInput' type='text' maxlength='120' placeholder='Propose a new dare…' class='flex-1 bg-dark-900 border border-dark-750 text-slate-200 placeholder-slate-500 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-[#7CA5B8]'>
+                        <button onclick='dareAddProposal()' class='px-3 rounded-xl bg-[#7CA5B8] text-dark-950 text-xs font-bold'>Propose</button>
+                    </div>` + s.proposed.map(p => `
+                    <div class='p-3.5 bg-dark-850 rounded-xl border border-dark-800 space-y-2'>
+                        <div>
+                            <h4 class='text-xs font-bold'>${escHtml(p.title)}</h4>
+                            <p class='text-[10px] text-slate-400'>proposed by @${escHtml(p.by)}</p>
+                        </div>
+                        <div class='flex items-center gap-2'>
+                            <button onclick='dareVote(${p.id})' class='px-2.5 py-1.5 rounded-lg border text-[11px] font-semibold ${p.voted ? 'bg-[#C48484]/10 text-[#C48484] border-[#C48484]/30' : 'bg-dark-800 text-slate-300 border-dark-750'}'>❤️ ${p.votes}</button>
+                            <button onclick='dareAdopt(${p.id})' class='px-2.5 py-1.5 rounded-lg bg-dark-800 border border-dark-750 text-[11px] text-slate-200 hover:border-[#7CA5B8]'>Take on this dare</button>
+                        </div>
+                    </div>`).join('');
+            } else {
+                const saved = s.active.filter(d => d.proof);
+                body = (saved.length ? saved.map(d => {
+                    const st = d.status === 'verified' ? ['Verified', 'text-[#78A88E]']
+                        : d.status === 'pending' ? ['In peer review', 'text-slate-400']
+                        : ['Saved · not submitted', 'text-[#D4B27C]'];
+                    return `
+                    <div class='p-3.5 bg-dark-850 rounded-xl border border-dark-800 space-y-2'>
+                        <div class='flex items-center justify-between gap-3'>
+                            <h4 class='text-xs font-bold'>${escHtml(d.title)}</h4>
+                            <span class='shrink-0 text-[10px] ${st[1]}'>${st[0]}</span>
+                        </div>
+                        ${mediaHtml(d.proof)}
+                        <span class='block text-[10px] text-slate-400 truncate'>${d.proof.kind === 'image' ? '🖼️' : '🎬'} ${escHtml(d.proof.name)} · ${fmtSize(d.proof.size)}</span>
+                    </div>`;
+                }).join('') : `<div class='p-4 text-center text-xs text-slate-500 italic'>No proofs yet. Accept a dare and upload a photo or video!</div>`)
+                    + `<p class='text-[10px] text-slate-500 text-center'>Proofs are saved in this browser, so they stay after you reload.</p>`;
+            }
+
+            document.getElementById('screenDares').innerHTML = `
+                <div class='bg-dark-850 rounded-2xl p-4 border border-dark-800 space-y-3'>
+                    <div class='flex items-start justify-between gap-2'>
+                        <div>
+                            <h2 class='text-sm font-semibold tracking-wide'>🎯 DareDrop Arena</h2>
+                            <p class='text-xs text-slate-400'>Complete campus dares, upload photo or video proof, earn UniCoins.</p>
+                        </div>
+                        <button onclick='dareReset()' class='shrink-0 px-2 py-1 rounded-lg border text-[10px] ${s.confirmReset ? 'border-[#C48484]/40 text-[#C48484]' : 'border-dark-750 text-slate-400 hover:text-slate-200'}'>${s.confirmReset ? 'Tap again to reset' : 'Reset demo'}</button>
+                    </div>
+                    <div class='grid grid-cols-3 gap-2 text-center'>
+                        <div class='p-2 bg-dark-900 rounded-xl border border-dark-750'><div class='text-sm font-bold'>${s.completed}</div><div class='text-[10px] text-slate-400'>Completed</div></div>
+                        <div class='p-2 bg-dark-900 rounded-xl border border-dark-750'><div class='text-sm font-bold'>🔥 ${s.streak}</div><div class='text-[10px] text-slate-400'>Day streak</div></div>
+                        <div class='p-2 bg-dark-900 rounded-xl border border-dark-750'><div class='text-sm font-bold'>#42</div><div class='text-[10px] text-slate-400'>Campus rank</div></div>
+                    </div>
+                </div>
+                <div class='flex gap-2'>${tabBtn('active', 'Active')}${tabBtn('proposed', 'Proposed')}${tabBtn('proofs', 'My Proofs')}</div>
+                <div class='space-y-2.5'>${body}</div>`;
+        }
+        renderDares();
+        loadSavedDares();
 
         function setThemeMode(mode) {
             const body = document.body;
@@ -529,7 +850,8 @@
             search: document.getElementById('screenSearch'),
             chat: document.getElementById('screenChat'),
             projects: document.getElementById('screenProjects'),
-            profile: document.getElementById('screenProfile')
+            profile: document.getElementById('screenProfile'),
+            dares: document.getElementById('screenDares')
         };
 
         const defaultHeaderRight = document.getElementById('defaultHeaderRight');
