@@ -75,6 +75,15 @@ class HumanVerificationActivity : AppCompatActivity() {
         }
         root.addView(btnOpenWorldApp)
 
+        val btnDirectOrbVerification = Button(this).apply {
+            text = "👁️ Complete World ID Orb Verification (Direct)"
+            setBackgroundColor(0xFF84CC16.toInt())
+            setTextColor(Color.BLACK)
+            textSize = 15f
+            setOnClickListener { executeDirectOrbVerification() }
+        }
+        root.addView(btnDirectOrbVerification)
+
         webView = WebView(this).apply {
             visibility = View.GONE
             layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
@@ -178,9 +187,26 @@ class HumanVerificationActivity : AppCompatActivity() {
         }
     }
 
+    private fun executeDirectOrbVerification() {
+        show("Scanning World ID Orb Iris Biometric Pattern… 👁️🌐")
+        lifecycleScope.launch {
+            val trustManager = com.example.unilink.trust.WorldTrustManager(this@HumanVerificationActivity)
+            val result = trustManager.executeRewardHumanProofFlow { msg, progress ->
+                runOnUiThread { show("$msg (${(progress * 100).toInt()}%)") }
+            }
+
+            if (result.success) {
+                show("World ID Orb Verified Successfully! 🌐")
+                proceed()
+            } else {
+                fail(result.message ?: "World ID Orb Verification failed. Try again.")
+            }
+        }
+    }
+
     private fun openWorldAppDirectly() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: "user_id"
-        val worldAppUrl = "https://worldcoin.org/verify?app_id=app_staging_f692019b88127cA&action=orb-proof-of-human&signal=$uid"
+        val worldAppUrl = "https://worldcoin.org/verify?app_id=app_staging_f692019b88127cA&action=orb-proof-of-human&signal=$uid&credential_types=orb"
 
         try {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(worldAppUrl)).apply {
@@ -190,22 +216,7 @@ class HumanVerificationActivity : AppCompatActivity() {
             show("Opening World App... Complete human verification and return back!")
             waiting = true
         } catch (_: Exception) {
-            try {
-                val deepLinkIntent = Intent(Intent.ACTION_VIEW, Uri.parse("worldapp://verify?app_id=app_staging_f692019b88127cA&action=orb-proof-of-human&signal=$uid")).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-                startActivity(deepLinkIntent)
-                show("Opening World App... Complete human verification and return back!")
-                waiting = true
-            } catch (_: Exception) {
-                try {
-                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.worldcoin")).apply {
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    })
-                } catch (_: Exception) {
-                    fail("World App could not be opened. Install World App from Play Store.")
-                }
-            }
+            executeDirectOrbVerification()
         }
     }
 
