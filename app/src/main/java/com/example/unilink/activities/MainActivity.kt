@@ -55,6 +55,14 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
+        // Human gate: only server-verified humans may use the app (firestore.rules enforce it as well).
+        lifecycleScope.launch {
+            if (!com.example.unilink.worldid.HumanGate.isVerified()) {
+                startActivity(Intent(this@MainActivity, com.example.unilink.worldid.HumanVerificationActivity::class.java))
+                finish()
+            }
+        }
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

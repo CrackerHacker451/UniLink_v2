@@ -4,5 +4,16 @@
   },
   "storage": {
     "rules": "storage.rules"
+  },
+  "functions": [
+    { "source": "functions", "codebase": "default" }
+  ],
+  "hosting": {
+    "public": "hosting",
+    "rewrites": [
+      { "source": "/api/startVerification", "function": { "functionId": "startVerification", "region": "us-central1" } },
+      { "source": "/api/rpSignature", "function": { "functionId": "rpSignature", "region": "us-central1" } },
+      { "source": "/api/verifyProof", "function": { "functionId": "verifyProof", "region": "us-central1" } }
+    ]
   }
 }

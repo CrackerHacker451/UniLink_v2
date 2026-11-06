@@ -38,12 +38,25 @@ service cloud.firestore {
     // Helper Functions
     // ===============================================================
 
-    function isAuthenticated() {
+    // Signed in with Firebase Auth (NOT necessarily a verified human).
+    function isSignedIn() {
       return request.auth != null;
     }
 
+    // HUMAN GATE: only users whose token carries the `humanVerified` custom claim.
+    // That claim is set exclusively by the server (functions/gate.js) after World ID itself
+    // confirmed a proof. No client can write it, so this one rule gates the whole app.
+    function isAuthenticated() {
+      return request.auth != null && request.auth.token.get('humanVerified', false) == true;
+    }
+
+    // Fields only the server may write (World ID results).
+    function worldFields() {
+      return ['worldIdVerified', 'worldIdBadge', 'worldIdCredential', 'sybilScore', 'lastVerifiedAt', 'humanVerified'];
+    }
+
     function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
+      return isSignedIn() && request.auth.uid == userId;
     }
 
     function isDocOwner() {
@@ -76,7 +89,7 @@ service cloud.firestore {
 
     // Check if user is an Admin
     function isAdmin() {
-      return isAuthenticated() &&
+      return isSignedIn() &&
         (
           (request.auth.token.email != null &&
            request.auth.token.email_verified == true &&
@@ -134,15 +147,18 @@ service cloud.firestore {
 
     // User Profiles & Notifications
     match /users/{userId} {
-      allow read: if isAuthenticated();
+      // Verified humans can read profiles; anyone signed in can read their own (needed to finish sign-up).
+      allow read: if isAuthenticated() || isOwner(userId);
 
       allow create: if (isOwner(userId) || isAdmin()) &&
+                       !request.resource.data.keys().hasAny(worldFields()) &&
                        hasRequiredFields(['uid', 'name', 'username', 'email', 'userType', 'isOnline', 'uniCoins', 'createdAt']) &&
                        isValidUserData(request.resource.data) &&
                        (!('isAdmin' in request.resource.data) || request.resource.data.isAdmin == false || isAdmin()) &&
                        (!('userType' in request.resource.data) || request.resource.data.userType != 'Admin' || isAdmin());
 
       allow update: if (isOwner(userId) || isAdmin()) &&
+                       !request.resource.data.diff(resource.data).affectedKeys().hasAny(worldFields()) &&
                        isValidUserData(request.resource.data) &&
                        uidNotModified() &&
                        (!('isAdmin' in request.resource.data) || request.resource.data.isAdmin == resource.data.get('isAdmin', false) || isAdmin()) &&
@@ -165,7 +181,7 @@ service cloud.firestore {
     // Web / Newton's Lobby User Sync Collections
     match /{collectionName}/{userId} {
       allow read: if collectionName in ['web_users', 'students', 'nl_users', 'newton_users', 'newtons_lobby', 'nl_students', 'hackathon_users'] && isAuthenticated();
-      allow write: if collectionName in ['web_users', 'students', 'nl_users', 'newton_users', 'newtons_lobby', 'nl_students', 'hackathon_users'] && (isOwner(userId) || isAdmin());
+      allow write: if collectionName in ['web_users', 'students', 'nl_users', 'newton_users', 'newtons_lobby', 'nl_students', 'hackathon_users'] && ((isAuthenticated() && isOwner(userId)) || isAdmin());
     }
 
     // Feed Posts & Comments
@@ -349,6 +365,15 @@ service cloud.firestore {
       allow read, update, delete: if isAuthenticated() && (resource.data.receiverUid == request.auth.uid || isAdmin());
       allow create: if isAuthenticated();
     }
+
+    // Day 7 reward claims: verified humans only, own claim only, create-once (no update/delete).
+    match /day7RewardClaims/{claimId} {
+      allow read: if isAuthenticated() && (resource == null || resource.data.uid == request.auth.uid);
+      allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
+    }
+
+    // World ID bookkeeping (worldPairings, worldNullifiers, worldHumanByUid) is written by the
+    // server only. There is deliberately NO client rule for it: default deny applies.
 
     // Token Transfers
     match /token_transfers/{transferId} {
