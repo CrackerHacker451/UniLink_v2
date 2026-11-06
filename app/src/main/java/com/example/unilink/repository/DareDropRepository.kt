@@ -24,64 +24,80 @@ class DareDropRepository {
     private val presetDares = listOf(
         ActiveDailyDare(
             id = "d1",
-            title = "🤖 NPC Challenge: Act like a video game NPC for 30 seconds",
+            title = "1. NPC Challenge: Act like a video game NPC for 30 seconds",
             description = "Record a video acting like a video game NPC! UniAI will verify your video proof for +25 UniCoins & Star Badge!",
             rewardCoins = 25
         ),
         ActiveDailyDare(
             id = "d2",
-            title = "💻 Developer Face: Recreate the face of a developer whose code just crashed",
+            title = "2. Developer Face Challenge: Recreate the face of a developer whose code just crashed",
             description = "Post your hilarious reaction video/photo of code crashing! AI verified for +25 UniCoins!",
             rewardCoins = 25
         ),
         ActiveDailyDare(
             id = "d3",
-            title = "🕺 Victory Dance: Perform a 10-second victory dance as if you just raised $10M",
+            title = "3. Victory Dance: Perform a 10-second victory dance as if you just raised $10 million",
             description = "Dance like you just closed a $10M round at ETHGlobal Mumbai! AI verified for +25 UniCoins!",
             rewardCoins = 25
         ),
         ActiveDailyDare(
             id = "d4",
-            title = "🚀 ETHGlobal Meme: Create a funny meme about ETHGlobal Mumbai",
+            title = "4. ETHGlobal Meme: Create a funny meme about ETHGlobal Mumbai",
             description = "Upload a legendary ETHGlobal Mumbai meme! AI verified for +25 UniCoins!",
             rewardCoins = 25
         ),
         ActiveDailyDare(
             id = "d5",
-            title = "💡 Startup Slogan: Create a hilarious slogan for a ridiculous startup",
+            title = "5. Funny Startup Slogan: Create a hilarious slogan for a completely ridiculous startup",
             description = "Pitch a ridiculous startup slogan! AI verified for +25 UniCoins!",
             rewardCoins = 25
         ),
         ActiveDailyDare(
             id = "d6",
-            title = "🤝 Find a Developer: Introduce yourself & exchange project ideas",
+            title = "6. Find a Developer: Find someone from another college, introduce yourself, and exchange project ideas",
             description = "Meet a developer from another college, exchange project ideas, and post video proof!",
             rewardCoins = 25
         )
     )
 
-    fun observeActiveDare(onUpdate: (ActiveDailyDare) -> Unit): ListenerRegistration {
-        val docRef = db.collection("dare_drop").document("active_dare")
+    fun getCurrent30MinDare(): ActiveDailyDare {
+        val now = System.currentTimeMillis()
+        val midnightCalendar = java.util.Calendar.getInstance().apply {
+            set(java.util.Calendar.HOUR_OF_DAY, 0)
+            set(java.util.Calendar.MINUTE, 0)
+            set(java.util.Calendar.SECOND, 0)
+            set(java.util.Calendar.MILLISECOND, 0)
+        }
 
+        val elapsedMs = (now - midnightCalendar.timeInMillis).coerceAtLeast(0L)
+        val periodMs = 30 * 60 * 1000L // 30 minutes = 1,800,000 ms
+        val periodIndex = ((elapsedMs / periodMs) % presetDares.size).toInt()
+        val timeRemainingInPeriod = periodMs - (elapsedMs % periodMs)
+
+        val selected = presetDares[periodIndex]
+        return selected.copy(expiresAt = now + timeRemainingInPeriod)
+    }
+
+    fun observeActiveDare(onUpdate: (ActiveDailyDare) -> Unit): ListenerRegistration {
+        val currentDare = getCurrent30MinDare()
+        onUpdate(currentDare)
+
+        val docRef = db.collection("dare_drop").document("active_dare")
         return docRef.addSnapshotListener { snapshot, e ->
             if (e != null || snapshot == null || !snapshot.exists()) {
-                rotateNewDare(onUpdate)
+                onUpdate(getCurrent30MinDare())
                 return@addSnapshotListener
             }
 
             try {
-                val title = snapshot.getString("title") ?: presetDares[0].title
-                val desc = snapshot.getString("description") ?: presetDares[0].description
+                val title = snapshot.getString("title") ?: currentDare.title
+                val desc = snapshot.getString("description") ?: currentDare.description
                 val coins = (snapshot.getLong("rewardCoins") ?: 25L).toInt()
-                val expiresAt = snapshot.getLong("expiresAt") ?: (System.currentTimeMillis() + 86400000L)
+                val expiresAt = snapshot.getLong("expiresAt") ?: currentDare.expiresAt
 
-                if (expiresAt <= System.currentTimeMillis()) {
-                    rotateNewDare(onUpdate)
-                } else {
-                    onUpdate(ActiveDailyDare("active_dare", title, desc, coins, expiresAt))
-                }
+                onUpdate(ActiveDailyDare("active_dare", title, desc, coins, expiresAt))
             } catch (_: Exception) {
-                rotateNewDare(onUpdate)
+                onUpdate(getCurrent30MinDare())
             }
         }
     }

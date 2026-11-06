@@ -171,10 +171,17 @@ fun DareDropScreen(
     }
 
     // Countdown Timer & Real-time Firestore Proofs & Proposed Dares Sync
-    var timeRemainingMillis by remember { mutableLongStateOf(28_800_000L) } // 8 hours countdown
+    var activeDare by remember { mutableStateOf(com.example.unilink.repository.DareDropRepository().getCurrent30MinDare()) }
+    var timeRemainingMillis by remember { mutableLongStateOf(activeDare.expiresAt - System.currentTimeMillis()) }
+
     LaunchedEffect(Unit) {
         val repo = com.example.unilink.repository.DareDropRepository()
-        
+
+        repo.observeActiveDare { cloudDare ->
+            activeDare = cloudDare
+            timeRemainingMillis = (cloudDare.expiresAt - System.currentTimeMillis()).coerceAtLeast(0L)
+        }
+
         repo.observeProofs { cloudProofs ->
             proofList.clear()
             proofList.addAll(cloudProofs)
@@ -186,9 +193,11 @@ fun DareDropScreen(
             proposedDaresList.addAll(cloudDares)
         }
 
-        while (timeRemainingMillis > 0) {
+        while (true) {
             delay(1000)
-            timeRemainingMillis -= 1000L
+            val current30MinDare = repo.getCurrent30MinDare()
+            activeDare = current30MinDare
+            timeRemainingMillis = (current30MinDare.expiresAt - System.currentTimeMillis()).coerceAtLeast(0L)
         }
     }
 
@@ -232,6 +241,7 @@ fun DareDropScreen(
                 // Featured Active Dare Card
                 item {
                     FeaturedDareHeaderCard(
+                        activeDare = activeDare,
                         isCompleted = isDareCompleted,
                         completedCount = completedCount,
                         timeRemainingMillis = timeRemainingMillis,
@@ -674,15 +684,15 @@ fun DareDropScreen(
 // ---------------------------------------------------------------------------
 @Composable
 fun FeaturedDareHeaderCard(
+    activeDare: com.example.unilink.repository.ActiveDailyDare,
     isCompleted: Boolean,
     completedCount: Int,
     timeRemainingMillis: Long,
     onCompleteClick: () -> Unit
 ) {
-    val hours = TimeUnit.MILLISECONDS.toHours(timeRemainingMillis)
     val minutes = TimeUnit.MILLISECONDS.toMinutes(timeRemainingMillis) % 60
     val seconds = TimeUnit.MILLISECONDS.toSeconds(timeRemainingMillis) % 60
-    val formattedTime = String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds)
+    val formattedTime = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
 
     Box(
         modifier = Modifier
@@ -713,7 +723,7 @@ fun FeaturedDareHeaderCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.LocalFireDepartment, contentDescription = null, tint = AuraPinkNeon, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("TODAY'S FEATURED DROP", color = AuraPinkNeon, fontSize = 11.sp, fontWeight = FontWeight.Black, letterSpacing = 0.5.sp)
+                    Text("ACTIVE DARE DROP", color = AuraPinkNeon, fontSize = 11.sp, fontWeight = FontWeight.Black, letterSpacing = 0.5.sp)
                 }
 
                 Surface(
@@ -726,15 +736,15 @@ fun FeaturedDareHeaderCard(
                     ) {
                         Icon(Icons.Default.Timer, contentDescription = null, tint = AuraGoldNeon, modifier = Modifier.size(12.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text(text = "Resets in $formattedTime", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        Text(text = "Next Dare in $formattedTime", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
 
             Text(
-                text = "\"Take a high-five selfie with a campus professor or library cat! 📸\"",
+                text = activeDare.title,
                 color = Color.White,
-                fontSize = 16.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.Bold
             )
 
