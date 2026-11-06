@@ -209,10 +209,23 @@ class HumanVerificationActivity : AppCompatActivity() {
         @JavascriptInterface
         fun openWorldApp(url: String) {
             val uri = Uri.parse(url)
-            if (uri.scheme != "https") return
             runOnUiThread {
-                try { startActivity(Intent(Intent.ACTION_VIEW, uri)) }
-                catch (_: Exception) { show("World App could not be opened. Install World App and try again.") }
+                try {
+                    val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    // Fallback to World ID Web Verification / World App Play Store Page
+                    try {
+                        val webUrl = if (url.startsWith("worldapp://")) url.replace("worldapp://", "https://worldcoin.org/") else url
+                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(webUrl)).apply {
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        })
+                    } catch (_: Exception) {
+                        show("World App could not be opened. Install World App and try again.")
+                    }
+                }
             }
         }
 
