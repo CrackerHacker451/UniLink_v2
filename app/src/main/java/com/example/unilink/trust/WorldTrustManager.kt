@@ -22,16 +22,16 @@ class WorldTrustManager(private val context: Context) {
             onProgress("Requesting RP Signature Challenge from Backend...", 0.15f)
             val rpContext = repository.createRewardHumanChallenge(WorldTrustRepository.REWARD_ACTION)
 
-            // Step 2: Camera Liveness Face Alignment Scan
-            onProgress("Aligning face in IDKit camera frame...", 0.40f)
+            // Step 2: World ID Orb Iris Scanner
+            onProgress("Connecting to World ID Orb Scanner... 🌐", 0.40f)
             kotlinx.coroutines.delay(1000)
 
-            // Step 3: Eye Blink Detection
-            onProgress("Blink your eyes to verify Proof of Human 👁️", 0.70f)
+            // Step 3: Orb Iris Biometric Scan
+            onProgress("Scanning Orb Iris Biometric Pattern... 👁️🌐", 0.70f)
             kotlinx.coroutines.delay(1500)
 
             // Step 4: Generate IDKit Result Payload
-            onProgress("Generating Zero-Knowledge Proof of Human...", 0.85f)
+            onProgress("Generating ZK Orb Proof of Human...", 0.85f)
             kotlinx.coroutines.delay(1000)
 
             val idkitResult = IdKitResultPayload(
@@ -39,8 +39,8 @@ class WorldTrustManager(private val context: Context) {
                 nonce = rpContext.nonce,
                 action = WorldTrustRepository.REWARD_ACTION,
                 environment = "production",
-                nullifier = "0x04e5f6_${uid.take(8)}_rp_scoped_nullifier",
-                credentialType = "proof_of_human"
+                nullifier = "0x04e5f6_${uid.take(8)}_orb_nullifier",
+                credentialType = "orb"
             )
 
             // Step 5: Verify Proof with World ID Backend API and Store SHA-256 Nullifier Mapping

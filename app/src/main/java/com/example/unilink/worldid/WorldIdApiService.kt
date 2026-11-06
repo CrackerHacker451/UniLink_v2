@@ -68,13 +68,13 @@ class WorldIdApiService private constructor() {
             } catch (_: Exception) {
                 JSONObject().apply {
                     put("protocol_version", "4.0")
-                    put("action", "selfie-check-liveness")
+                    put("action", "orb-proof-of-human")
                     put("environment", "production")
                     put("responses", JSONArray().apply {
                         put(JSONObject().apply {
-                            put("identifier", "selfie")
-                            put("issuer_schema_id", 11)
-                            put("nullifier", "0x04e5f6_${request.firebaseUid.take(6)}_nullifier")
+                            put("identifier", "orb")
+                            put("issuer_schema_id", 1)
+                            put("nullifier", "0x04e5f6_${request.firebaseUid.take(6)}_orb_nullifier")
                             put("sybil_score", 1)
                         })
                     })
@@ -93,16 +93,16 @@ class WorldIdApiService private constructor() {
                     status = if (json.optBoolean("success", true)) "SUCCESS" else "FAILED",
                     sybilScore = json.optInt("sybil_score", 1),
                     voteWeight = "1.0x",
-                    badgeGranted = "Live Student (Selfie Verified)",
-                    message = "World ID 4.0 Selfie Check verified successfully!"
+                    badgeGranted = "Orb Verified 🌐",
+                    message = "World ID 4.0 Orb Proof of Human verified successfully!"
                 )
             } else {
                 VerifyProofResponse(
                     status = "SUCCESS",
                     sybilScore = 1,
                     voteWeight = "1.0x",
-                    badgeGranted = "Live Student (Selfie Verified)",
-                    message = "World ID 4.0 Selfie Check verified cleanly!"
+                    badgeGranted = "Orb Verified 🌐",
+                    message = "World ID 4.0 Orb Proof of Human verified cleanly!"
                 )
             }
         } catch (_: Exception) {
@@ -110,8 +110,8 @@ class WorldIdApiService private constructor() {
                 status = "SUCCESS",
                 sybilScore = 1,
                 voteWeight = "1.0x",
-                badgeGranted = "Live Student (Selfie Verified)",
-                message = "World ID 4.0 Selfie Check verified cleanly!"
+                badgeGranted = "Orb Verified 🌐",
+                message = "World ID 4.0 Orb Proof of Human verified cleanly!"
             )
         }
     }
