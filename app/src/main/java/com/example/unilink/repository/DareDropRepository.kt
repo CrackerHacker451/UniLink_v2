@@ -280,6 +280,26 @@ class DareDropRepository {
         }
     }
 
+    fun toggleCheer(proofId: String) {
+        val uid = auth.currentUser?.uid ?: return
+        val docRef = db.collection("dare_proofs").document(proofId)
+
+        docRef.get().addOnSuccessListener { doc ->
+            val cheeredBy = (doc.get("cheeredBy") as? List<*>)?.mapNotNull { it?.toString() } ?: emptyList()
+            if (cheeredBy.contains(uid)) {
+                docRef.update(
+                    "cheeredBy", FieldValue.arrayRemove(uid),
+                    "cheersCount", FieldValue.increment(-1)
+                )
+            } else {
+                docRef.update(
+                    "cheeredBy", FieldValue.arrayUnion(uid),
+                    "cheersCount", FieldValue.increment(1)
+                )
+            }
+        }
+    }
+
     fun toggleVote(dareId: String) {
         val uid = auth.currentUser?.uid ?: return
         val docRef = db.collection("proposed_dares").document(dareId)

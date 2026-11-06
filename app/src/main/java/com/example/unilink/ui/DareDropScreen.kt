@@ -336,12 +336,28 @@ fun DareDropScreen(
                             DareProofCard(
                                 proof = proof,
                                 onLikeClick = {
-                                    proof.isLiked = !proof.isLiked
-                                    if (proof.isLiked) proof.likesCount++ else proof.likesCount--
+                                    val repo = com.example.unilink.repository.DareDropRepository()
+                                    repo.toggleLike(proof.id)
+
+                                    val idx = proofList.indexOfFirst { it.id == proof.id }
+                                    if (idx != -1) {
+                                        val item = proofList[idx]
+                                        val newLiked = !item.isLiked
+                                        val newLikes = if (newLiked) item.likesCount + 1 else (item.likesCount - 1).coerceAtLeast(0)
+                                        proofList[idx] = item.copy(isLiked = newLiked, likesCount = newLikes)
+                                    }
                                 },
                                 onCheerClick = {
-                                    proof.isCheered = !proof.isCheered
-                                    if (proof.isCheered) proof.cheersCount++ else proof.cheersCount--
+                                    val repo = com.example.unilink.repository.DareDropRepository()
+                                    repo.toggleCheer(proof.id)
+
+                                    val idx = proofList.indexOfFirst { it.id == proof.id }
+                                    if (idx != -1) {
+                                        val item = proofList[idx]
+                                        val newCheered = !item.isCheered
+                                        val newCheers = if (newCheered) item.cheersCount + 1 else (item.cheersCount - 1).coerceAtLeast(0)
+                                        proofList[idx] = item.copy(isCheered = newCheered, cheersCount = newCheers)
+                                    }
                                 }
                             )
                         }
@@ -380,12 +396,18 @@ fun DareDropScreen(
                         ProposedDareCard(
                             item = proposed,
                             onVoteClick = {
-                                proposed.hasVoted = !proposed.hasVoted
-                                if (proposed.hasVoted) {
-                                    proposed.votesCount++
-                                    Toast.makeText(context, "Voted for '${proposed.title}'! 🗳️", Toast.LENGTH_SHORT).show()
-                                } else {
-                                    proposed.votesCount--
+                                val repo = com.example.unilink.repository.DareDropRepository()
+                                repo.toggleVote(proposed.id)
+
+                                val idx = proposedDaresList.indexOfFirst { it.id == proposed.id }
+                                if (idx != -1) {
+                                    val item = proposedDaresList[idx]
+                                    val newVoted = !item.hasVoted
+                                    val newVotes = if (newVoted) item.votesCount + 1 else (item.votesCount - 1).coerceAtLeast(0)
+                                    proposedDaresList[idx] = item.copy(hasVoted = newVoted, votesCount = newVotes)
+                                    if (newVoted) {
+                                        Toast.makeText(context, "Voted for '${item.title}'! 🗳️", Toast.LENGTH_SHORT).show()
+                                    }
                                 }
                             }
                         )
