@@ -155,15 +155,6 @@ fun DareDropScreen(
     var selectedTab by remember { mutableIntStateOf(0) }
     var selectedFeedFilter by remember { mutableStateOf("All") }
 
-    // Countdown Timer state
-    var timeRemainingMillis by remember { mutableLongStateOf(28_800_000L) } // 8 hours countdown
-    LaunchedEffect(Unit) {
-        while (timeRemainingMillis > 0) {
-            delay(1000)
-            timeRemainingMillis -= 1000L
-        }
-    }
-
     // Community Proofs list with Instagram-style photo posts
     val proofList = remember {
         mutableStateListOf(
@@ -177,41 +168,26 @@ fun DareDropScreen(
                 likesCount = 34,
                 isLiked = false,
                 cheersCount = 12
-            ),
-            DareProofItem(
-                id = "p2",
-                authorName = "Ananya Roy",
-                authorDept = "Electronics",
-                timeAgo = "28m ago",
-                caption = "Petted the campus library cat 'Milo'! 🐱 High five mission complete!",
-                imageUrl = "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=800&auto=format&fit=crop",
-                likesCount = 58,
-                isLiked = true,
-                cheersCount = 24
-            ),
-            DareProofItem(
-                id = "p3",
-                authorName = "Vikram Das",
-                authorDept = "Mechanical Eng",
-                timeAgo = "1h ago",
-                caption = "Caught Dr. Sharma smiling for the high five selfie! 📸 +25 Coins!",
-                imageUrl = "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&auto=format&fit=crop",
-                likesCount = 19,
-                isLiked = false,
-                cheersCount = 8
-            ),
-            DareProofItem(
-                id = "p4",
-                authorName = "Priya Nair",
-                authorDept = "Biotech",
-                timeAgo = "2h ago",
-                caption = "High five with canteen uncle after scoring samosas! 🥟🔥",
-                imageUrl = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop",
-                likesCount = 42,
-                isLiked = true,
-                cheersCount = 15
             )
         )
+    }
+
+    // Countdown Timer & Real-time Firestore Proofs Sync
+    var timeRemainingMillis by remember { mutableLongStateOf(28_800_000L) } // 8 hours countdown
+    LaunchedEffect(Unit) {
+        // Subscribe to Cloud Firestore dare_proofs
+        val repo = com.example.unilink.repository.DareDropRepository()
+        repo.observeProofs { cloudProofs ->
+            if (cloudProofs.isNotEmpty()) {
+                proofList.clear()
+                proofList.addAll(cloudProofs)
+            }
+        }
+
+        while (timeRemainingMillis > 0) {
+            delay(1000)
+            timeRemainingMillis -= 1000L
+        }
     }
 
     // Proposed Dares list

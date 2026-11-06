@@ -76,6 +76,32 @@ class StorageRepository {
             }
     }
 
+    fun uploadDarePhoto(photoUri: Uri, onResult: (String) -> Unit) {
+        val st = storage
+        val bytes = getCompactBytesFromUri(photoUri)
+        if (st == null || bytes == null) {
+            onResult(photoUri.toString())
+            return
+        }
+        val filename = "daredrop_photos/photo_${System.currentTimeMillis()}_${UUID.randomUUID().toString().take(8)}.jpg"
+        val ref = st.reference.child(filename)
+
+        ref.putBytes(bytes)
+            .addOnSuccessListener {
+                ref.downloadUrl.addOnSuccessListener { downloadUri ->
+                    onResult(downloadUri.toString())
+                }.addOnFailureListener {
+                    val base64 = "data:image/jpeg;base64," + Base64.encodeToString(bytes, Base64.NO_WRAP)
+                    onResult(base64)
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("StorageRepository", "Photo storage error: ${e.message}, using Base64 fallback")
+                val base64 = "data:image/jpeg;base64," + Base64.encodeToString(bytes, Base64.NO_WRAP)
+                onResult(base64)
+            }
+    }
+
     private fun scaleBitmap(bitmap: Bitmap, maxWidth: Int, maxHeight: Int): Bitmap {
         val width = bitmap.width
         val height = bitmap.height
