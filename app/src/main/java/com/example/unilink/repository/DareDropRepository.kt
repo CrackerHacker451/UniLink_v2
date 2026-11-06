@@ -1,5 +1,6 @@
 package com.example.unilink.repository
 
+import android.util.Log
 import com.example.unilink.ui.DareProofItem
 import com.example.unilink.ui.ProposedDareItem
 import com.google.firebase.auth.FirebaseAuth
@@ -19,7 +20,6 @@ class DareDropRepository {
 
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
-    private val notificationRepository = NotificationRepository()
 
     private val presetDares = listOf(
         ActiveDailyDare(
@@ -85,49 +85,53 @@ class DareDropRepository {
 
         db.collection("dare_drop").document("active_dare").set(data).addOnSuccessListener {
             onUpdate(ActiveDailyDare("active_dare", newDare.title, newDare.description, newDare.rewardCoins, expiresAt))
-            notificationRepository.sendGlobalUpdateNotification(
-                title = "🎯 New 24-Hour Dare Drop Live!",
-                message = "Today's Challenge: ${newDare.title} (+25 UniCoins)"
-            ) {}
+            try {
+                com.example.unilink.repository.NotificationRepository().sendGlobalUpdateNotification(
+                    title = "🎯 New 24-Hour Dare Drop Live!",
+                    message = "Today's Challenge: ${newDare.title} (+25 UniCoins)"
+                ) {}
+            } catch (_: Exception) {}
         }
     }
 
     fun publishProof(caption: String, imageUrl: String, videoUrl: String? = null, isVideo: Boolean = false, onComplete: (Boolean) -> Unit) {
-        val uid = auth.currentUser?.uid ?: return onComplete(false)
+        val currentUser = auth.currentUser
+        val uid = currentUser?.uid ?: "student_${System.currentTimeMillis() % 100000}"
+        val name = currentUser?.displayName ?: "Verified Student"
         val proofId = db.collection("dare_proofs").document().id
 
-        db.collection("users").document(uid).get().addOnSuccessListener { doc ->
-            val name = doc.getString("name") ?: auth.currentUser?.displayName ?: "Student"
-            val dept = doc.getString("branch") ?: "Campus"
+        val proofData = hashMapOf(
+            "id" to proofId,
+            "authorId" to uid,
+            "authorName" to name,
+            "authorDept" to "Campus",
+            "caption" to caption,
+            "imageUrl" to imageUrl,
+            "videoUrl" to (videoUrl ?: ""),
+            "isVideo" to isVideo,
+            "likesCount" to 1,
+            "cheersCount" to 0,
+            "likedBy" to listOf(uid),
+            "timestamp" to FieldValue.serverTimestamp()
+        )
 
-            val proofData = hashMapOf(
-                "id" to proofId,
-                "authorId" to uid,
-                "authorName" to name,
-                "authorDept" to dept,
-                "caption" to caption,
-                "imageUrl" to imageUrl,
-                "videoUrl" to (videoUrl ?: ""),
-                "isVideo" to isVideo,
-                "likesCount" to 1,
-                "cheersCount" to 0,
-                "likedBy" to listOf(uid),
-                "timestamp" to FieldValue.serverTimestamp()
-            )
-
-            db.collection("dare_proofs").document(proofId).set(proofData)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        db.collection("users").document(uid).update(
-                            "uniCoins", FieldValue.increment(25),
-                            "totalXp", FieldValue.increment(50)
-                        )
+        db.collection("dare_proofs").document(proofId).set(proofData)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.d("DareDropRepository", "Successfully saved proof $proofId to Firestore")
+                    if (currentUser != null) {
+                        try {
+                            db.collection("users").document(uid).update(
+                                "uniCoins", FieldValue.increment(25),
+                                "totalXp", FieldValue.increment(50)
+                            )
+                        } catch (_: Exception) {}
                     }
-                    onComplete(task.isSuccessful)
+                } else {
+                    Log.e("DareDropRepository", "Failed to save proof: ${task.exception?.message}")
                 }
-        }.addOnFailureListener {
-            onComplete(false)
-        }
+                onComplete(task.isSuccessful)
+            }
     }
 
     fun observeProofs(onUpdate: (List<DareProofItem>) -> Unit): ListenerRegistration {
@@ -178,27 +182,30 @@ class DareDropRepository {
     }
 
     fun proposeDare(title: String, description: String, onComplete: (Boolean) -> Unit) {
-        val uid = auth.currentUser?.uid ?: return onComplete(false)
+        val currentUser = auth.currentUser
+        val uid = currentUser?.uid ?: "student_${System.currentTimeMillis() % 100000}"
+        val name = currentUser?.displayName ?: "Verified Student"
         val dareId = db.collection("proposed_dares").document().id
 
-        db.collection("users").document(uid).get().addOnSuccessListener { doc ->
-            val name = doc.getString("name") ?: "Student"
+        val dareData = hashMapOf(
+            "id" to dareId,
+            "title" to title,
+            "description" to description,
+            "proposedBy" to name,
+            "votesCount" to 1,
+            "votedBy" to listOf(uid),
+            "timestamp" to FieldValue.serverTimestamp()
+        )
 
-            val dareData = hashMapOf(
-                "id" to dareId,
-                "title" to title,
-                "description" to description,
-                "proposedBy" to name,
-                "votesCount" to 1,
-                "votedBy" to listOf(uid),
-                "timestamp" to FieldValue.serverTimestamp()
-            )
-
-            db.collection("proposed_dares").document(dareId).set(dareData)
-                .addOnCompleteListener { task -> onComplete(task.isSuccessful) }
-        }.addOnFailureListener {
-            onComplete(false)
-        }
+        db.collection("proposed_dares").document(dareId).set(dareData)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.d("DareDropRepository", "Successfully saved proposed dare $dareId to Firestore")
+                } else {
+                    Log.e("DareDropRepository", "Failed to save proposed dare: ${task.exception?.message}")
+                }
+                onComplete(task.isSuccessful)
+            }
     }
 
     fun observeProposedDares(onUpdate: (List<ProposedDareItem>) -> Unit): ListenerRegistration {

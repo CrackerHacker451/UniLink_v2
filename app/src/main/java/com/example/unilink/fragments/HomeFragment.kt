@@ -143,7 +143,7 @@ class HomeFragment : Fragment() {
     private fun setupClickListeners() {
         binding.btnSparklesHighlights.setOnClickListener {
             HapticUtils.playSelection(it)
-            Toast.makeText(context, "✨ Campus Highlights & Aura Spotlight Active!", Toast.LENGTH_SHORT).show()
+            showCampusDashboardSheet()
         }
 
         binding.btnLeaderboardHeader.setOnClickListener {
