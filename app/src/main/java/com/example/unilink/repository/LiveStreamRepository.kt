@@ -120,6 +120,23 @@ class LiveStreamRepository {
         )
     }
 
+    fun wipeOldLiveStreams(onComplete: () -> Unit) {
+        db.collection("live_streams").get().addOnSuccessListener { snapshot ->
+            val batch = db.batch()
+            for (doc in snapshot.documents) {
+                val isLive = doc.getBoolean("isLive") ?: false
+                if (!isLive) {
+                    batch.delete(doc.reference)
+                }
+            }
+            batch.commit().addOnCompleteListener {
+                onComplete()
+            }
+        }.addOnFailureListener {
+            onComplete()
+        }
+    }
+
     fun sendStreamChatMessage(streamId: String, text: String) {
         val uid = auth.currentUser?.uid ?: return
         if (streamId.isEmpty() || text.isBlank()) return

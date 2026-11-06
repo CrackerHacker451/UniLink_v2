@@ -23,23 +23,39 @@ class DareDropRepository {
 
     private val presetDares = listOf(
         ActiveDailyDare(
-            title = "Take a high-five selfie with a campus professor or library cat! 📸",
-            description = "High five a professor, canteen uncle, or library pet to earn +25 UniCoins!",
+            id = "d1",
+            title = "🤖 NPC Challenge: Act like a video game NPC for 30 seconds",
+            description = "Record a video acting like a video game NPC! UniAI will verify your video proof for +25 UniCoins & Star Badge!",
             rewardCoins = 25
         ),
         ActiveDailyDare(
-            title = "Deliver a wholesome whisper compliment in the quiet library zone 📚",
-            description = "Brighten someone's study session with a quiet compliment and post proof!",
+            id = "d2",
+            title = "💻 Developer Face: Recreate the face of a developer whose code just crashed",
+            description = "Post your hilarious reaction video/photo of code crashing! AI verified for +25 UniCoins!",
             rewardCoins = 25
         ),
         ActiveDailyDare(
-            title = "Moonwalk 5 steps in the main Quad hall! 🕺",
-            description = "Show off your retro dance moves in public for +25 UniCoins!",
+            id = "d3",
+            title = "🕺 Victory Dance: Perform a 10-second victory dance as if you just raised $10M",
+            description = "Dance like you just closed a $10M round at ETHGlobal Mumbai! AI verified for +25 UniCoins!",
             rewardCoins = 25
         ),
         ActiveDailyDare(
-            title = "Draw a funny mini face on your morning canteen cup ☕",
-            description = "Doodle a creative cup face and post your photo proof!",
+            id = "d4",
+            title = "🚀 ETHGlobal Meme: Create a funny meme about ETHGlobal Mumbai",
+            description = "Upload a legendary ETHGlobal Mumbai meme! AI verified for +25 UniCoins!",
+            rewardCoins = 25
+        ),
+        ActiveDailyDare(
+            id = "d5",
+            title = "💡 Startup Slogan: Create a hilarious slogan for a ridiculous startup",
+            description = "Pitch a ridiculous startup slogan! AI verified for +25 UniCoins!",
+            rewardCoins = 25
+        ),
+        ActiveDailyDare(
+            id = "d6",
+            title = "🤝 Find a Developer: Introduce yourself & exchange project ideas",
+            description = "Meet a developer from another college, exchange project ideas, and post video proof!",
             rewardCoins = 25
         )
     )
