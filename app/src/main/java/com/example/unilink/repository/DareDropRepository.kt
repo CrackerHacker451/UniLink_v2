@@ -276,4 +276,27 @@ class DareDropRepository {
             }
         }
     }
+
+    fun resetAllDareDropData(onComplete: (Boolean) -> Unit) {
+        db.collection("dare_proofs").get().addOnSuccessListener { snapshot ->
+            val batch = db.batch()
+            for (doc in snapshot.documents) {
+                batch.delete(doc.reference)
+            }
+            db.collection("proposed_dares").get().addOnSuccessListener { proposedSnap ->
+                for (doc in proposedSnap.documents) {
+                    batch.delete(doc.reference)
+                }
+                batch.commit().addOnCompleteListener { task ->
+                    onComplete(task.isSuccessful)
+                }
+            }.addOnFailureListener {
+                batch.commit().addOnCompleteListener { task ->
+                    onComplete(task.isSuccessful)
+                }
+            }
+        }.addOnFailureListener {
+            onComplete(false)
+        }
+    }
 }

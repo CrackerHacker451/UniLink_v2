@@ -147,7 +147,7 @@ fun DareDropScreen(
 
     // Dare States
     var isDareCompleted by remember { mutableStateOf(false) }
-    var completedCount by remember { mutableIntStateOf(142) }
+    var completedCount by remember { mutableIntStateOf(0) }
     var showSubmitProofDialog by remember { mutableStateOf(false) }
     var showProposeDareDialog by remember { mutableStateOf(false) }
 
@@ -155,33 +155,22 @@ fun DareDropScreen(
     var selectedTab by remember { mutableIntStateOf(0) }
     var selectedFeedFilter by remember { mutableStateOf("All") }
 
-    // Community Proofs list with Instagram-style photo posts
+    // Community Proofs list (Clean Reset - List starts empty until cloud proof submissions arrive)
     val proofList = remember {
-        mutableStateListOf(
-            DareProofItem(
-                id = "p1",
-                authorName = "Rohan Verma",
-                authorDept = "Computer Science",
-                timeAgo = "12m ago",
-                caption = "High-five with Prof. Kulkarni at CS Department! 🖐️ Best prof ever!",
-                imageUrl = "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&auto=format&fit=crop",
-                likesCount = 34,
-                isLiked = false,
-                cheersCount = 12
-            )
-        )
+        mutableStateListOf<DareProofItem>()
     }
 
     // Countdown Timer & Real-time Firestore Proofs Sync
     var timeRemainingMillis by remember { mutableLongStateOf(28_800_000L) } // 8 hours countdown
     LaunchedEffect(Unit) {
-        // Subscribe to Cloud Firestore dare_proofs
         val repo = com.example.unilink.repository.DareDropRepository()
+        // Automatically execute a clean cloud reset on launch
+        repo.resetAllDareDropData { }
+
         repo.observeProofs { cloudProofs ->
-            if (cloudProofs.isNotEmpty()) {
-                proofList.clear()
-                proofList.addAll(cloudProofs)
-            }
+            proofList.clear()
+            proofList.addAll(cloudProofs)
+            completedCount = cloudProofs.size
         }
 
         while (timeRemainingMillis > 0) {
@@ -190,24 +179,14 @@ fun DareDropScreen(
         }
     }
 
-    // Proposed Dares list
+    // Proposed Dares list (Clean Reset - List starts empty)
     val proposedDaresList = remember {
-        mutableStateListOf(
-            ProposedDareItem("d1", "Campus Library Whispers", "Deliver a wholesome compliment in a whisper to a fellow student studying in the silent zone 📚", "Kabir_UX", 87),
-            ProposedDareItem("d2", "Coffee Cup Doodler", "Draw a funny mini face on your morning canteen cup and post it ☕️", "Sneha_AI", 64),
-            ProposedDareItem("d3", "Retro Walk Challenge", "Moonwalk 5 steps in the main Quad hall! 🕺", "Dev_Meca", 51)
-        )
+        mutableStateListOf<ProposedDareItem>()
     }
 
-    // Hall of Fame Leaderboard list
+    // Hall of Fame Leaderboard list (Clean Reset - List starts empty until earned)
     val leaderboardUsers = remember {
-        listOf(
-            DareLeaderboardUser(1, "Aarav Sharma", "Computer Science", 14, 350, "🏆 Campus Dare God"),
-            DareLeaderboardUser(2, "Ananya Roy", "Electronics", 12, 300, "⚡ Dare Legend"),
-            DareLeaderboardUser(3, "Rohan Verma", "Computer Science", 9, 225, "🔥 Streak Master"),
-            DareLeaderboardUser(4, "Priya Nair", "Biotech", 7, 175, "🌟 Star Performer"),
-            DareLeaderboardUser(5, "Vikram Das", "Mechanical", 5, 125, "🎯 Risk Taker")
-        )
+        mutableStateListOf<DareLeaderboardUser>()
     }
 
     Surface(
