@@ -84,6 +84,8 @@ data class DareProofItem(
     val timeAgo: String,
     val caption: String,
     val imageUrl: Any? = null,
+    val videoUrl: String? = null,
+    val isVideo: Boolean = false,
     var likesCount: Int,
     var isLiked: Boolean = false,
     var cheersCount: Int = 0,
@@ -116,14 +118,30 @@ fun DareDropScreen(
 ) {
     val context = LocalContext.current
 
-    // Attached proof URI launcher
+    // Attached proof URI launchers (Photo & Video)
     var attachedImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
-    val proofPickerLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+    var attachedVideoUri by remember { mutableStateOf<android.net.Uri?>(null) }
+    var isVideoSelected by remember { mutableStateOf(false) }
+
+    val photoPickerLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
         contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
     ) { uri ->
         uri?.let {
             attachedImageUri = it
+            attachedVideoUri = null
+            isVideoSelected = false
             Toast.makeText(context, "Photo attached! 📸", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    val videoPickerLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            attachedVideoUri = it
+            attachedImageUri = null
+            isVideoSelected = true
+            Toast.makeText(context, "Video proof attached! 🎥", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -443,16 +461,41 @@ fun DareDropScreen(
             onDismissRequest = { showSubmitProofDialog = false },
             containerColor = AuraVioletDark,
             title = {
-                Text("📸 Submit Dare Proof", color = Color.White, fontWeight = FontWeight.Bold)
+                Text("🎥 Submit Dare Proof (Photo / Video)", color = Color.White, fontWeight = FontWeight.Bold)
             },
             text = {
                 Column {
                     Text(
-                        "Upload photo or selfie proof to earn +25 UniCoins & Campus Star Badge!",
+                        "Upload video or photo proof to earn +25 UniCoins & Campus Star Badge!",
                         color = Color.White.copy(alpha = 0.8f),
                         fontSize = 12.sp
                     )
                     Spacer(modifier = Modifier.height(12.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Button(
+                            onClick = { photoPickerLauncher.launch("image/*") },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(containerColor = if (!isVideoSelected && attachedImageUri != null) AuraPinkNeon else AuraGlassCardBg),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text("📸 Photo Proof", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        }
+
+                        Button(
+                            onClick = { videoPickerLauncher.launch("video/*") },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(containerColor = if (isVideoSelected && attachedVideoUri != null) AuraCyanNeon else AuraGlassCardBg),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text("🎥 Video Proof", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
 
                     Box(
                         modifier = Modifier
@@ -460,24 +503,27 @@ fun DareDropScreen(
                             .height(130.dp)
                             .clip(RoundedCornerShape(16.dp))
                             .background(AuraGlassCardBg)
-                            .border(1.dp, AuraGlassBorder, RoundedCornerShape(16.dp))
-                            .clickable {
-                                proofPickerLauncher.launch("image/*")
-                            },
+                            .border(1.dp, AuraGlassBorder, RoundedCornerShape(16.dp)),
                         contentAlignment = Alignment.Center
                     ) {
                         if (attachedImageUri != null) {
                             AsyncImage(
                                 model = attachedImageUri,
-                                contentDescription = "Attached Proof",
+                                contentDescription = "Attached Photo Proof",
                                 modifier = Modifier.fillMaxSize(),
                                 contentScale = ContentScale.Crop
                             )
+                        } else if (attachedVideoUri != null) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("🎥 Video Proof Ready!", color = AuraCyanNeon, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(attachedVideoUri?.lastPathSegment ?: "video_proof.mp4", color = Color.White.copy(alpha = 0.7f), fontSize = 10.sp)
+                            }
                         } else {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Icon(Icons.Default.CameraAlt, contentDescription = null, tint = AuraPinkNeon, modifier = Modifier.size(28.dp))
                                 Spacer(modifier = Modifier.height(6.dp))
-                                Text("Tap to select or capture photo proof", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                                Text("Select Photo or Video Proof Above", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Medium)
                             }
                         }
                     }
@@ -513,8 +559,10 @@ fun DareDropScreen(
                                 authorName = "You (Verified Student)",
                                 authorDept = "Campus Hero",
                                 timeAgo = "Just now",
-                                caption = captionText.ifEmpty { "Completed today's DareDrop challenge! 📸 high five!" },
-                                imageUrl = attachedImageUri ?: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&auto=format&fit=crop",
+                                caption = captionText.ifEmpty { if (isVideoSelected) "Completed today's DareDrop video challenge! 🎥🔥" else "Completed today's DareDrop challenge! 📸 high five!" },
+                                imageUrl = if (!isVideoSelected) (attachedImageUri ?: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&auto=format&fit=crop") else null,
+                                videoUrl = if (isVideoSelected) (attachedVideoUri?.toString() ?: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4") else null,
+                                isVideo = isVideoSelected,
                                 likesCount = 1,
                                 isLiked = true,
                                 isCurrentUser = true
@@ -806,8 +854,47 @@ fun DareProofCard(
                 }
             }
 
-            // Main Media Part (Instagram Post Style Photo)
-            if (proof.imageUrl != null) {
+            // Main Media Part (Instagram Post Style Photo or Video Proof)
+            if (proof.isVideo && !proof.videoUrl.isNullOrEmpty()) {
+                val context = LocalContext.current
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(280.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color(0xFF0F172A))
+                        .clickable {
+                            val intent = android.content.Intent(context, com.example.unilink.activities.MediaViewerActivity::class.java).apply {
+                                putExtra("mediaUrl", proof.videoUrl)
+                                putExtra("title", proof.authorName)
+                                putExtra("subtitle", "🎥 Dare Video Proof")
+                            }
+                            context.startActivity(intent)
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Surface(
+                            shape = CircleShape,
+                            color = AuraPinkNeon
+                        ) {
+                            Text(
+                                text = "▶",
+                                color = Color.White,
+                                fontSize = 24.sp,
+                                modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(
+                            text = "🎥 Tap to Play Video Proof",
+                            color = Color.White,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            } else if (proof.imageUrl != null) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
