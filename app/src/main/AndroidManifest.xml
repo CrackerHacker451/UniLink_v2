@@ -119,6 +119,18 @@
             </intent-filter>
         </service>
 
+        <activity
+            android:name=".worldid.HumanVerificationActivity"
+            android:exported="true"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="unilink" android:host="human-verified" />
+            </intent-filter>
+        </activity>
+
     </application>
 
 </manifest>

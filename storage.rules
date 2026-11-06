@@ -2,12 +2,14 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
 
+    // HUMAN GATE: only users whose token carries the server-issued `humanVerified` claim.
     function isAuthenticated() {
-      return request.auth != null;
+      return request.auth != null && request.auth.token.get('humanVerified', false) == true;
     }
 
+    // Owners may upload their own profile picture while finishing sign-up (before verification).
     function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
+      return request.auth != null && request.auth.uid == userId;
     }
 
     function isImage() {

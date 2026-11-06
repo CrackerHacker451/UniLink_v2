@@ -2,67 +2,32 @@ package com.example.unilink.trust
 
 import android.content.Context
 import android.util.Log
-import com.google.firebase.auth.FirebaseAuth
+import com.example.unilink.worldid.HumanGate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class WorldTrustManager(private val context: Context) {
 
     private val repository = WorldTrustRepository()
-    private val auth = FirebaseAuth.getInstance()
 
+    /**
+     * The reward requires a REAL, server-verified human (the `humanVerified` claim).
+     * There is no simulated scan here any more, and no path that grants the reward on an error.
+     */
     suspend fun executeRewardHumanProofFlow(
-        projectId: String = "newton-streak-day7-v1",
+        projectId: String = WorldTrustRepository.REWARD_ACTION,
         onProgress: (String, Float) -> Unit = { _, _ -> }
     ): RewardClaimResult = withContext(Dispatchers.IO) {
-        val uid = auth.currentUser?.uid ?: return@withContext RewardClaimResult(false, message = "Unauthenticated")
-
         try {
-            // Step 1: Request RP Signature Challenge from Backend
-            onProgress("Requesting RP Signature Challenge from Backend...", 0.15f)
-            val rpContext = repository.createRewardHumanChallenge(WorldTrustRepository.REWARD_ACTION)
-
-            // Step 2: World ID Orb Iris Scanner
-            onProgress("Connecting to World ID Orb Scanner... 🌐", 0.40f)
-            kotlinx.coroutines.delay(1000)
-
-            // Step 3: Orb Iris Biometric Scan
-            onProgress("Scanning Orb Iris Biometric Pattern... 👁️🌐", 0.70f)
-            kotlinx.coroutines.delay(1500)
-
-            // Step 4: Generate IDKit Result Payload
-            onProgress("Generating ZK Orb Proof of Human...", 0.85f)
-            kotlinx.coroutines.delay(1000)
-
-            val idkitResult = IdKitResultPayload(
-                protocolVersion = "4.0",
-                nonce = rpContext.nonce,
-                action = WorldTrustRepository.REWARD_ACTION,
-                environment = "production",
-                nullifier = "0x04e5f6_${uid.take(8)}_orb_nullifier",
-                credentialType = "orb"
-            )
-
-            // Step 5: Verify Proof with World ID Backend API and Store SHA-256 Nullifier Mapping
-            onProgress("Verifying Proof of Human with Developer Portal...", 0.95f)
-            val verifyResp = repository.verifyRewardHuman(rpContext.challengeId, idkitResult)
-
-            if (!verifyResp.success) {
-                return@withContext RewardClaimResult(false, message = verifyResp.message ?: "Verification failed")
+            onProgress("Checking your World ID verification...", 0.3f)
+            if (!HumanGate.isVerified(forceRefresh = true)) {
+                return@withContext RewardClaimResult(false, 0, false, "Verify with World ID first to claim this reward.")
             }
-
-            // Step 6: Atomic Reward Claim Execution
-            onProgress("Granting Day 7 Reward & Pro Pass...", 1.0f)
-            val claimResult = repository.claimDay7Reward()
-            claimResult
+            onProgress("Granting Day 7 Reward...", 1.0f)
+            repository.claimDay7Reward()
         } catch (e: Exception) {
-            Log.e("WorldTrustManager", "Proof flow error: ${e.message}")
-            RewardClaimResult(
-                success = true,
-                coinsAwarded = 150,
-                isProActivated = true,
-                message = "🔥 Day 7 Streak Reward Granted! +150 UniCoins & Pro Pass Active!"
-            )
+            Log.e("WorldTrustManager", "Reward flow error: ${e.message}")
+            RewardClaimResult(false, 0, false, "Could not complete the reward claim. Please try again.")
         }
     }
 }

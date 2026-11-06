@@ -15,6 +15,9 @@ import com.example.unilink.repository.UserRepository
 import com.example.unilink.utils.NotificationHelper
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
+import com.google.firebase.appcheck.FirebaseAppCheck
+import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory
+import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
@@ -56,6 +59,14 @@ class UniLinkApp : Application(), Application.ActivityLifecycleCallbacks, ImageL
     override fun onCreate() {
         super.onCreate()
         instance = this
+
+        // App Check: lets Firebase and our server reject scripts, agents calling the API directly,
+        // emulators and tampered copies of the app. Debug builds use the debug provider.
+        val debuggable = (applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0
+        FirebaseAppCheck.getInstance().installAppCheckProviderFactory(
+            if (debuggable) DebugAppCheckProviderFactory.getInstance()
+            else PlayIntegrityAppCheckProviderFactory.getInstance()
+        )
         
         // Enable vector support for older devices
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)

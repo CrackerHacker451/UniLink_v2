@@ -158,7 +158,7 @@ fun NewtonsLobbyTrustSheet(
                     ) {
                         Column(modifier = Modifier.padding(18.dp)) {
                             val cardTitle = if (tier == CredentialTier.PROOF_OF_HUMAN) "Verify Proof of Human (Account Tag) 🌐" else "Verify Selfie Check Liveness (Team Gate) 📸"
-                            val cardDesc = if (tier == CredentialTier.PROOF_OF_HUMAN) "Proof of Human verifies unique human identity to grant the Orbit Verified Student tag on your profile & posts." else "Selfie Check verifies live human presence via camera face frame alignment before publishing your squad."
+                            val cardDesc = if (tier == CredentialTier.PROOF_OF_HUMAN) "World ID confirms you are a unique human. The result is verified on our server." else "Selfie Check confirms a live human in World App (liveness and face match). The result is verified on our server."
 
                             Text(cardTitle, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(4.dp))
@@ -180,86 +180,35 @@ fun NewtonsLobbyTrustSheet(
                                 Text(btnText, color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                             }
 
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            OutlinedButton(
-                                onClick = { viewModel.triggerFallbackPath(projectId) },
-                                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
-                                shape = RoundedCornerShape(14.dp),
-                                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0x33FFFFFF)),
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text("Use Guest Queue (0.2x Weight Fallback)", color = Color.White.copy(0.8f), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-                            }
                         }
                     }
                 }
 
-                is TrustUiState.ScanningFace -> {
-                    val infiniteTransition = rememberInfiniteTransition()
-                    val laserAlpha by infiniteTransition.animateFloat(
-                        initialValue = 0.4f,
-                        targetValue = 1.0f,
-                        animationSpec = infiniteRepeatable(
-                            animation = tween(600, easing = FastOutSlowInEasing),
-                            repeatMode = RepeatMode.Reverse
-                        )
-                    )
-
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(20.dp),
-                        color = Color(0x2B06B6D4),
-                        border = androidx.compose.foundation.BorderStroke(1.5.dp, Color(0xFF06B6D4).copy(alpha = laserAlpha))
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(20.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(170.dp)
-                                    .clip(CircleShape)
-                                    .background(Color.Black)
-                                    .border(3.dp, Color(0xFF06B6D4).copy(alpha = laserAlpha), CircleShape),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                LiveCameraPreview(modifier = Modifier.fillMaxSize())
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .border(2.dp, Color(0xFF06B6D4), CircleShape)
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            Text(state.promptMessage, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
-
-                            Spacer(modifier = Modifier.height(12.dp))
-
-                            LinearProgressIndicator(
-                                progress = { state.progressRatio },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(6.dp)
-                                    .clip(RoundedCornerShape(3.dp)),
-                                color = Color(0xFF06B6D4),
-                                trackColor = Color(0x3306B6D4)
-                            )
-                        }
-                    }
-                }
-
-                is TrustUiState.VerifyingLiveness -> {
+                is TrustUiState.Checking -> {
                     Column(
-                        modifier = Modifier.padding(28.dp),
+                        modifier = Modifier.fillMaxWidth().padding(28.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         CircularProgressIndicator(color = Color(0xFF06B6D4), modifier = Modifier.size(40.dp))
                         Spacer(modifier = Modifier.height(14.dp))
-                        Text("Verifying Zero-Knowledge Liveness Proof...", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                        Text("Validating Merkle Root & Nullifier Hash on-chain", color = Color(0xFF06B6D4), fontSize = 11.sp)
+                        Text("Checking your World ID status...", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+
+                is TrustUiState.Failed -> {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(20.dp),
+                        color = Color(0x2BEF4444),
+                        border = androidx.compose.foundation.BorderStroke(1.5.dp, Color(0xFFEF4444))
+                    ) {
+                        Column(modifier = Modifier.padding(18.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("Verification not completed", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(state.message, color = Color.White.copy(0.7f), fontSize = 12.sp, textAlign = TextAlign.Center)
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Button(onClick = { viewModel.resetState() }) { Text("Try again") }
+                        }
                     }
                 }
 
@@ -276,9 +225,9 @@ fun NewtonsLobbyTrustSheet(
                         ) {
                             Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color(0xFF10B981), modifier = Modifier.size(44.dp))
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text("100% Liveness Verified! 🚀", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                            Text("Human verified", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(4.dp))
-                            Text("Sybil Score: ${state.sybilScore}/10 • Boost Weight: ${state.weight}", color = Color(0xFF10B981), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                            Text("Confirmed by World ID", color = Color(0xFF10B981), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
 
                             Spacer(modifier = Modifier.height(10.dp))
 
@@ -291,40 +240,6 @@ fun NewtonsLobbyTrustSheet(
                         }
                     }
                 }
-
-                is TrustUiState.FallbackActive -> {
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(20.dp),
-                        color = Color(0x2B8B5CF6),
-                        border = androidx.compose.foundation.BorderStroke(1.5.dp, Color(0xFF8B5CF6))
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(18.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Icon(Icons.Default.Info, contentDescription = null, tint = Color(0xFF8B5CF6), modifier = Modifier.size(36.dp))
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text("Quadratic Guest Queue Active (0.2x Weight)", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(state.reason, color = Color.White.copy(0.7f), fontSize = 11.sp, textAlign = TextAlign.Center)
-                        }
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-            HorizontalDivider(color = Color(0x33FFFFFF))
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Re-verify / Reset Action
-            OutlinedButton(
-                onClick = { viewModel.resetState() },
-                shape = RoundedCornerShape(10.dp),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0x33FFFFFF)),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("🔄 Reset Verification (Start Liveness Scan Over)", color = Color.White.copy(0.8f), fontSize = 11.sp, fontWeight = FontWeight.Medium)
             }
         }
     }

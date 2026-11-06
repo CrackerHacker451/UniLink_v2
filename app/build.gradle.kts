@@ -92,6 +92,8 @@ dependencies {
     implementation(libs.firebase.storage)
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.installations)
+    implementation(libs.firebase.appcheck.playintegrity)
+    implementation(libs.firebase.appcheck.debug)
     implementation(libs.play.integrity)
 
     // Lifecycle & KTX

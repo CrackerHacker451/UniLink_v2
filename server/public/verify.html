@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Verify with World ID</title>
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; background: #0d1117; color: #fff; display: flex; min-height: 100vh; align-items: center; justify-content: center; }
+    main { max-width: 360px; padding: 24px; text-align: center; }
+    h1 { font-size: 20px; margin: 0 0 12px; }
+    p { color: #b6c2cf; font-size: 14px; line-height: 1.5; }
+    button { margin-top: 12px; padding: 12px 18px; border: 0; border-radius: 12px; background: #06b6d4; color: #000; font-weight: 700; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Verify you’re a real human</h1>
+    <p id="msg">Preparing…</p>
+    <button id="open" hidden>Open World App</button>
+    <button id="retry" hidden>Try again</button>
+  </main>
+  <!-- Pinned official IDKit browser bundle (exposes window.IDKit) -->
+  <script src="https://cdn.jsdelivr.net/npm/@worldcoin/idkit-core@4.6.0/dist/idkit.global.js"></script>
+  <script src="verify.js"></script>
+</body>
+</html>
