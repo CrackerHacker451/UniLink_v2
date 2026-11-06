@@ -92,10 +92,28 @@ class HumanVerificationActivity : AppCompatActivity() {
         webView.settings.allowContentAccess = false
         webView.addJavascriptInterface(Bridge(), "UniLinkBridge")
         webView.webViewClient = object : WebViewClient() {
-            // Only our own verification page may load inside this WebView; anything else is blocked.
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                 val allowed = Uri.parse(baseUrl)
-                return !(request.url.scheme == allowed.scheme && request.url.host == allowed.host)
+                val urlStr = request.url.toString()
+                val scheme = request.url.scheme ?: ""
+
+                if (scheme == "worldapp" || scheme == "worldcoin" || urlStr.contains("worldcoin.org") || urlStr.contains("world.org") || urlStr.contains("world.app")) {
+                    try {
+                        val intent = Intent(Intent.ACTION_VIEW, request.url).apply {
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+                        startActivity(intent)
+                    } catch (_: Exception) {
+                        try {
+                            val webUri = Uri.parse(if (urlStr.startsWith("worldapp://")) urlStr.replace("worldapp://", "https://worldcoin.org/") else urlStr)
+                            startActivity(Intent(Intent.ACTION_VIEW, webUri).apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) })
+                        } catch (_: Exception) {
+                            show("World App could not be opened. Install World App and try again.")
+                        }
+                    }
+                    return true
+                }
+                return !(scheme == allowed.scheme && request.url.host == allowed.host)
             }
         }
 
