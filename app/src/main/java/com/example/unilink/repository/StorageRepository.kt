@@ -78,23 +78,30 @@ class StorageRepository {
         val fileToUpload = if (localFile != null && localFile.exists()) Uri.fromFile(localFile) else videoUri
 
         if (st == null) {
-            onResult(fileToUpload.toString())
+            Log.e("StorageRepository", "Firebase Storage is null during video upload")
+            onResult(null)
             return
         }
+
         val filename = "daredrop_videos/video_${System.currentTimeMillis()}_${UUID.randomUUID().toString().take(8)}.mp4"
         val ref = st.reference.child(filename)
+        val metadata = com.google.firebase.storage.StorageMetadata.Builder()
+            .setContentType("video/mp4")
+            .build()
 
-        ref.putFile(fileToUpload)
+        ref.putFile(fileToUpload, metadata)
             .addOnSuccessListener {
                 ref.downloadUrl.addOnSuccessListener { downloadUri ->
+                    Log.d("StorageRepository", "Successfully uploaded video proof: $downloadUri")
                     onResult(downloadUri.toString())
-                }.addOnFailureListener {
-                    onResult(fileToUpload.toString())
+                }.addOnFailureListener { e ->
+                    Log.e("StorageRepository", "Failed to get download URL: ${e.message}")
+                    onResult(null)
                 }
             }
             .addOnFailureListener { e ->
-                Log.e("StorageRepository", "Video upload error: ${e.message}, using local URI fallback")
-                onResult(fileToUpload.toString())
+                Log.e("StorageRepository", "Video upload failed: ${e.message}")
+                onResult(null)
             }
     }
 

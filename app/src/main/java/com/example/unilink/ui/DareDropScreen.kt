@@ -544,17 +544,22 @@ fun DareDropScreen(
                         val finalCaption = captionText.ifEmpty { if (isVideoSelected) "Completed today's DareDrop video challenge! 🎥🔥" else "Completed today's DareDrop challenge! 📸 high five!" }
 
                         if (isVideoSelected && attachedVideoUri != null) {
-                            Toast.makeText(context, "Analyzing video proof with UniAI 0G Computer... 🤖🎥", Toast.LENGTH_SHORT).show()
-                            com.example.unilink.repository.StorageRepository().uploadDareVideo(context, attachedVideoUri!!) { cloudVideoUrl ->
-                                com.example.unilink.repository.DareDropRepository().publishProof(
-                                    caption = finalCaption,
-                                    imageUrl = "",
-                                    videoUrl = cloudVideoUrl,
-                                    isVideo = true
-                                ) { success ->
-                                    if (success) {
-                                        Toast.makeText(context, "🤖 UniAI 0G Verified Video Proof! +25 🪙", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Uploading video proof & analyzing with UniAI 0G Computer... 🤖🎥", Toast.LENGTH_SHORT).show()
+                            val selectedVideoUri = attachedVideoUri!!
+                            com.example.unilink.repository.StorageRepository().uploadDareVideo(context, selectedVideoUri) { cloudVideoUrl ->
+                                if (!cloudVideoUrl.isNullOrEmpty()) {
+                                    com.example.unilink.repository.DareDropRepository().publishProof(
+                                        caption = finalCaption,
+                                        imageUrl = "",
+                                        videoUrl = cloudVideoUrl,
+                                        isVideo = true
+                                    ) { success ->
+                                        if (success) {
+                                            Toast.makeText(context, "🤖 UniAI 0G Verified Video Proof! +25 🪙", Toast.LENGTH_SHORT).show()
+                                        }
                                     }
+                                } else {
+                                    Toast.makeText(context, "Video upload failed. Check connection and try again.", Toast.LENGTH_LONG).show()
                                 }
                             }
                         } else if (attachedImageUri != null) {
@@ -573,25 +578,7 @@ fun DareDropScreen(
                             }
                         }
 
-                        // Local immediate feedback
-                        proofList.add(
-                            0,
-                            DareProofItem(
-                                id = "my_p_${System.currentTimeMillis()}",
-                                authorName = "You (Verified Student)",
-                                authorDept = "Campus Hero",
-                                timeAgo = "Just now",
-                                caption = finalCaption,
-                                imageUrl = if (!isVideoSelected) attachedImageUri else null,
-                                videoUrl = if (isVideoSelected) attachedVideoUri?.toString() else null,
-                                isVideo = isVideoSelected,
-                                likesCount = 1,
-                                isLiked = true,
-                                isCurrentUser = true
-                            )
-                        )
-
-                        Toast.makeText(context, "Dare Completed! Earned +25 UniCoins 🏆", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "Dare Submitted! UniCoins & XP Updated 🏆", Toast.LENGTH_SHORT).show()
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = AuraPinkNeon)
                 ) {
@@ -888,7 +875,6 @@ fun DareProofCard(
                         androidx.compose.ui.viewinterop.AndroidView(
                             factory = { ctx ->
                                 android.widget.VideoView(ctx).apply {
-                                    setVideoURI(android.net.Uri.parse(proof.videoUrl))
                                     val controller = android.widget.MediaController(ctx)
                                     controller.setAnchorView(this)
                                     setMediaController(controller)
@@ -896,6 +882,18 @@ fun DareProofCard(
                                         mp.isLooping = true
                                         start()
                                     }
+                                    setOnErrorListener { _, _, _ ->
+                                        android.util.Log.e("DareDropVideo", "Playback error for video: ${proof.videoUrl}")
+                                        true
+                                    }
+                                }
+                            },
+                            update = { videoView ->
+                                try {
+                                    videoView.setVideoURI(android.net.Uri.parse(proof.videoUrl))
+                                    videoView.start()
+                                } catch (e: Exception) {
+                                    android.util.Log.e("DareDropVideo", "VideoView update error: ${e.message}")
                                 }
                             },
                             modifier = Modifier.fillMaxSize()
