@@ -73,7 +73,17 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // World ID human gate temporarily paused for community onboarding
+        // World ID human gate: check if verified or skipped for 24 hours
+        lifecycleScope.launch {
+            val isVerified = com.example.unilink.worldid.HumanGate.isVerified()
+            val isSnoozed = com.example.unilink.worldid.HumanGate.isSnoozedActive(this@MainActivity)
+
+            if (!isVerified && !isSnoozed) {
+                startActivity(Intent(this@MainActivity, com.example.unilink.worldid.HumanVerificationActivity::class.java))
+                finish()
+            }
+        }
+
         requestNotificationPermission()
 
         binding = ActivityMainBinding.inflate(layoutInflater)
