@@ -73,12 +73,9 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // World ID human gate: check if verified or skipped for 24 hours
+        // World ID human gate: check if verified
         lifecycleScope.launch {
-            val isVerified = com.example.unilink.worldid.HumanGate.isVerified()
-            val isSnoozed = com.example.unilink.worldid.HumanGate.isSnoozedActive(this@MainActivity)
-
-            if (!isVerified && !isSnoozed) {
+            if (!com.example.unilink.worldid.HumanGate.isVerified()) {
                 startActivity(Intent(this@MainActivity, com.example.unilink.worldid.HumanVerificationActivity::class.java))
                 finish()
             }
