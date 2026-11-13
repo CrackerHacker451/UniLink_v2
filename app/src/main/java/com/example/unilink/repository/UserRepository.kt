@@ -31,6 +31,10 @@ class UserRepository {
             .addOnSuccessListener { document ->
                 val user = document.toObject(User::class.java)
                 if (user != null) {
+                    if (user.uniCoins > 5000) {
+                        user.uniCoins = 5000
+                        db.collection("users").document(user.uid).update("uniCoins", 5000)
+                    }
                     checkAndUpdateStreak(user) { updatedUser ->
                         onResult(updatedUser)
                     }
@@ -416,8 +420,40 @@ class UserRepository {
 
     fun addUniCoins(amount: Int, onComplete: (Boolean) -> Unit) {
         val uid = auth.currentUser?.uid ?: return onComplete(false)
-        db.collection("users").document(uid).update("uniCoins", com.google.firebase.firestore.FieldValue.increment(amount.toLong()))
-            .addOnCompleteListener { onComplete(it.isSuccessful) }
+        db.collection("users").document(uid).get().addOnSuccessListener { doc ->
+            val currentCoins = doc.getLong("uniCoins") ?: 0L
+            val newCoins = (currentCoins + amount.toLong()).coerceAtMost(5000L).coerceAtLeast(0L)
+            db.collection("users").document(uid).update("uniCoins", newCoins)
+                .addOnCompleteListener { onComplete(it.isSuccessful) }
+        }.addOnFailureListener {
+            onComplete(false)
+        }
+    }
+
+    fun deductUniCoins(amount: Int, onComplete: (Boolean, String?) -> Unit) {
+        val uid = auth.currentUser?.uid ?: return onComplete(false, "Not logged in")
+        db.collection("users").document(uid).get().addOnSuccessListener { doc ->
+            val currentCoins = doc.getLong("uniCoins") ?: 0L
+            if (currentCoins < amount) {
+                onComplete(false, "Insufficient UniCoins balance ($amount required)")
+                return@addOnSuccessListener
+            }
+            val newCoins = (currentCoins - amount.toLong()).coerceAtLeast(0L)
+            db.collection("users").document(uid).update("uniCoins", newCoins)
+                .addOnSuccessListener { onComplete(true, "Successfully spent $amount UniCoins!") }
+                .addOnFailureListener { onComplete(false, it.message) }
+        }.addOnFailureListener {
+            onComplete(false, "Failed to connect to user wallet")
+        }
+    }
+
+    fun sanitizeUserUniCoins(uid: String) {
+        db.collection("users").document(uid).get().addOnSuccessListener { doc ->
+            val coins = doc.getLong("uniCoins") ?: 0L
+            if (coins > 5000L) {
+                db.collection("users").document(uid).update("uniCoins", 5000L)
+            }
+        }
     }
 
     fun activatePremium(onComplete: (Boolean) -> Unit) {
