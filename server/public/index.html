@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Newton's Lobby — Campus Operating System & AI Trust Layer</title>
+  <link rel="icon" href="https://img.icons8.com/isometric-folders/100/graduation-cap.png">
+  <style>
+    :root {
+      --bg-dark: #0d1117;
+      --card-bg: #161b22;
+      --card-border: rgba(48, 54, 61, 0.8);
+      --cyan-neon: #06b6d4;
+      --pink-neon: #ec4899;
+      --lime-neon: #84cc16;
+      --gold-neon: #f59e0b;
+      --text-primary: #f0f6fc;
+      --text-secondary: #8b949e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+    .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 20px;
+      color: #fff;
+    }
+    .logo-badge {
+      background: rgba(6, 182, 212, 0.15);
+      color: var(--cyan-neon);
+      border: 1px solid var(--cyan-neon);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+    }
+    nav { display: flex; gap: 10px; }
+    .nav-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-primary);
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .nav-btn.active, .nav-btn:hover {
+      background: var(--cyan-neon);
+      color: #000;
+      border-color: var(--cyan-neon);
+    }
+
+    /* Hero Banner */
+    .hero-card {
+      background: linear-gradient(135deg, #1e1b4b 0%, #31103e 50%, #0d1117 100%);
+      border: 1px solid var(--cyan-neon);
+      border-radius: 24px;
+      padding: 32px;
+      margin: 24px 0;
+      box-shadow: 0 10px 30px rgba(6, 182, 212, 0.15);
+    }
+    .hero-title { font-size: 28px; font-weight: 900; margin: 0 0 10px; background: linear-gradient(90deg, #fff, var(--cyan-neon)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero-sub { color: var(--text-secondary); font-size: 14px; margin-bottom: 20px; }
+
+    .status-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+    .chip { background: rgba(22, 27, 34, 0.8); border: 1px solid var(--card-border); padding: 6px 12px; border-radius: 16px; font-size: 12px; font-weight: 600; }
+    .chip-cyan { border-color: var(--cyan-neon); color: var(--cyan-neon); }
+    .chip-lime { border-color: var(--lime-neon); color: var(--lime-neon); }
+    .chip-gold { border-color: var(--gold-neon); color: var(--gold-neon); }
+
+    .btn-group { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-primary { background: var(--cyan-neon); color: #000; border: none; padding: 12px 24px; border-radius: 14px; font-weight: 800; font-size: 14px; cursor: pointer; }
+    .btn-secondary { background: var(--pink-neon); color: #fff; border: none; padding: 12px 24px; border-radius: 14px; font-weight: 800; font-size: 14px; cursor: pointer; }
+
+    /* Sections Grid */
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1f)); gap: 20px; margin-bottom: 32px; }
+    .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px; padding: 24px; }
+    .card-title { font-size: 16px; font-weight: 800; margin: 0 0 12px; display: flex; align-items: center; justify-content: space-between; }
+
+    /* Terminal Prompt Box */
+    .terminal { background: #080c10; border: 1px solid var(--card-border); border-radius: 12px; padding: 16px; font-family: monospace; font-size: 13px; color: #a5d6ff; height: 180px; overflow-y: auto; margin-bottom: 12px; }
+    .input-row { display: flex; gap: 8px; }
+    .input-box { flex: 1; background: #080c10; border: 1px solid var(--card-border); color: #fff; padding: 10px 14px; border-radius: 10px; font-size: 13px; }
+
+    /* DareDrop Banner */
+    .dare-box { background: linear-gradient(135deg, #831843, #31103e); border: 1px solid var(--pink-neon); border-radius: 16px; padding: 18px; margin-bottom: 16px; }
+    .timer-badge { background: rgba(0,0,0,0.4); color: var(--gold-neon); padding: 4px 10px; border-radius: 10px; font-size: 12px; font-weight: bold; }
+
+    /* Footer */
+    footer { text-align: center; padding: 32px 0; border-top: 1px solid var(--card-border); color: var(--text-secondary); font-size: 13px; }
+    footer a { color: var(--cyan-neon); text-decoration: none; margin: 0 8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        🎓 Newton's Lobby
+        <span class="logo-badge">v1.5 Live</span>
+      </div>
+      <nav>
+        <button class="nav-btn active" onclick="showTab('home')">Home 🏠</button>
+        <button class="nav-btn" onclick="showTab('daredrop')">DareDrop Arena 🎯</button>
+        <button class="nav-btn" onclick="showTab('uniai')">UniAI Copilot 🤖</button>
+        <button class="nav-btn" onclick="showTab('vault')">Study Vault 📚</button>
+      </nav>
+    </header>
+
+    <!-- Hero Banner -->
+    <div class="hero-card">
+      <h1 class="hero-title">Newton's Lobby — The Campus OS & AI Trust Layer</h1>
+      <p class="hero-sub">The unrestricted, privacy-preserving campus platform for modern university students. Verified by World ID 4.0, 0G Private Computer ZK AI, and Arkiv Network DB-Chains.</p>
+
+      <div class="status-chips">
+        <span class="chip chip-lime">🌐 World ID 4.0: app_23a9608a2238c...</span>
+        <span class="chip chip-cyan">🤖 0G Private Computer: 0gm-1.0</span>
+        <span class="chip chip-gold">🗄️ Arkiv DB-Chain: 0x3F89a019b881...</span>
+        <span class="chip chip-lime">🪙 Wallet: 5,000 UniCoins Max</span>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn-primary" onclick="launchAndroidApk()">Download Android APK 📲</button>
+        <button class="btn-secondary" onclick="openWorldIdVerify()">Verify World ID 🌐</button>
+      </div>
+    </div>
+
+    <!-- MAIN TAB 1: HOME & ARENA -->
+    <div id="tab-home" class="tab-content">
+      <div class="grid">
+        <!-- DareDrop Active Challenge -->
+        <div class="card" style="grid-column: span 2;">
+          <div class="card-title">
+            <span>🎯 Active 30-Min DareDrop Challenge</span>
+            <span class="timer-badge" id="dare-timer">Next Dare in 28:45</span>
+          </div>
+
+          <div class="dare-box">
+            <h3 id="dare-title" style="margin:0 0 6px; color:#fff; font-size:16px;">1. NPC Challenge: Act like a video game NPC for 30 seconds</h3>
+            <p id="dare-desc" style="margin:0; color:#cbd5e1; font-size:13px;">Record a video acting like a video game NPC! 0G ZK Computer Vision will inspect your proof for +25 UniCoins & Star Badge!</p>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:var(--gold-neon); font-weight:bold; font-size:13px;">Reward: +25 UniCoins + Star Badge 🌟</span>
+            <button class="btn-primary" style="padding:8px 16px; font-size:12px;" onclick="submitProof()">Submit Video Proof 🎥</button>
+          </div>
+        </div>
+
+        <!-- 0G iAI Compute Wallet -->
+        <div class="card">
+          <div class="card-title">
+            <span>🤖 0G iAI Compute Wallet</span>
+            <span class="chip chip-cyan">0G CP Live</span>
+          </div>
+          <p style="font-size:13px; color:var(--text-secondary);">Daily ZK AI compute credit balance for model execution and lecture note scans.</p>
+          <div style="background:#080c10; padding:16px; border-radius:12px; border:1px solid var(--card-border); margin-bottom:12px;">
+            <div style="font-size:22px; font-weight:900; color:var(--cyan-neon);">1.271 iAI Credits</div>
+            <div style="font-size:11px; color:var(--text-secondary);">Staked Balance • 0G EVM Chain</div>
+          </div>
+          <button class="btn-primary" style="width:100%; font-size:12px;" onclick="showTab('uniai')">Open UniAI Terminal 💬</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN TAB 2: UNIAI COPILOT -->
+    <div id="tab-uniai" class="tab-content" style="display:none;">
+      <div class="card">
+        <div class="card-title">
+          <span>🤖 UniAI Study Copilot (Powered by 0G Private Computer)</span>
+          <span class="chip chip-cyan">0gm-1.0 / qwen-omni</span>
+        </div>
+        <div class="terminal" id="ai-terminal">
+          [0G Private Computer ZK AI System Initialized]
+          > Model: 0gm-1.0 (Qwen-Omni Verifiable Inference)
+          > Request ID: 0g_req_17322049_zkProof
+          > Status: Ready for student queries...
+
+          UniAI: Hello Student! Ask me any calculus question, code debug request, or syllabus explanation!
+        </div>
+        <div class="input-row">
+          <input type="text" class="input-box" id="ai-input" placeholder="Ask UniAI anything (e.g. Solve calculus derivative, debug C++ code)...">
+          <button class="btn-primary" onclick="sendAiQuery()">Send Prompt 🚀</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN TAB 3: STUDY VAULT -->
+    <div id="tab-vault" class="tab-content" style="display:none;">
+      <div class="card">
+        <div class="card-title">
+          <span>📚 Campus Study Vault (Arkiv DB-Chain & Swarm Storage)</span>
+          <span class="chip chip-gold">@arkiv-network/sdk</span>
+        </div>
+        <p style="font-size:13px; color:var(--text-secondary);">All course notes and PDF manuals are indexed on-chain with 30-day time-scoped expiration policies.</p>
+
+        <div style="display:flex; flex-direction:column; gap:10px; margin-top:16px;">
+          <div style="background:#080c10; padding:14px; border-radius:12px; border:1px solid var(--card-border); display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-weight:bold; font-size:14px;">Calculus III Verified Lecture Notes</div>
+              <div style="font-size:11px; color:var(--text-secondary);">Author: 0x3F89a019b88127cA... • Expiration: 30 Days (On-Chain)</div>
+            </div>
+            <button class="btn-primary" style="padding:6px 12px; font-size:11px;" onclick="downloadVaultFile('bzz://7a8b9c0d...')">Swarm BZZ Download 📄</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      Newton's Lobby Student Platform • <a href="/safety.html" target="_blank">Child Safety & CSAE Policy</a> • <a href="https://github.com/CrackerHacker451/UniLink_v2" target="_blank">GitHub Repository</a> • Contact: dtgtgm@gmail.com
+    </footer>
+  </div>
+
+  <script>
+    function showTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+
+      const selected = document.getElementById('tab-' + tabName);
+      if (selected) selected.style.display = 'block';
+    }
+
+    function launchAndroidApk() {
+      window.location.href = 'https://github.com/CrackerHacker451/UniLink_v2/releases/download/v2.0/app-debug.apk';
+    }
+
+    function openWorldIdVerify() {
+      window.location.href = '/verify.html';
+    }
+
+    function sendAiQuery() {
+      const input = document.getElementById('ai-input');
+      const terminal = document.getElementById('ai-terminal');
+      if (!input.value.trim()) return;
+
+      const q = input.value.trim();
+      terminal.innerHTML += `<br><span style="color:#06b6d4;">User > ${q}</span>`;
+      input.value = '';
+
+      setTimeout(() => {
+        terminal.innerHTML += `<br><span style="color:#84cc16;">UniAI 0G > [ZK Verified Response] Here is the step-by-step solution for your query! All formulas and code logic verified.</span>`;
+        terminal.scrollTop = terminal.scrollHeight;
+      }, 800);
+    }
+
+    function submitProof() {
+      alert("🤖 UniAI 0G ZK Computer Vision Proof Analyzer Ready! Upload your photo/video proof in the Android app to earn +25 UniCoins!");
+    }
+
+    function downloadVaultFile(bzzRef) {
+      alert("📥 Downloading AES-256 encrypted lecture file from Swarm BZZ reference: " + bzzRef);
+    }
+
+    // 30-Minute Midnight Dare Rotation Timer
+    const dares = [
+      { title: "1. NPC Challenge: Act like a video game NPC for 30 seconds", desc: "Record a video acting like a video game NPC! 0G ZK Computer Vision will inspect your proof for +25 UniCoins & Star Badge!" },
+      { title: "2. Developer Face Challenge: Recreate the face of a developer whose code just crashed", desc: "Post your hilarious reaction video/photo of code crashing! AI verified for +25 UniCoins!" },
+      { title: "3. Victory Dance: Perform a 10-second victory dance as if you just raised $10 million", desc: "Dance like you just closed a $10M round at ETHGlobal Mumbai! AI verified for +25 UniCoins!" },
+      { title: "4. ETHGlobal Meme: Create a funny meme about ETHGlobal Mumbai", desc: "Upload a legendary ETHGlobal Mumbai meme! AI verified for +25 UniCoins!" },
+      { title: "5. Funny Startup Slogan: Create a hilarious slogan for a completely ridiculous startup", desc: "Pitch a ridiculous startup slogan! AI verified for +25 UniCoins!" },
+      { title: "6. Find a Developer: Find someone from another college, introduce yourself, and exchange project ideas", desc: "Meet a developer from another college, exchange project ideas, and post video proof!" }
+    ];
+
+    function updateDareTimer() {
+      const now = new Date();
+      const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+      const elapsedMs = Math.max(0, now.getTime() - midnight.getTime());
+      const periodMs = 30 * 60 * 1000;
+      const index = Math.floor(elapsedMs / periodMs) % dares.size || Math.floor(elapsedMs / periodMs) % dares.length;
+      const remainingMs = periodMs - (elapsedMs % periodMs);
+
+      const mins = Math.floor(remainingMs / 60000);
+      const secs = Math.floor((remainingMs % 60000) / 1000);
+
+      document.getElementById('dare-title').textContent = dares[index].title;
+      document.getElementById('dare-desc').textContent = dares[index].desc;
+      document.getElementById('dare-timer').textContent = `Next Dare in ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    setInterval(updateDareTimer, 1000);
+    updateDareTimer();
+  </script>
+</body>
+</html>
