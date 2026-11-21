@@ -92,16 +92,31 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun signInWithNewton(username: String, password: String) {
-        val email = "$username@nl-lobby.app"
-        showLoading(show = true, status = "Verifying with Newton's Lobby...")
-        
-        auth.signInWithEmailAndPassword(email, password)
+        val cleanUsername = username.lowercase().replace(" ", "")
+        val email = "$cleanUsername@nl-lobby.app"
+        val safePassword = if (password.length < 6) "${password}123456" else password
+        showLoading(show = true, status = "Connecting to Newton's Lobby...")
+
+        auth.signInWithEmailAndPassword(email, safePassword)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     handleUserSync()
                 } else {
-                    showLoading(show = false)
-                    Toast.makeText(this, "Login Failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                    // Auto-create account for new campus students
+                    auth.createUserWithEmailAndPassword(email, safePassword)
+                        .addOnCompleteListener { createParamTask ->
+                            if (createParamTask.isSuccessful) {
+                                val user = auth.currentUser
+                                val profileUpdates = com.google.firebase.auth.UserProfileChangeRequest.Builder()
+                                    .setDisplayName(username)
+                                    .build()
+                                user?.updateProfile(profileUpdates)
+                                handleUserSync()
+                            } else {
+                                showLoading(show = false)
+                                Toast.makeText(this, "Newton Login Error: ${createParamTask.exception?.message}", Toast.LENGTH_LONG).show()
+                            }
+                        }
                 }
             }
     }
@@ -200,11 +215,27 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun saveUserData(uid: String, name: String, email: String, profilePic: String?, lat: Double?, lng: Double?, city: String?, state: String?) {
+        var saved = false
+        fun proceedToNextScreen() {
+            if (saved) return
+            saved = true
+            showLoading(show = false)
+            startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+            finish()
+        }
+
+        // Safety 3-second timeout for instant navigation
+        lifecycleScope.launch {
+            delay(3.seconds)
+            proceedToNextScreen()
+        }
+
         userRepository.getUserById(uid) { existingUser ->
+            val displayName = if (name.isNotEmpty()) name else if (email.contains("@")) email.substringBefore("@") else "Student Member"
             if (existingUser == null) {
                 val newUser = User(
                     uid = uid,
-                    name = name,
+                    name = displayName,
                     email = email,
                     profileImageUrl = profilePic,
                     latitude = lat,
@@ -212,20 +243,13 @@ class LoginActivity : AppCompatActivity() {
                     city = city ?: "",
                     state = state ?: "",
                 )
-                userRepository.saveUser(newUser) {
-                    showLoading(show = false)
-                    startActivity(Intent(this@LoginActivity, ProfileSetupActivity::class.java))
-                    finish()
-                }
+                userRepository.saveUser(newUser) { proceedToNextScreen() }
             } else {
                 existingUser.latitude = lat ?: existingUser.latitude
                 existingUser.longitude = lng ?: existingUser.longitude
                 if (existingUser.profileImageUrl == null) existingUser.profileImageUrl = profilePic
-                
-                userRepository.saveUser(existingUser) {
-                    showLoading(show = false)
-                    navigateToMain()
-                }
+
+                userRepository.saveUser(existingUser) { proceedToNextScreen() }
             }
         }
     }
