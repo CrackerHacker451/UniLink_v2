@@ -12,15 +12,15 @@ android {
         applicationId = "com.Newtons_Lobby.myapp"
         minSdk = 24
         targetSdk = 36
-        versionCode = 6
-        versionName = "1.5"
+        versionCode = 7
+        versionName = "1.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
         create("release") {
-            storeFile = file("${project.projectDir}/store_release.keystore")
+            storeFile = file("store_release.keystore")
             storePassword = "android"
             keyAlias = "androiddebugkey"
             keyPassword = "android"
