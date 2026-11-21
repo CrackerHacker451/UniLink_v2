@@ -216,14 +216,16 @@ class RandomMatchActivity : AppCompatActivity() {
 
             val potentialMatches = snapshots.documents.filter {
                 val uid = it.id
+                val isOnline = it.getBoolean("isOnline") == true || it.getBoolean("online") == true
                 val inCall = it.getBoolean("inCall") == true
-                val lastSeen = it.getTimestamp("lastSeenTimestamp")?.toDate()?.time ?: System.currentTimeMillis()
-                val isRecent = (System.currentTimeMillis() - lastSeen) < 120000
+                val lastSeenTs = it.getTimestamp("lastSeenTimestamp")?.toDate()?.time
+                val isRecentlyActive = lastSeenTs != null && (System.currentTimeMillis() - lastSeenTs) < 45000L
 
                 uid != myUid &&
                 !skippedUserIds.contains(uid) &&
+                isOnline &&
                 !inCall &&
-                isRecent
+                isRecentlyActive
             }
 
             if (potentialMatches.isNotEmpty()) {
