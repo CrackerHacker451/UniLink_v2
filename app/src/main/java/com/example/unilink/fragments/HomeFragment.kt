@@ -122,10 +122,10 @@ class HomeFragment : Fragment() {
     }
 
     private fun formatCompactCount(count: Int): String {
+        val safeCount = count.coerceAtMost(5000).coerceAtLeast(0)
         return when {
-            count >= 1_000_000 -> String.format("%.1fM", count / 1_000_000.0)
-            count >= 1_000 -> String.format("%.1fK", count / 1_000.0)
-            else -> count.toString()
+            safeCount >= 1_000 -> String.format(java.util.Locale.US, "%.1fK", safeCount / 1_000.0)
+            else -> safeCount.toString()
         }
     }
 
