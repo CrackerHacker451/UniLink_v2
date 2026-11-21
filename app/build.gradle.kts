@@ -72,6 +72,7 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
     implementation(libs.androidx.viewpager2)
     implementation(libs.googleid)
     implementation(libs.material)

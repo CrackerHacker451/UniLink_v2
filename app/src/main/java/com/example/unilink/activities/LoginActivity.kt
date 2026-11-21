@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
@@ -18,6 +19,7 @@ import com.example.unilink.repository.UserRepository
 import com.example.unilink.utils.HapticUtils
 import com.example.unilink.utils.LocationHelper
 import com.example.unilink.utils.ThemeUtils
+import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
@@ -113,6 +115,52 @@ class LoginActivity : AppCompatActivity() {
         binding.tvLegal.startAnimation(fadeIn)
     }
 
+    private val legacyGoogleSignInLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val task = com.google.android.gms.auth.api.signin.GoogleSignIn.getSignedInAccountFromIntent(result.data)
+            try {
+                val account = task.getResult(com.google.android.gms.common.api.ApiException::class.java)
+                val idTokenString: String? = account.idToken
+                if (idTokenString != null && idTokenString.length > 0) {
+                    val firebaseCredential = GoogleAuthProvider.getCredential(idTokenString, null)
+                    showLoading(show = true, status = "Authenticating with Firebase...")
+                    auth.signInWithCredential(firebaseCredential)
+                        .addOnCompleteListener { authTask ->
+                            if (authTask.isSuccessful) {
+                                handleUserSync()
+                            } else {
+                                showLoading(show = false)
+                                Toast.makeText(this, "Auth Failed: ${authTask.exception?.localizedMessage}", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                } else {
+                    showLoading(show = false)
+                    Toast.makeText(this, "Failed to fetch Google ID Token", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                showLoading(show = false)
+                Log.e("LoginActivity", "Legacy Google Sign-In Error: ${e.message}")
+                Toast.makeText(this, "Google Sign-In Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            showLoading(show = false)
+        }
+    }
+
+    private fun fallbackLegacyGoogleSignIn() {
+        val webClientId = "326237133092-g8lqf9d2dbv4epoo9ofma5ubp04dqm33.apps.googleusercontent.com"
+        val gso = com.google.android.gms.auth.api.signin.GoogleSignInOptions.Builder(com.google.android.gms.auth.api.signin.GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(webClientId)
+            .requestEmail()
+            .build()
+        val googleSignInClient = com.google.android.gms.auth.api.signin.GoogleSignIn.getClient(this, gso)
+        googleSignInClient.signOut().addOnCompleteListener {
+            legacyGoogleSignInLauncher.launch(googleSignInClient.signInIntent)
+        }
+    }
+
     private fun signInWithGoogle() {
         val webClientId = "326237133092-g8lqf9d2dbv4epoo9ofma5ubp04dqm33.apps.googleusercontent.com"
 
@@ -122,8 +170,12 @@ class LoginActivity : AppCompatActivity() {
             .setAutoSelectEnabled(autoSelectEnabled = false)
             .build()
 
+        val signInWithGoogleOption = com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption.Builder(webClientId)
+            .build()
+
         val request: GetCredentialRequest = GetCredentialRequest.Builder()
             .addCredentialOption(googleIdOption)
+            .addCredentialOption(signInWithGoogleOption)
             .build()
 
         lifecycleScope.launch {
@@ -152,20 +204,19 @@ class LoginActivity : AppCompatActivity() {
                             }
                         }
                 } catch (e: Exception) {
-                    showLoading(show = false)
-                    Log.e("LoginActivity", "Google ID token parse error: ${e.message}")
-                    Toast.makeText(this@LoginActivity, "Google Sign-In Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Log.e("LoginActivity", "Google ID token parse error (${e.message}), switching to account picker...")
+                    fallbackLegacyGoogleSignIn()
                 }
             } catch (e: GetCredentialException) {
-                showLoading(show = false)
-                Log.e("LoginActivity", "CredentialManager error: ${e.message}")
+                Log.e("LoginActivity", "CredentialManager error (${e.message}), switching to Google Account Picker...")
                 if (e !is androidx.credentials.exceptions.GetCredentialCancellationException) {
-                    Toast.makeText(this@LoginActivity, "Sign-In System Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    fallbackLegacyGoogleSignIn()
+                } else {
+                    showLoading(show = false)
                 }
             } catch (e: Exception) {
-                showLoading(show = false)
-                Log.e("LoginActivity", "Unexpected Google Sign-In error: ${e.message}")
-                Toast.makeText(this@LoginActivity, "Sign-In Failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                Log.e("LoginActivity", "Unexpected error (${e.message}), switching to Google Account Picker...")
+                fallbackLegacyGoogleSignIn()
             }
         }
     }
