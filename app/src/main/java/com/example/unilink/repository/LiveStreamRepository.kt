@@ -72,6 +72,7 @@ class LiveStreamRepository {
     }
 
     fun observeActiveStreams(onUpdate: (List<CampusLiveStream>) -> Unit): ListenerRegistration {
+        wipeOldLiveStreams()
         return db.collection("live_streams")
             .whereEqualTo("isLive", true)
             .addSnapshotListener { snapshot, e ->
@@ -120,20 +121,26 @@ class LiveStreamRepository {
         )
     }
 
-    fun wipeOldLiveStreams(onComplete: () -> Unit) {
+    fun wipeOldLiveStreams(onComplete: (() -> Unit)? = null) {
         db.collection("live_streams").get().addOnSuccessListener { snapshot ->
             val batch = db.batch()
+            val twoHoursAgo = System.currentTimeMillis() - (2 * 60 * 60 * 1000L)
+            var count = 0
             for (doc in snapshot.documents) {
                 val isLive = doc.getBoolean("isLive") ?: false
-                if (!isLive) {
+                val startedAtTs = doc.getTimestamp("startedAt")?.toDate()?.time ?: 0L
+                if (!isLive || startedAtTs < twoHoursAgo) {
                     batch.delete(doc.reference)
+                    count++
                 }
             }
-            batch.commit().addOnCompleteListener {
-                onComplete()
+            if (count > 0) {
+                batch.commit().addOnCompleteListener { onComplete?.invoke() }
+            } else {
+                onComplete?.invoke()
             }
         }.addOnFailureListener {
-            onComplete()
+            onComplete?.invoke()
         }
     }
 

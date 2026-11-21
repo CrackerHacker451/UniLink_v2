@@ -229,12 +229,11 @@ class VideoCallActivity : AppCompatActivity() {
 
         val isRandomMatch = intent.getBooleanExtra("isRandomMatch", false) || channelId.startsWith("session_")
 
+        binding.tvCallTypeBadge.text = "KStream ⚡"
         if (isRandomMatch) {
-            binding.tvCallTypeBadge.text = "⚡ RANDOM SPEEDLINK"
             binding.tvCallTypeBadge.setTextColor(android.graphics.Color.parseColor("#F472B6"))
             binding.btnSkipPeer.visibility = android.view.View.VISIBLE
         } else {
-            binding.tvCallTypeBadge.text = "🔒 ENCRYPTED PERSONAL CALL"
             binding.tvCallTypeBadge.setTextColor(android.graphics.Color.parseColor("#10B981"))
             binding.btnSkipPeer.visibility = android.view.View.GONE
         }
@@ -262,14 +261,8 @@ class VideoCallActivity : AppCompatActivity() {
     }
 
     private fun setConnectedState() {
-        val isRandomMatch = intent.getBooleanExtra("isRandomMatch", false) || channelId.startsWith("session_")
-        if (isRandomMatch) {
-            binding.tvCallStatus.text = "⚡ Random Peer Live"
-            binding.tvCallStatus.setTextColor(android.graphics.Color.parseColor("#22D3EE"))
-        } else {
-            binding.tvCallStatus.text = "🔒 Private 1-on-1 Call"
-            binding.tvCallStatus.setTextColor(android.graphics.Color.parseColor("#10B981"))
-        }
+        binding.tvCallStatus.text = "KStream ⚡"
+        binding.tvCallStatus.setTextColor(android.graphics.Color.parseColor("#22D3EE"))
         binding.tvDuration.visibility = android.view.View.VISIBLE
         startTimer()
     }
