@@ -73,14 +73,6 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // World ID human gate: check if verified
-        lifecycleScope.launch {
-            if (!com.example.unilink.worldid.HumanGate.isVerified()) {
-                startActivity(Intent(this@MainActivity, com.example.unilink.worldid.HumanVerificationActivity::class.java))
-                finish()
-            }
-        }
-
         requestNotificationPermission()
 
         binding = ActivityMainBinding.inflate(layoutInflater)

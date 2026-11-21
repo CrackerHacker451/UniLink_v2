@@ -114,11 +114,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun signInWithGoogle() {
-        val webClientId = try {
-            getString(R.string.default_web_client_id)
-        } catch (_: Exception) {
-            "326237133092-g8lqf9d2dbv4epoo9ofma5ubp04dqm33.apps.googleusercontent.com"
-        }
+        val webClientId = "326237133092-g8lqf9d2dbv4epoo9ofma5ubp04dqm33.apps.googleusercontent.com"
 
         val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
             .setFilterByAuthorizedAccounts(filterByAuthorizedAccounts = false)
@@ -132,18 +128,18 @@ class LoginActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
-                showLoading(show = true, status = "Launching Secure Gateway...")
+                showLoading(show = true, status = "Launching Google Gateway...")
                 val result = credentialManager.getCredential(request = request, context = this@LoginActivity)
                 val credential = result.credential
-                
+
                 try {
                     val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
                     val googleIdToken = googleIdTokenCredential.idToken
-                    
-                    if (googleIdToken.isEmpty()) throw Exception("Auth token empty")
+
+                    if (googleIdToken.isEmpty()) throw Exception("Google ID token is empty")
 
                     val firebaseCredential = GoogleAuthProvider.getCredential(googleIdToken, null)
-                    
+
                     showLoading(show = true, status = "Authenticating with Firebase...")
                     auth.signInWithCredential(firebaseCredential)
                         .addOnCompleteListener { task ->
@@ -151,21 +147,25 @@ class LoginActivity : AppCompatActivity() {
                                 handleUserSync()
                             } else {
                                 showLoading(show = false)
+                                Log.e("LoginActivity", "Firebase Google Auth failed: ${task.exception?.message}")
                                 Toast.makeText(this@LoginActivity, "Auth Failed: ${task.exception?.localizedMessage}", Toast.LENGTH_LONG).show()
                             }
                         }
-                } catch (_: Exception) {
+                } catch (e: Exception) {
                     showLoading(show = false)
-                    Toast.makeText(this@LoginActivity, "Credential mismatch", Toast.LENGTH_SHORT).show()
+                    Log.e("LoginActivity", "Google ID token parse error: ${e.message}")
+                    Toast.makeText(this@LoginActivity, "Google Sign-In Error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: GetCredentialException) {
                 showLoading(show = false)
+                Log.e("LoginActivity", "CredentialManager error: ${e.message}")
                 if (e !is androidx.credentials.exceptions.GetCredentialCancellationException) {
-                    Toast.makeText(this@LoginActivity, "System error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@LoginActivity, "Sign-In System Error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
-            } catch (_: Exception) {
+            } catch (e: Exception) {
                 showLoading(show = false)
-                Toast.makeText(this@LoginActivity, "Failed to connect", Toast.LENGTH_SHORT).show()
+                Log.e("LoginActivity", "Unexpected Google Sign-In error: ${e.message}")
+                Toast.makeText(this@LoginActivity, "Sign-In Failed: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
