@@ -162,63 +162,8 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun signInWithGoogle() {
-        val webClientId = "326237133092-g8lqf9d2dbv4epoo9ofma5ubp04dqm33.apps.googleusercontent.com"
-
-        val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
-            .setFilterByAuthorizedAccounts(filterByAuthorizedAccounts = false)
-            .setServerClientId(webClientId)
-            .setAutoSelectEnabled(autoSelectEnabled = false)
-            .build()
-
-        val signInWithGoogleOption = com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption.Builder(webClientId)
-            .build()
-
-        val request: GetCredentialRequest = GetCredentialRequest.Builder()
-            .addCredentialOption(googleIdOption)
-            .addCredentialOption(signInWithGoogleOption)
-            .build()
-
-        lifecycleScope.launch {
-            try {
-                showLoading(show = true, status = "Launching Google Gateway...")
-                val result = credentialManager.getCredential(request = request, context = this@LoginActivity)
-                val credential = result.credential
-
-                try {
-                    val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-                    val googleIdToken = googleIdTokenCredential.idToken
-
-                    if (googleIdToken.isEmpty()) throw Exception("Google ID token is empty")
-
-                    val firebaseCredential = GoogleAuthProvider.getCredential(googleIdToken, null)
-
-                    showLoading(show = true, status = "Authenticating with Firebase...")
-                    auth.signInWithCredential(firebaseCredential)
-                        .addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                handleUserSync()
-                            } else {
-                                showLoading(show = false)
-                                Log.e("LoginActivity", "Firebase Google Auth failed: ${task.exception?.message}")
-                                Toast.makeText(this@LoginActivity, "Auth Failed: ${task.exception?.localizedMessage}", Toast.LENGTH_LONG).show()
-                            }
-                        }
-                } catch (e: Exception) {
-                    Log.e("LoginActivity", "Google ID token parse error (${e.message}), switching to account picker...")
-                    fallbackLegacyGoogleSignIn()
-                }
-            } catch (e: GetCredentialException) {
-                Log.e("LoginActivity", "CredentialManager error (${e.message}), switching to Google Account Picker...")
-                if (e !is androidx.credentials.exceptions.GetCredentialCancellationException) {
-                    fallbackLegacyGoogleSignIn()
-                } else {
-                    showLoading(show = false)
-                }
-            } catch (e: Exception) {
-                Log.e("LoginActivity", "Unexpected error (${e.message}), switching to Google Account Picker...")
-                fallbackLegacyGoogleSignIn()
-            }
-        }
+        showLoading(show = true, status = "Launching Google Account Picker...")
+        fallbackLegacyGoogleSignIn()
     }
 
     private fun handleUserSync() {
