@@ -30,7 +30,7 @@ class StorageRepository {
 
             if (originalBitmap != null) {
                 val scaled = scaleBitmap(originalBitmap, maxWidth, maxHeight)
-                
+
                 // Solid white background canvas to prevent black alpha pixels
                 val resultBitmap = Bitmap.createBitmap(scaled.width, scaled.height, Bitmap.Config.ARGB_8888)
                 val canvas = android.graphics.Canvas(resultBitmap)
@@ -39,7 +39,13 @@ class StorageRepository {
 
                 val outputStream = ByteArrayOutputStream()
                 resultBitmap.compress(Bitmap.CompressFormat.JPEG, 95, outputStream)
-                outputStream.toByteArray()
+                val bytes = outputStream.toByteArray()
+
+                if (originalBitmap != scaled) { try { originalBitmap.recycle() } catch (_: Exception) {} }
+                try { scaled.recycle() } catch (_: Exception) {}
+                try { resultBitmap.recycle() } catch (_: Exception) {}
+
+                bytes
             } else {
                 resolver.openInputStream(uri)?.use { it.readBytes() }
             }
