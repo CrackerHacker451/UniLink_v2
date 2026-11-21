@@ -12,18 +12,18 @@ android {
         applicationId = "com.Newtons_Lobby.myapp"
         minSdk = 24
         targetSdk = 36
-        versionCode = 2
-        versionName = "1.1"
+        versionCode = 3
+        versionName = "1.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
         create("release") {
-            storeFile = file("release.keystore")
-            storePassword = "unilink123"
-            keyAlias = "unilink_release"
-            keyPassword = "unilink123"
+            storeFile = file("store_release.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
         }
     }
 
