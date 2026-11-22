@@ -1,15 +1,16 @@
 {
   "project_info": {
     "project_number": "326237133092",
+    "firebase_url": "https://uni-link-b7f2c-default-rtdb.firebaseio.com",
     "project_id": "uni-link-b7f2c",
     "storage_bucket": "uni-link-b7f2c.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:326237133092:android:9aea4cc084e6ce212efbb1",
+        "mobilesdk_app_id": "1:326237133092:android:dd7fe1ff99a0a5252efbb1",
         "android_client_info": {
-          "package_name": "com.example.unilink"
+          "package_name": "com.Newtons_Lobby.myapp"
         }
       },
       "oauth_client": [
@@ -36,12 +37,28 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:326237133092:android:9aea4cc084e6ce212efbb2",
+        "mobilesdk_app_id": "1:326237133092:android:9aea4cc084e6ce212efbb1",
         "android_client_info": {
-          "package_name": "com.Newtons_Lobby.myapp"
+          "package_name": "com.example.unilink"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "326237133092-0gm7v9ejkg1247ckp69b7d4vmv93t34m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.unilink",
+            "certificate_hash": "301ce2f6ca8c7c624a60f4b01f70757586004f04"
+          }
+        },
+        {
+          "client_id": "326237133092-lneaudjftvp6dgh2o964bn0tgiprksft.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.unilink",
+            "certificate_hash": "39a3a59652b62697de5ecc687fbf013d3c47fac3"
+          }
+        },
         {
           "client_id": "326237133092-g8lqf9d2dbv4epoo9ofma5ubp04dqm33.apps.googleusercontent.com",
           "client_type": 3
