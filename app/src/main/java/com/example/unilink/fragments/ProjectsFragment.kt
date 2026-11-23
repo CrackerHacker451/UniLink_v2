@@ -90,19 +90,30 @@ class ProjectsFragment : Fragment() {
         binding.chipGroupCategories.setOnCheckedStateChangeListener { _, _ ->
             applyFilters()
         }
+
+        binding.btnRegisterEvent.setOnClickListener {
+            startActivity(Intent(context, com.example.unilink.activities.CreateTeamActivity::class.java))
+            Toast.makeText(context, "Build or join a Hackathon Squad for ETHGlobal Mumbai! 🚀", Toast.LENGTH_SHORT).show()
+        }
+
+        binding.btnViewAllEvents.setOnClickListener {
+            binding.chipGroupCategories.check(binding.chipEvents.id)
+            applyFilters()
+        }
     }
 
     private fun applyFilters() {
         if (_binding == null) return
-        
+
         val query = binding.etSearchProjects.text.toString().lowercase().trim()
         val selectedChipId = binding.chipGroupCategories.checkedChipId
-        
+
         val category = when (selectedChipId) {
             binding.chipAI.id -> "ai"
             binding.chipDev.id -> "dev"
             binding.chipDesign.id -> "design"
             binding.chipResearch.id -> "research"
+            binding.chipEvents.id -> "hackathon"
             else -> ""
         }
 
@@ -110,19 +121,66 @@ class ProjectsFragment : Fragment() {
             val title = project.title?.lowercase() ?: ""
             val description = project.description?.lowercase() ?: ""
             val skills = project.skillsRequired ?: emptyList()
-            
-            val matchesQuery = title.contains(query) || 
+
+            val matchesQuery = title.contains(query) ||
                               description.contains(query) ||
                               skills.any { it.lowercase().contains(query) }
-            
-            val matchesCategory = if (category.isEmpty()) true 
-                                 else project.tags?.any { it.lowercase().contains(category) } == true || 
-                                      title.contains(category)
-            
+
+            val matchesCategory = if (category.isEmpty()) true
+                                 else if (category == "hackathon") {
+                                     project.tags?.any { it.lowercase().contains("hackathon") || it.lowercase().contains("event") } == true ||
+                                     title.contains("hackathon") || title.contains("squad") || project.hackathonName != null
+                                 } else {
+                                     project.tags?.any { it.lowercase().contains(category) } == true ||
+                                     title.contains(category)
+                                 }
+
             matchesQuery && matchesCategory
         }
 
+        if (selectedChipId == binding.chipEvents.id && filteredProjects.isEmpty()) {
+            filteredProjects = getPresetHackathonSquads()
+        }
+
         updateAdapter()
+    }
+
+    private fun getPresetHackathonSquads(): List<Project> {
+        return listOf(
+            Project(
+                projectId = "h1",
+                title = "🏆 Web3 DeFi Hackathon Squad (ETHGlobal Mumbai)",
+                description = "Building a high-performance Web3 DeFi & Arkiv DB-Chain vault app! Looking for 1 Frontend & 1 Smart Contract developer.",
+                ownerName = "Amit S. (CSE)",
+                skillsRequired = listOf("Frontend", "Blockchain", "Solidity"),
+                tags = listOf("hackathon", "event", "web3"),
+                maxTeamSize = 4,
+                hackathonName = "ETHGlobal Mumbai 2026",
+                lookingFor = "Frontend, Blockchain"
+            ),
+            Project(
+                projectId = "h2",
+                title = "🤖 UniAI Autonomous Campus Squad",
+                description = "Building zero-knowledge 0G Private Computer AI agents for student scheduling & note summarization!",
+                ownerName = "Sneha R. (AI/ML)",
+                skillsRequired = listOf("AI/ML", "Python", "React"),
+                tags = listOf("hackathon", "event", "ai"),
+                maxTeamSize = 4,
+                hackathonName = "UniAI Smart Campus Hackathon",
+                lookingFor = "AI/ML, Python"
+            ),
+            Project(
+                projectId = "h3",
+                title = "🎨 UI/UX Design & SpeedLink Squad",
+                description = "Redesigning 120Hz dark glass campus mobile screens & WebRTC 1080p video matching UI!",
+                ownerName = "Aarav K. (Design)",
+                skillsRequired = listOf("UI/UX", "Figma", "Android"),
+                tags = listOf("hackathon", "event", "design"),
+                maxTeamSize = 3,
+                hackathonName = "Campus Design Sprint 2026",
+                lookingFor = "UI/UX, Figma"
+            )
+        )
     }
 
     private fun fetchProjects() {

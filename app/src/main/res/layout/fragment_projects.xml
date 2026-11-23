@@ -77,6 +77,111 @@
                 app:cornerRadius="16dp" />
         </LinearLayout>
 
+        <!-- Live Hackathons & Events Banner -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardEventsBanner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginTop="14dp"
+            style="@style/GlassCard"
+            app:cardCornerRadius="20dp"
+            app:strokeColor="?attr/accentColor"
+            app:strokeWidth="1.2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="🏆 UPCOMING HACKATHONS &amp; EVENTS"
+                        android:textColor="?attr/accentColor"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.08" />
+
+                    <TextView
+                        android:id="@+id/tvEventBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="LIVE REGISTRATION"
+                        android:textColor="#10B981"
+                        android:textSize="9sp"
+                        android:textStyle="bold"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="3dp"
+                        android:background="@drawable/bg_tag" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvEventTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="🚀 ETHGlobal Mumbai Hackathon 2026 ($100K+ Prizes)"
+                    android:textColor="?attr/textPrimaryColor"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvEventDesc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Build Web3, World ID &amp; AI apps! Team formation open in campus squads."
+                    android:textColor="?attr/textSecondaryColor"
+                    android:textSize="11sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnRegisterEvent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:text="RSVP &amp; Build Squad ⚡"
+                        android:textAllCaps="false"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="?attr/accentColor"
+                        app:cornerRadius="10dp"
+                        android:textColor="@color/white"
+                        android:paddingHorizontal="12dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnViewAllEvents"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:layout_marginStart="8dp"
+                        android:text="All Events 📄"
+                        android:textAllCaps="false"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        app:strokeColor="?attr/borderStrokeColor"
+                        app:strokeWidth="1dp"
+                        android:textColor="?attr/textPrimaryColor"
+                        app:cornerRadius="10dp"
+                        android:paddingHorizontal="10dp" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- Glassy Search Bar -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
@@ -133,6 +238,17 @@
                     android:layout_height="wrap_content"
                     android:checked="true"
                     android:text="@string/all_projects"
+                    app:chipBackgroundColor="@color/glass_bg_low"
+                    app:chipStrokeColor="@color/glass_stroke"
+                    android:textColor="?attr/textPrimaryColor"
+                    app:chipCornerRadius="16dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipEvents"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🏆 Events &amp; Hackathons"
                     app:chipBackgroundColor="@color/glass_bg_low"
                     app:chipStrokeColor="@color/glass_stroke"
                     android:textColor="?attr/textPrimaryColor"
