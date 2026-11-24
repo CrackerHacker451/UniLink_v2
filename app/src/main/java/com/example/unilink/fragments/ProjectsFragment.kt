@@ -224,6 +224,15 @@ class ProjectsFragment : Fragment() {
         val currentContext = context ?: return
         when (action) {
             "manage" -> showManageProjectDialog(project)
+            "join" -> {
+                Toast.makeText(currentContext, "Joining ${project.displayTitle}... 🚀", Toast.LENGTH_SHORT).show()
+                projectRepository.joinProject(project.projectId) { success ->
+                    val intent = Intent(currentContext, com.example.unilink.activities.ProjectDetailsActivity::class.java).apply {
+                        putExtra("projectId", project.projectId)
+                    }
+                    startActivity(intent)
+                }
+            }
             else -> {
                 val intent = Intent(currentContext, com.example.unilink.activities.ProjectDetailsActivity::class.java).apply {
                     putExtra("projectId", project.projectId)
