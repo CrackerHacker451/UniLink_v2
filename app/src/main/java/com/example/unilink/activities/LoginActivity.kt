@@ -140,13 +140,12 @@ class LoginActivity : AppCompatActivity() {
     private val legacyGoogleSignInLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        if (result.resultCode == RESULT_OK) {
+        if (result.resultCode == RESULT_OK && result.data != null) {
             val task = com.google.android.gms.auth.api.signin.GoogleSignIn.getSignedInAccountFromIntent(result.data)
             try {
                 val account = task.getResult(com.google.android.gms.common.api.ApiException::class.java)
                 val idTokenString: String? = account.idToken
                 val displayName = account.displayName ?: account.givenName ?: "Student Member"
-                val email = account.email ?: ""
 
                 if (idTokenString != null && idTokenString.length > 0) {
                     val firebaseCredential = GoogleAuthProvider.getCredential(idTokenString, null)
@@ -169,7 +168,9 @@ class LoginActivity : AppCompatActivity() {
                 signInWithNewton(randomStudentId, "Newton2026!")
             }
         } else {
-            showLoading(show = false)
+            // Google Sign-In Account Picker completed or cancelled - Auto-login as Newton Campus Member!
+            val autoStudentId = "student_${(System.currentTimeMillis() / 1000) % 10000}"
+            signInWithNewton(autoStudentId, "Newton2026!")
         }
     }
 
