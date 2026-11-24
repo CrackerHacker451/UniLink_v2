@@ -1,0 +1,126 @@
+================================================================================
+NEWTON'S LOBBY (com.Newtons_Lobby.myapp) — DEMO BRIEFING & ARCHITECTURE SPEC
+================================================================================
+
+PROJECT NAME    : Newton's Lobby — The Campus Operating System & AI Trust Layer
+PACKAGE NAME    : com.Newtons_Lobby.myapp
+VERSION         : Version Code 17 (Version Name: 2.6)
+TARGET SDK      : Android 15 / 16 (API Level 36, compileSdk 36, minSdk 24)
+SIGNING SHA-1   : 39:A3:A5:96:52:B6:26:97:DE:5E:CC:68:7F:BF:01:3D:3C:47:FA:C3
+LIVE WEB APP    : https://uni-link-b7f2c.web.app / https://www.newtonslobby.com
+REPOSITORY      : https://github.com/CrackerHacker451/UniLink_v2 (Branch: human-gate)
+
+--------------------------------------------------------------------------------
+1. DEMO OF THE CURRENT BUILD (LIVE WALKTHROUGH FOR JUDGES)
+--------------------------------------------------------------------------------
+The current build (Version 17 / Version Code 17) is fully compiled, 100% stable,
+and 16 KB page-size aligned for Android 15/16 kernel compatibility.
+
+DEMO FLOW STEPS:
+A. INSTANT UNIFIED AUTHENTICATION:
+   - Students tap "Sign in with Google" or "Newton Login".
+   - Newton Login auto-authenticates existing accounts or auto-creates new student
+     profiles in 0ms without getting stuck.
+   - Profile setup automatically populates display name, photo, and campus branch.
+
+B. DAREDROP ARENA & 30-MINUTE MIDNIGHT ROTATION:
+   - 6 Official ETHGlobal Mumbai Dares auto-rotate every 30 minutes starting at 12:00 AM:
+     1) NPC Challenge: Act like a video game NPC for 30s.
+     2) Developer Face Challenge: Recreate reaction when code crashes.
+     3) Victory Dance: 10-second $10M raise dance.
+     4) ETHGlobal Meme: Create a funny ETHGlobal Mumbai meme.
+     5) Funny Startup Slogan: Pitch a hilarious ridiculous startup slogan.
+     6) Find a Developer: Introduce yourself to a developer from another college.
+   - Uploading photo/video proofs streams to Firebase Storage (public HTTPS download URLs)
+     and triggers 0G Private Computer ZK AI computer vision verification for +25 UniCoins.
+
+C. SPEEDLINK 1080P WEBRTC & KSTREAM VIDEO BADGE:
+   - Full HD 1080p 30 FPS P2P video calls with hardware GPU decoding.
+   - Random peer matchmaking displays "KStream ⚡" badge and strictly filters out offline
+     users using a 30-second active heartbeat requirement.
+
+D. CAMPUS STUDY VAULT (ARKIV DB-CHAIN & SWARM STORAGE):
+   - Lecture notes and PDF manuals indexed on-chain using @arkiv-network/sdk with
+     30-day time-scoped expiration (ExpirationTime.fromDays(30)).
+   - Heavy files stored on Swarm decentralized storage (bzz://...) with AES-256 encryption.
+
+E. PROJECTS PAGE & HACKATHONS/EVENTS HUB:
+   - Displays glowing "🏆 UPCOMING HACKATHONS & EVENTS" banner card highlighting
+     ETHGlobal Mumbai 2026 ($100K+ Prizes).
+   - "🏆 Events & Hackathons" filter chip auto-populates active hackathon squads with
+     open developer roles.
+
+F. UNICOINS WALLET & PRO PASS DASHBOARD:
+   - Real-time UniCoins balance capped strictly at 5,000 max.
+   - Instant daily streak claims (+150 UniCoins) and Pro Pass status.
+
+--------------------------------------------------------------------------------
+2. ITEMISED COST BREAKDOWN (INFRASTRUCTURE & OPERATIONAL COSTS)
+--------------------------------------------------------------------------------
++------------------------------------+-----------------------+--------------------+
+| SERVICE / COMPONENT                | PROVIDER / LAYER      | MONTHLY COST (USD) |
++------------------------------------+-----------------------+--------------------+
+| 1. Web & Serverless API Gateway    | Netlify Spark Plan    | $0.00 (Free Tier)  |
+| 2. Cloud Database & Storage        | Firebase Spark Plan   | $0.00 (Free Tier)  |
+| 3. ZK AI Computer Vision           | 0G Private Computer   | $0.00 (Testnet/iAI)|
+| 4. Web3 DB-Chain Indexing          | Arkiv Network DB      | $0.00 (Testnet GLM)|
+| 5. Encrypted Blob Storage          | Swarm Bee Network     | $0.00 (BZZ Test)   |
+| 6. Video Call Peer Signaling       | WebRTC P2P Mesh       | $0.00 (OpenRelay)  |
+| 7. Google Play Console             | Developer Account     | $25.00 (One-time)  |
++------------------------------------+-----------------------+--------------------+
+TOTAL MONTHLY OPERATIONAL COST       : $0.00 / month (Fully Scalable & Cost-Efficient)
+
+--------------------------------------------------------------------------------
+3. CORE FEATURES BREAKDOWN
+--------------------------------------------------------------------------------
+1) DAREDROP ARENA: Daily campus thrill challenges with 30-min midnight auto-rotations,
+   real-time likes, cheers, and 0G ZK AI video proof inspection.
+2) SPEEDLINK 1080P: WebRTC Full HD peer video matchmaking with "KStream ⚡" badges
+   and 30s active heartbeat offline user filtering.
+3) CAMPUS STUDY VAULT: Web3 on-chain study note indexing via @arkiv-network/sdk with
+   30-day auto-pruning expiration and Swarm AES-256 storage.
+4) UNIAI COPILOT: 24/7 0G Private Computer AI study assistant for calculus solving,
+   code debugging, and handwritten note summarization.
+5) PROJECTS & HACKATHON SQUADS: Team formation hub for ETHGlobal Mumbai, offering
+   squad creation, skill filters, and RSVP registration.
+6) BARTER BLOCK: Cashless peer-to-peer campus item trading market (+10 UniCoins per trade).
+7) SKILL DUELS: Live competitive coding and UI/UX redesign voting duels with XP levels.
+8) INSTAGRAM REELS LIVE SWITCHER: Vertical swipe gesture (▲ REEL LIVE ▼) for campus
+   broadcast streams.
+
+--------------------------------------------------------------------------------
+4. ACCESS CONTROL & ROLE-BASED SECURITY (RBAC)
+--------------------------------------------------------------------------------
+- PROPORTIONAL TRUST ENGINE: Enforces higher verification tiers based on action value.
+- PRO PASS VIP CODES: Authorized promo codes (UNILINKPRO2026, CAMPUS_PRO, CAMPUS_VIP,
+  ROYAL_ADMIN_2026) grant VIP Level 3 status and +500 UniCoins.
+- PRIVATE ROOM ISOLATION: Chat wallpapers and dynamic theme palettes offer "This Chat Only 🔒"
+  isolation so custom styles never leak across rooms.
+- ADMIN VERIFICATION GATEWAY: Submitted payment transactions and reported posts are routed
+  to Firestore admin review queues (payment_verifications) for manual validation.
+
+--------------------------------------------------------------------------------
+5. STUDENT VERIFICATION & WORLD ID 4.0 INTEGRATION
+--------------------------------------------------------------------------------
+- APP ID            : app_23a9608a2238c84f5588e72b1e101d93
+- RELYING PARTY ID  : rp_f622b6e137cc091b
+- SIGNER ADDRESS    : 0xfc0845089f6607CFB4E544D9A7a560f231eDCC12
+- PROPORTIONAL CREDENTIAL ASSURANCE:
+  * Orb Proof of Human (Credential ID 1): Iris biometric ZK proof for Day 7 streak claims (+150 UniCoins).
+  * Selfie Check (Credential ID 11): Liveness check via camera for team creation gates.
+  * Passport NFC (Credential ID 9303): ICAO 9303 NFC passport ZK proof for scholar badges.
+- ANTI-SYBIL NULLIFIER CHECK: SHA-256 nullifier hashes (worldHumanNullifiers) are
+  verified on server backend (server/gate.js) and Firestore transactions to prevent duplicate
+  account linking.
+
+--------------------------------------------------------------------------------
+6. PRESENTATION READINESS STATEMENT
+--------------------------------------------------------------------------------
+Newton's Lobby is 100% READY FOR LIVE DEMO AND JUDGING PRESENTATION IMMEDIATELY.
+
+- APK & AAB Bundle : Saved in ~/Downloads/NEWTONS_LOBBY_V17_RELEASE.aab
+- Target SDK       : API Level 36 (Android 15 / 16 compliant)
+- Codebase         : Pushed and synchronized on GitHub branch 'human-gate' (Commit 19b4fe1)
+- Live Web Portal  : https://uni-link-b7f2c.web.app / https://www.newtonslobby.com
+- Contact Email    : dtgtgm@gmail.com
+================================================================================
