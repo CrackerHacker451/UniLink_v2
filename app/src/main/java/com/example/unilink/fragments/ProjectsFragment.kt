@@ -51,20 +51,13 @@ class ProjectsFragment : Fragment() {
         fetchProjects()
 
         binding.btnLaunchTeam.setOnClickListener {
-            binding.chipGroupCategories.check(binding.chipEvents.id)
-            filteredProjects = (getPresetHackathonSquads() + allProjects.filter { p -> p.tags?.any { it.lowercase().contains("hackathon") || it.lowercase().contains("event") } == true }).distinctBy { it.projectId }
-            projectAdapter.submitList(filteredProjects)
-            binding.tvEmptyState.visibility = View.GONE
-            Toast.makeText(context, "🏆 Showing Hackathons & Events!", Toast.LENGTH_SHORT).show()
+            val intent = Intent(context, com.example.unilink.activities.HackathonsHubActivity::class.java)
+            startActivity(intent)
         }
 
         binding.btnMyTeams.setOnClickListener {
-            val openSquads = allProjects.filter { p -> p.status != "Completed" && p.members.size < p.effectiveMaxMembers }
-            val listToShow = if (openSquads.isNotEmpty()) openSquads else getPresetHackathonSquads()
-            filteredProjects = listToShow
-            projectAdapter.submitList(listToShow)
-            binding.tvEmptyState.visibility = View.GONE
-            Toast.makeText(context, "👥 Showing Open Teams ready to join!", Toast.LENGTH_SHORT).show()
+            val intent = Intent(context, com.example.unilink.activities.TeamSquadsHubActivity::class.java)
+            startActivity(intent)
         }
 
         arguments?.getString("search_query")?.let { query ->

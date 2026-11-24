@@ -131,6 +131,14 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".activities.HackathonsHubActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".activities.TeamSquadsHubActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>
