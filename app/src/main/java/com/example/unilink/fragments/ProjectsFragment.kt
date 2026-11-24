@@ -52,13 +52,19 @@ class ProjectsFragment : Fragment() {
 
         binding.btnLaunchTeam.setOnClickListener {
             binding.chipGroupCategories.check(binding.chipEvents.id)
-            applyFilters()
-            Toast.makeText(context, "Showing Hackathons & Events only! 🏆", Toast.LENGTH_SHORT).show()
+            filteredProjects = (getPresetHackathonSquads() + allProjects.filter { p -> p.tags?.any { it.lowercase().contains("hackathon") || it.lowercase().contains("event") } == true }).distinctBy { it.projectId }
+            projectAdapter.submitList(filteredProjects)
+            binding.tvEmptyState.visibility = View.GONE
+            Toast.makeText(context, "🏆 Showing Hackathons & Events!", Toast.LENGTH_SHORT).show()
         }
 
         binding.btnMyTeams.setOnClickListener {
-            val intent = Intent(context, com.example.unilink.activities.CreateTeamActivity::class.java)
-            startActivity(intent)
+            val openSquads = allProjects.filter { p -> p.status != "Completed" && p.members.size < p.effectiveMaxMembers }
+            val listToShow = if (openSquads.isNotEmpty()) openSquads else getPresetHackathonSquads()
+            filteredProjects = listToShow
+            projectAdapter.submitList(listToShow)
+            binding.tvEmptyState.visibility = View.GONE
+            Toast.makeText(context, "👥 Showing Open Teams ready to join!", Toast.LENGTH_SHORT).show()
         }
 
         arguments?.getString("search_query")?.let { query ->
@@ -138,8 +144,8 @@ class ProjectsFragment : Fragment() {
             matchesQuery && matchesCategory
         }
 
-        if (selectedChipId == binding.chipEvents.id && filteredProjects.isEmpty()) {
-            filteredProjects = getPresetHackathonSquads()
+        if (selectedChipId == binding.chipEvents.id) {
+            filteredProjects = (getPresetHackathonSquads() + filteredProjects).distinctBy { it.projectId }
         }
 
         updateAdapter()
