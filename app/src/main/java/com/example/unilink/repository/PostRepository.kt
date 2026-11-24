@@ -59,15 +59,29 @@ class PostRepository {
     }
 
     fun getFeed(onResult: (List<Post>) -> Unit): com.google.firebase.firestore.ListenerRegistration {
+        db.collection("posts")
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .limit(25)
+            .get(com.google.firebase.firestore.Source.CACHE)
+            .addOnSuccessListener { cacheSnap ->
+                if (cacheSnap != null && !cacheSnap.isEmpty) {
+                    val cachedPosts = cacheSnap.mapNotNull { doc ->
+                        try { doc.toObject(Post::class.java) } catch (_: Exception) { null }
+                    }
+                    if (cachedPosts.isNotEmpty()) onResult(cachedPosts)
+                }
+            }
+
         return db.collection("posts")
             .orderBy("timestamp", Query.Direction.DESCENDING)
-            .limit(50)
+            .limit(25)
             .addSnapshotListener { snapshot, e ->
-                if (e != null) {
-                    onResult(emptyList())
+                if (e != null || snapshot == null) {
                     return@addSnapshotListener
                 }
-                val posts = snapshot?.mapNotNull { it.toObject(Post::class.java) } ?: emptyList()
+                val posts = snapshot.mapNotNull { doc ->
+                    try { doc.toObject(Post::class.java) } catch (_: Exception) { null }
+                }
                 onResult(posts)
             }
     }
