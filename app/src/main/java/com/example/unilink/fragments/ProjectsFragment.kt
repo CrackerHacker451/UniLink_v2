@@ -51,14 +51,16 @@ class ProjectsFragment : Fragment() {
         fetchProjects()
 
         binding.btnLaunchTeam.setOnClickListener {
-            startActivity(Intent(context, com.example.unilink.activities.CreateTeamActivity::class.java))
+            binding.chipGroupCategories.check(binding.chipEvents.id)
+            applyFilters()
+            Toast.makeText(context, "Showing active Hackathons & Campus Squads! 🏆", Toast.LENGTH_SHORT).show()
         }
 
         binding.btnMyTeams.setOnClickListener {
-            val myUid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return@setOnClickListener
-            val myProjects = allProjects.filter { p -> p.ownerId == myUid || p.members.contains(myUid) }
-            projectAdapter.submitList(myProjects)
-            binding.tvEmptyState.visibility = if (myProjects.isEmpty()) View.VISIBLE else View.GONE
+            val openTeams = allProjects.filter { p -> p.status != "Completed" && p.members.size < p.effectiveMaxMembers }
+            projectAdapter.submitList(if (openTeams.isNotEmpty()) openTeams else getPresetHackathonSquads())
+            binding.tvEmptyState.visibility = View.GONE
+            Toast.makeText(context, "Showing Open Teams ready to join! 👥", Toast.LENGTH_SHORT).show()
         }
 
         arguments?.getString("search_query")?.let { query ->
