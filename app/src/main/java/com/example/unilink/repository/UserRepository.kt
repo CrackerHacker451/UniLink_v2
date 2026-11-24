@@ -129,45 +129,28 @@ class UserRepository {
 
     fun getAllUsers(onResult: (List<User>) -> Unit) {
         val currentUid = auth.currentUser?.uid
-        val allFetchedUsers = mutableListOf<User>()
-        val collectionsToFetch = listOf("users", "web_users", "students", "nl_users", "newton_users", "newtons_lobby", "nl_students", "hackathon_users")
-        val completedCount = java.util.concurrent.atomic.AtomicInteger(0)
 
-        collectionsToFetch.forEach { colName ->
-            db.collection(colName).get()
-                .addOnSuccessListener { documents ->
-                    kotlin.concurrent.thread {
-                        val users = documents.mapNotNull { doc ->
-                            parseUserFromDoc(doc, colName)
-                        }
-                        synchronized(allFetchedUsers) {
-                            allFetchedUsers.addAll(users)
-                        }
-                        
-                        if (completedCount.incrementAndGet() == collectionsToFetch.size) {
-                            val distinctUsers = allFetchedUsers
-                                .filter { it.uid.isNotEmpty() && it.uid != currentUid }
-                                .distinctBy { user -> if (user.email.isNotEmpty()) user.email.lowercase() else user.uid }
-                                .sortedWith(compareByDescending<User> { 
-                                    it.boostUntil?.after(java.util.Date()) == true 
-                                }.thenByDescending { it.isVip }
-                                 .thenByDescending { it.totalXp })
+        // 1. Instant 0ms local disk cache return
+        db.collection("users").get(com.google.firebase.firestore.Source.CACHE)
+            .addOnSuccessListener { cacheSnap ->
+                if (cacheSnap != null && !cacheSnap.isEmpty) {
+                    val cached = cacheSnap.mapNotNull { doc -> parseUserFromDoc(doc, "users") }
+                        .filter { it.uid.isNotEmpty() && it.uid != currentUid }
+                    if (cached.isNotEmpty()) onResult(cached)
+                }
+            }
 
-                            android.os.Handler(android.os.Looper.getMainLooper()).post {
-                                onResult(distinctUsers)
-                            }
-                        }
-                    }
-                }
-                .addOnFailureListener {
-                    if (completedCount.incrementAndGet() == collectionsToFetch.size) {
-                        // Still return results even if some fail
-                        android.os.Handler(android.os.Looper.getMainLooper()).post {
-                            onResult(allFetchedUsers) 
-                        }
-                    }
-                }
-        }
+        // 2. Fetch fresh users from main collection
+        db.collection("users").limit(100).get()
+            .addOnSuccessListener { documents ->
+                val users = documents.mapNotNull { doc -> parseUserFromDoc(doc, "users") }
+                    .filter { it.uid.isNotEmpty() && it.uid != currentUid }
+                    .sortedByDescending { it.totalXp }
+                onResult(users)
+            }
+            .addOnFailureListener {
+                onResult(emptyList())
+            }
     }
 
     private fun parseUserFromDoc(doc: com.google.firebase.firestore.DocumentSnapshot, colName: String): User {

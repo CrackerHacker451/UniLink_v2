@@ -192,54 +192,30 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun handleUserSync() {
-        showLoading(show = true, status = "Syncing Campus Profile...")
         val user = auth.currentUser ?: return
         val uid = user.uid
         val name = user.displayName ?: ""
         val email = user.email ?: ""
         val profilePic = user.photoUrl?.toString()
 
-        var locationProcessed = false
-        
-        val onLocationResult: (Double?, Double?, String?, String?) -> Unit = { lat, lng, city, state ->
-            if (!locationProcessed) {
-                locationProcessed = true
-                saveUserData(uid, name, email, profilePic, lat, lng, city, state)
-            }
-        }
+        // INSTANT 0ms NAVIGATION TO MAIN ACTIVITY
+        showLoading(show = false)
+        startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+        finish()
 
-        // Safety timeout to prevent infinite loading if location fails silently
-        lifecycleScope.launch {
-            delay(4.seconds)
-            if (!locationProcessed) {
-                Log.w("LoginActivity", "Location timeout")
-                onLocationResult(null, null, null, null)
+        // Background profile & location sync
+        lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                LocationHelper.getLastLocation(this@LoginActivity) { lat, lng, city, state ->
+                    saveUserDataBackground(uid, name, email, profilePic, lat, lng, city, state)
+                }
+            } catch (_: Exception) {
+                saveUserDataBackground(uid, name, email, profilePic, null, null, null, null)
             }
-        }
-
-        try {
-            LocationHelper.getLastLocation(this, onLocationResult)
-        } catch (_: Exception) {
-            onLocationResult(null, null, null, null)
         }
     }
 
-    private fun saveUserData(uid: String, name: String, email: String, profilePic: String?, lat: Double?, lng: Double?, city: String?, state: String?) {
-        var saved = false
-        fun proceedToNextScreen() {
-            if (saved) return
-            saved = true
-            showLoading(show = false)
-            startActivity(Intent(this@LoginActivity, MainActivity::class.java))
-            finish()
-        }
-
-        // Safety 3-second timeout for instant navigation
-        lifecycleScope.launch {
-            delay(3.seconds)
-            proceedToNextScreen()
-        }
-
+    private fun saveUserDataBackground(uid: String, name: String, email: String, profilePic: String?, lat: Double?, lng: Double?, city: String?, state: String?) {
         userRepository.getUserById(uid) { existingUser ->
             val displayName = if (name.isNotEmpty()) name else if (email.contains("@")) email.substringBefore("@") else "Student Member"
             if (existingUser == null) {
@@ -253,13 +229,13 @@ class LoginActivity : AppCompatActivity() {
                     city = city ?: "",
                     state = state ?: "",
                 )
-                userRepository.saveUser(newUser) { proceedToNextScreen() }
+                userRepository.saveUser(newUser) { }
             } else {
                 existingUser.latitude = lat ?: existingUser.latitude
                 existingUser.longitude = lng ?: existingUser.longitude
                 if (existingUser.profileImageUrl == null) existingUser.profileImageUrl = profilePic
 
-                userRepository.saveUser(existingUser) { proceedToNextScreen() }
+                userRepository.saveUser(existingUser) { }
             }
         }
     }
