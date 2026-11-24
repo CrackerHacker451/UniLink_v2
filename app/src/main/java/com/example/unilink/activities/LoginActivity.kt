@@ -85,43 +85,52 @@ class LoginActivity : AppCompatActivity() {
         val etUsername = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etUsername)
         val etPassword = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etPassword)
 
+        etUsername?.hint = "Enter Email or Student ID"
+
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setView(dialogView)
             .setPositiveButton("Sync Account") { _, _ ->
-                val username = etUsername.text.toString().trim()
+                val inputEmailOrUser = etUsername.text.toString().trim()
                 val password = etPassword.text.toString().trim()
-                if (username.isNotEmpty() && password.isNotEmpty()) {
-                    signInWithNewton(username, password)
+                if (inputEmailOrUser.isNotEmpty() && password.isNotEmpty()) {
+                    val displayName = if (inputEmailOrUser.contains("@")) inputEmailOrUser.substringBefore("@") else inputEmailOrUser
+                    signInWithEmailOrName(inputEmailOrUser, displayName, password)
                 }
             }
             .setNegativeButton("Cancel", null)
             .show()
     }
 
-    private fun signInWithNewton(username: String, password: String) {
-        val cleanUsername = username.lowercase().replace(" ", "")
-        val email = "$cleanUsername@nl-lobby.app"
+    private fun signInWithEmailOrName(emailOrUser: String, displayName: String, password: String) {
+        val email = if (emailOrUser.contains("@")) emailOrUser.trim().lowercase() else "${emailOrUser.trim().lowercase().replace(" ", "")}@nl-lobby.app"
         val safePassword = if (password.length < 6) "${password}123456" else password
         showLoading(show = true, status = "Connecting to Newton's Lobby...")
 
         auth.signInWithEmailAndPassword(email, safePassword)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
+                    val user = auth.currentUser
+                    if (user?.displayName.isNullOrEmpty()) {
+                        val profileUpdates = com.google.firebase.auth.UserProfileChangeRequest.Builder()
+                            .setDisplayName(displayName)
+                            .build()
+                        user?.updateProfile(profileUpdates)
+                    }
                     handleUserSync()
                 } else {
-                    // Auto-create account for new campus students
+                    // Auto-create account with REAL email and REAL display name for new campus students
                     auth.createUserWithEmailAndPassword(email, safePassword)
                         .addOnCompleteListener { createParamTask ->
                             if (createParamTask.isSuccessful) {
                                 val user = auth.currentUser
                                 val profileUpdates = com.google.firebase.auth.UserProfileChangeRequest.Builder()
-                                    .setDisplayName(username)
+                                    .setDisplayName(displayName)
                                     .build()
                                 user?.updateProfile(profileUpdates)
                                 handleUserSync()
                             } else {
                                 showLoading(show = false)
-                                Toast.makeText(this, "Newton Login Error: ${createParamTask.exception?.message}", Toast.LENGTH_LONG).show()
+                                Toast.makeText(this, "Login Error: ${createParamTask.exception?.message}", Toast.LENGTH_LONG).show()
                             }
                         }
                 }
@@ -145,32 +154,30 @@ class LoginActivity : AppCompatActivity() {
             try {
                 val account = task.getResult(com.google.android.gms.common.api.ApiException::class.java)
                 val idTokenString: String? = account.idToken
-                val displayName = account.displayName ?: account.givenName ?: "Student Member"
+                val realEmail = account.email ?: "student@university.edu"
+                val realName = account.displayName ?: account.givenName ?: realEmail.substringBefore("@")
 
                 if (idTokenString != null && idTokenString.length > 0) {
                     val firebaseCredential = GoogleAuthProvider.getCredential(idTokenString, null)
-                    showLoading(show = true, status = "Authenticating Campus Profile...")
+                    showLoading(show = true, status = "Authenticating $realName...")
                     auth.signInWithCredential(firebaseCredential)
                         .addOnCompleteListener { authTask ->
                             if (authTask.isSuccessful) {
                                 handleUserSync()
                             } else {
-                                // Fallback to Newton Campus Auth if Firebase Google Credential fails
-                                signInWithNewton(displayName.lowercase().replace(" ", ""), "Newton2026!")
+                                signInWithEmailOrName(realEmail, realName, "Newton2026!")
                             }
                         }
                 } else {
-                    signInWithNewton(displayName.lowercase().replace(" ", ""), "Newton2026!")
+                    signInWithEmailOrName(realEmail, realName, "Newton2026!")
                 }
             } catch (e: Exception) {
-                Log.e("LoginActivity", "Legacy Google Sign-In Exception (${e.message}), connecting via Newton Campus Auth...")
-                val randomStudentId = "student_${(System.currentTimeMillis() / 1000) % 100000}"
-                signInWithNewton(randomStudentId, "Newton2026!")
+                Log.e("LoginActivity", "Google Sign-In API Exception: ${e.message}")
+                showLoading(show = false)
+                Toast.makeText(this, "Google Sign-In Error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         } else {
-            // Google Sign-In Account Picker completed or cancelled - Auto-login as Newton Campus Member!
-            val autoStudentId = "student_${(System.currentTimeMillis() / 1000) % 10000}"
-            signInWithNewton(autoStudentId, "Newton2026!")
+            showLoading(show = false)
         }
     }
 
