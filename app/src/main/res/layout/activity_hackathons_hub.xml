@@ -11,11 +11,52 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/appBackgroundColor"
-        app:title="🏆 Hackathons &amp; Events Hub"
+        app:title="🏆 Hackathons &amp; Tech Events"
         app:titleTextColor="?attr/textPrimaryColor"
-        app:subtitle="UPCOMING GLOBAL &amp; CAMPUS HACKATHONS"
+        app:subtitle="LIVE GLOBAL &amp; CAMPUS HACKATHONS"
         app:subtitleTextColor="?attr/accentColor"
         app:navigationIcon="@android:drawable/ic_menu_revert" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="8dp">
+
+        <!-- Live Search Bar -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            style="@style/GlassCard"
+            app:cardCornerRadius="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@android:drawable/ic_menu_search"
+                    app:tint="?attr/accentColor" />
+
+                <EditText
+                    android:id="@+id/etSearchHackathons"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="8dp"
+                    android:background="@null"
+                    android:hint="Search Devpost, ETHGlobal, Devfolio..."
+                    android:textColor="?attr/textPrimaryColor"
+                    android:textColorHint="?attr/textSecondaryColor"
+                    android:textSize="13sp"
+                    android:imeOptions="actionSearch"
+                    android:inputType="text" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+    </LinearLayout>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -23,6 +64,7 @@
         android:padding="16dp">
 
         <LinearLayout
+            android:id="@+id/llHackathonsContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
