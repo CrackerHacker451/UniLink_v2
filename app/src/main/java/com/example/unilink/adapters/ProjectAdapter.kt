@@ -68,28 +68,33 @@ class ProjectAdapter(
         val isOwner = project.ownerId == currentUid
         val isMember = project.members.contains(currentUid)
         val memberCount = project.members.size
+        val isHackathon = project.tags?.any { it.lowercase().contains("hackathon") || it.lowercase().contains("event") } == true || project.hackathonName != null
 
         when {
             project.status == "Completed" -> {
-                holder.binding.btnOpen.text = "View Archive"
+                holder.binding.btnOpen.text = "View Archive 📄"
                 holder.binding.btnOpen.isEnabled = true
                 holder.binding.btnOpen.alpha = 0.8f
             }
             isOwner -> {
-                holder.binding.btnOpen.text = "Manage / Complete"
+                holder.binding.btnOpen.text = "Manage / Complete ⚙️"
                 holder.binding.btnOpen.isEnabled = true
             }
             isMember -> {
-                holder.binding.btnOpen.text = "Open Workspace"
+                holder.binding.btnOpen.text = "Open Workspace 💬"
                 holder.binding.btnOpen.isEnabled = true
             }
             memberCount >= project.effectiveMaxMembers -> {
-                holder.binding.btnOpen.text = "Team Full"
+                holder.binding.btnOpen.text = "Team Full 🔒"
                 holder.binding.btnOpen.isEnabled = false
                 holder.binding.btnOpen.alpha = 0.5f
             }
+            isHackathon -> {
+                holder.binding.btnOpen.text = "Join Squad ⚡"
+                holder.binding.btnOpen.isEnabled = true
+            }
             else -> {
-                holder.binding.btnOpen.text = "Join Project"
+                holder.binding.btnOpen.text = "Join Team 👥"
                 holder.binding.btnOpen.isEnabled = true
             }
         }

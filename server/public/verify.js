@@ -65,7 +65,7 @@
       openBtn.hidden = true;
       if (bridge && bridge.onVerified) bridge.onVerified(); else window.location.href = 'unilink://human-verified';
     } catch (e) {
-      fail(friendly[e && e.message] || 'Verification failed. Please try again.');
+      fail(friendly[e && e.message] || ('Verification failed. Please try again. [' + (e && e.message) + ']'));
     }
   }
 

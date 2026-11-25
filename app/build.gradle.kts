@@ -6,16 +6,25 @@ plugins {
 
 android {
     namespace = "com.example.unilink"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.unilink"
+        applicationId = "com.Newtons_Lobby.myapp"
         minSdk = 24
-        targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        targetSdk = 36
+        versionCode = 27
+        versionName = "3.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        create("release") {
+            storeFile = file("release.keystore")
+            storePassword = "unilink123"
+            keyAlias = "unilink_release"
+            keyPassword = "unilink123"
+        }
     }
 
     buildTypes {
@@ -29,7 +38,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     packaging {
@@ -63,6 +72,7 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
     implementation(libs.androidx.viewpager2)
     implementation(libs.googleid)
     implementation(libs.material)

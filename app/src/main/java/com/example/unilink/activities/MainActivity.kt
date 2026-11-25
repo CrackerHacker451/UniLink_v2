@@ -42,6 +42,24 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private val notificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            android.util.Log.d("MainActivity", "POST_NOTIFICATIONS permission granted!")
+        } else {
+            android.util.Log.w("MainActivity", "POST_NOTIFICATIONS permission denied.")
+        }
+    }
+
+    private fun requestNotificationPermission() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         try {
             ThemeUtils.applyTheme(this)
@@ -55,6 +73,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
+        requestNotificationPermission()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

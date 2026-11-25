@@ -31,6 +31,10 @@ class UserRepository {
             .addOnSuccessListener { document ->
                 val user = document.toObject(User::class.java)
                 if (user != null) {
+                    if (user.uniCoins > 5000) {
+                        user.uniCoins = 5000
+                        db.collection("users").document(user.uid).update("uniCoins", 5000)
+                    }
                     checkAndUpdateStreak(user) { updatedUser ->
                         onResult(updatedUser)
                     }
@@ -125,45 +129,28 @@ class UserRepository {
 
     fun getAllUsers(onResult: (List<User>) -> Unit) {
         val currentUid = auth.currentUser?.uid
-        val allFetchedUsers = mutableListOf<User>()
-        val collectionsToFetch = listOf("users", "web_users", "students", "nl_users", "newton_users", "newtons_lobby", "nl_students", "hackathon_users")
-        val completedCount = java.util.concurrent.atomic.AtomicInteger(0)
 
-        collectionsToFetch.forEach { colName ->
-            db.collection(colName).get()
-                .addOnSuccessListener { documents ->
-                    kotlin.concurrent.thread {
-                        val users = documents.mapNotNull { doc ->
-                            parseUserFromDoc(doc, colName)
-                        }
-                        synchronized(allFetchedUsers) {
-                            allFetchedUsers.addAll(users)
-                        }
-                        
-                        if (completedCount.incrementAndGet() == collectionsToFetch.size) {
-                            val distinctUsers = allFetchedUsers
-                                .filter { it.uid.isNotEmpty() && it.uid != currentUid }
-                                .distinctBy { user -> if (user.email.isNotEmpty()) user.email.lowercase() else user.uid }
-                                .sortedWith(compareByDescending<User> { 
-                                    it.boostUntil?.after(java.util.Date()) == true 
-                                }.thenByDescending { it.isVip }
-                                 .thenByDescending { it.totalXp })
+        // 1. Instant 0ms local disk cache return
+        db.collection("users").get(com.google.firebase.firestore.Source.CACHE)
+            .addOnSuccessListener { cacheSnap ->
+                if (cacheSnap != null && !cacheSnap.isEmpty) {
+                    val cached = cacheSnap.mapNotNull { doc -> parseUserFromDoc(doc, "users") }
+                        .filter { it.uid.isNotEmpty() && it.uid != currentUid }
+                    if (cached.isNotEmpty()) onResult(cached)
+                }
+            }
 
-                            android.os.Handler(android.os.Looper.getMainLooper()).post {
-                                onResult(distinctUsers)
-                            }
-                        }
-                    }
-                }
-                .addOnFailureListener {
-                    if (completedCount.incrementAndGet() == collectionsToFetch.size) {
-                        // Still return results even if some fail
-                        android.os.Handler(android.os.Looper.getMainLooper()).post {
-                            onResult(allFetchedUsers) 
-                        }
-                    }
-                }
-        }
+        // 2. Fetch fresh users from main collection
+        db.collection("users").limit(100).get()
+            .addOnSuccessListener { documents ->
+                val users = documents.mapNotNull { doc -> parseUserFromDoc(doc, "users") }
+                    .filter { it.uid.isNotEmpty() && it.uid != currentUid }
+                    .sortedByDescending { it.totalXp }
+                onResult(users)
+            }
+            .addOnFailureListener {
+                onResult(emptyList())
+            }
     }
 
     private fun parseUserFromDoc(doc: com.google.firebase.firestore.DocumentSnapshot, colName: String): User {
@@ -416,8 +403,40 @@ class UserRepository {
 
     fun addUniCoins(amount: Int, onComplete: (Boolean) -> Unit) {
         val uid = auth.currentUser?.uid ?: return onComplete(false)
-        db.collection("users").document(uid).update("uniCoins", com.google.firebase.firestore.FieldValue.increment(amount.toLong()))
-            .addOnCompleteListener { onComplete(it.isSuccessful) }
+        db.collection("users").document(uid).get().addOnSuccessListener { doc ->
+            val currentCoins = doc.getLong("uniCoins") ?: 0L
+            val newCoins = (currentCoins + amount.toLong()).coerceAtMost(5000L).coerceAtLeast(0L)
+            db.collection("users").document(uid).update("uniCoins", newCoins)
+                .addOnCompleteListener { onComplete(it.isSuccessful) }
+        }.addOnFailureListener {
+            onComplete(false)
+        }
+    }
+
+    fun deductUniCoins(amount: Int, onComplete: (Boolean, String?) -> Unit) {
+        val uid = auth.currentUser?.uid ?: return onComplete(false, "Not logged in")
+        db.collection("users").document(uid).get().addOnSuccessListener { doc ->
+            val currentCoins = doc.getLong("uniCoins") ?: 0L
+            if (currentCoins < amount) {
+                onComplete(false, "Insufficient UniCoins balance ($amount required)")
+                return@addOnSuccessListener
+            }
+            val newCoins = (currentCoins - amount.toLong()).coerceAtLeast(0L)
+            db.collection("users").document(uid).update("uniCoins", newCoins)
+                .addOnSuccessListener { onComplete(true, "Successfully spent $amount UniCoins!") }
+                .addOnFailureListener { onComplete(false, it.message) }
+        }.addOnFailureListener {
+            onComplete(false, "Failed to connect to user wallet")
+        }
+    }
+
+    fun sanitizeUserUniCoins(uid: String) {
+        db.collection("users").document(uid).get().addOnSuccessListener { doc ->
+            val coins = doc.getLong("uniCoins") ?: 0L
+            if (coins > 5000L) {
+                db.collection("users").document(uid).update("uniCoins", 5000L)
+            }
+        }
     }
 
     fun activatePremium(onComplete: (Boolean) -> Unit) {

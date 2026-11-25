@@ -171,10 +171,17 @@ fun DareDropScreen(
     }
 
     // Countdown Timer & Real-time Firestore Proofs & Proposed Dares Sync
-    var timeRemainingMillis by remember { mutableLongStateOf(28_800_000L) } // 8 hours countdown
+    var activeDare by remember { mutableStateOf(com.example.unilink.repository.DareDropRepository().getCurrent30MinDare()) }
+    var timeRemainingMillis by remember { mutableLongStateOf(activeDare.expiresAt - System.currentTimeMillis()) }
+
     LaunchedEffect(Unit) {
         val repo = com.example.unilink.repository.DareDropRepository()
-        
+
+        repo.observeActiveDare { cloudDare ->
+            activeDare = cloudDare
+            timeRemainingMillis = (cloudDare.expiresAt - System.currentTimeMillis()).coerceAtLeast(0L)
+        }
+
         repo.observeProofs { cloudProofs ->
             proofList.clear()
             proofList.addAll(cloudProofs)
@@ -186,9 +193,11 @@ fun DareDropScreen(
             proposedDaresList.addAll(cloudDares)
         }
 
-        while (timeRemainingMillis > 0) {
+        while (true) {
             delay(1000)
-            timeRemainingMillis -= 1000L
+            val current30MinDare = repo.getCurrent30MinDare()
+            activeDare = current30MinDare
+            timeRemainingMillis = (current30MinDare.expiresAt - System.currentTimeMillis()).coerceAtLeast(0L)
         }
     }
 
@@ -232,6 +241,7 @@ fun DareDropScreen(
                 // Featured Active Dare Card
                 item {
                     FeaturedDareHeaderCard(
+                        activeDare = activeDare,
                         isCompleted = isDareCompleted,
                         completedCount = completedCount,
                         timeRemainingMillis = timeRemainingMillis,
@@ -336,12 +346,28 @@ fun DareDropScreen(
                             DareProofCard(
                                 proof = proof,
                                 onLikeClick = {
-                                    proof.isLiked = !proof.isLiked
-                                    if (proof.isLiked) proof.likesCount++ else proof.likesCount--
+                                    val repo = com.example.unilink.repository.DareDropRepository()
+                                    repo.toggleLike(proof.id)
+
+                                    val idx = proofList.indexOfFirst { it.id == proof.id }
+                                    if (idx != -1) {
+                                        val item = proofList[idx]
+                                        val newLiked = !item.isLiked
+                                        val newLikes = if (newLiked) item.likesCount + 1 else (item.likesCount - 1).coerceAtLeast(0)
+                                        proofList[idx] = item.copy(isLiked = newLiked, likesCount = newLikes)
+                                    }
                                 },
                                 onCheerClick = {
-                                    proof.isCheered = !proof.isCheered
-                                    if (proof.isCheered) proof.cheersCount++ else proof.cheersCount--
+                                    val repo = com.example.unilink.repository.DareDropRepository()
+                                    repo.toggleCheer(proof.id)
+
+                                    val idx = proofList.indexOfFirst { it.id == proof.id }
+                                    if (idx != -1) {
+                                        val item = proofList[idx]
+                                        val newCheered = !item.isCheered
+                                        val newCheers = if (newCheered) item.cheersCount + 1 else (item.cheersCount - 1).coerceAtLeast(0)
+                                        proofList[idx] = item.copy(isCheered = newCheered, cheersCount = newCheers)
+                                    }
                                 }
                             )
                         }
@@ -380,12 +406,18 @@ fun DareDropScreen(
                         ProposedDareCard(
                             item = proposed,
                             onVoteClick = {
-                                proposed.hasVoted = !proposed.hasVoted
-                                if (proposed.hasVoted) {
-                                    proposed.votesCount++
-                                    Toast.makeText(context, "Voted for '${proposed.title}'! 🗳️", Toast.LENGTH_SHORT).show()
-                                } else {
-                                    proposed.votesCount--
+                                val repo = com.example.unilink.repository.DareDropRepository()
+                                repo.toggleVote(proposed.id)
+
+                                val idx = proposedDaresList.indexOfFirst { it.id == proposed.id }
+                                if (idx != -1) {
+                                    val item = proposedDaresList[idx]
+                                    val newVoted = !item.hasVoted
+                                    val newVotes = if (newVoted) item.votesCount + 1 else (item.votesCount - 1).coerceAtLeast(0)
+                                    proposedDaresList[idx] = item.copy(hasVoted = newVoted, votesCount = newVotes)
+                                    if (newVoted) {
+                                        Toast.makeText(context, "Voted for '${item.title}'! 🗳️", Toast.LENGTH_SHORT).show()
+                                    }
                                 }
                             }
                         )
@@ -512,17 +544,22 @@ fun DareDropScreen(
                         val finalCaption = captionText.ifEmpty { if (isVideoSelected) "Completed today's DareDrop video challenge! 🎥🔥" else "Completed today's DareDrop challenge! 📸 high five!" }
 
                         if (isVideoSelected && attachedVideoUri != null) {
-                            Toast.makeText(context, "Analyzing video proof with UniAI 0G Computer... 🤖🎥", Toast.LENGTH_SHORT).show()
-                            com.example.unilink.repository.StorageRepository().uploadDareVideo(context, attachedVideoUri!!) { cloudVideoUrl ->
-                                com.example.unilink.repository.DareDropRepository().publishProof(
-                                    caption = finalCaption,
-                                    imageUrl = "",
-                                    videoUrl = cloudVideoUrl,
-                                    isVideo = true
-                                ) { success ->
-                                    if (success) {
-                                        Toast.makeText(context, "🤖 UniAI 0G Verified Video Proof! +25 🪙", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Uploading video proof & analyzing with UniAI 0G Computer... 🤖🎥", Toast.LENGTH_SHORT).show()
+                            val selectedVideoUri = attachedVideoUri!!
+                            com.example.unilink.repository.StorageRepository().uploadDareVideo(context, selectedVideoUri) { cloudVideoUrl ->
+                                if (!cloudVideoUrl.isNullOrEmpty()) {
+                                    com.example.unilink.repository.DareDropRepository().publishProof(
+                                        caption = finalCaption,
+                                        imageUrl = "",
+                                        videoUrl = cloudVideoUrl,
+                                        isVideo = true
+                                    ) { success ->
+                                        if (success) {
+                                            Toast.makeText(context, "🤖 UniAI 0G Verified Video Proof! +25 🪙", Toast.LENGTH_SHORT).show()
+                                        }
                                     }
+                                } else {
+                                    Toast.makeText(context, "Video upload failed. Check connection and try again.", Toast.LENGTH_LONG).show()
                                 }
                             }
                         } else if (attachedImageUri != null) {
@@ -541,25 +578,7 @@ fun DareDropScreen(
                             }
                         }
 
-                        // Local immediate feedback
-                        proofList.add(
-                            0,
-                            DareProofItem(
-                                id = "my_p_${System.currentTimeMillis()}",
-                                authorName = "You (Verified Student)",
-                                authorDept = "Campus Hero",
-                                timeAgo = "Just now",
-                                caption = finalCaption,
-                                imageUrl = if (!isVideoSelected) attachedImageUri else null,
-                                videoUrl = if (isVideoSelected) attachedVideoUri?.toString() else null,
-                                isVideo = isVideoSelected,
-                                likesCount = 1,
-                                isLiked = true,
-                                isCurrentUser = true
-                            )
-                        )
-
-                        Toast.makeText(context, "Dare Completed! Earned +25 UniCoins 🏆", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "Dare Submitted! UniCoins & XP Updated 🏆", Toast.LENGTH_SHORT).show()
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = AuraPinkNeon)
                 ) {
@@ -652,15 +671,15 @@ fun DareDropScreen(
 // ---------------------------------------------------------------------------
 @Composable
 fun FeaturedDareHeaderCard(
+    activeDare: com.example.unilink.repository.ActiveDailyDare,
     isCompleted: Boolean,
     completedCount: Int,
     timeRemainingMillis: Long,
     onCompleteClick: () -> Unit
 ) {
-    val hours = TimeUnit.MILLISECONDS.toHours(timeRemainingMillis)
     val minutes = TimeUnit.MILLISECONDS.toMinutes(timeRemainingMillis) % 60
     val seconds = TimeUnit.MILLISECONDS.toSeconds(timeRemainingMillis) % 60
-    val formattedTime = String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds)
+    val formattedTime = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
 
     Box(
         modifier = Modifier
@@ -691,7 +710,7 @@ fun FeaturedDareHeaderCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.LocalFireDepartment, contentDescription = null, tint = AuraPinkNeon, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("TODAY'S FEATURED DROP", color = AuraPinkNeon, fontSize = 11.sp, fontWeight = FontWeight.Black, letterSpacing = 0.5.sp)
+                    Text("ACTIVE DARE DROP", color = AuraPinkNeon, fontSize = 11.sp, fontWeight = FontWeight.Black, letterSpacing = 0.5.sp)
                 }
 
                 Surface(
@@ -704,15 +723,15 @@ fun FeaturedDareHeaderCard(
                     ) {
                         Icon(Icons.Default.Timer, contentDescription = null, tint = AuraGoldNeon, modifier = Modifier.size(12.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text(text = "Resets in $formattedTime", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        Text(text = "Next Dare in $formattedTime", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
 
             Text(
-                text = "\"Take a high-five selfie with a campus professor or library cat! 📸\"",
+                text = activeDare.title,
                 color = Color.White,
-                fontSize = 16.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.Bold
             )
 
@@ -856,7 +875,6 @@ fun DareProofCard(
                         androidx.compose.ui.viewinterop.AndroidView(
                             factory = { ctx ->
                                 android.widget.VideoView(ctx).apply {
-                                    setVideoURI(android.net.Uri.parse(proof.videoUrl))
                                     val controller = android.widget.MediaController(ctx)
                                     controller.setAnchorView(this)
                                     setMediaController(controller)
@@ -864,6 +882,18 @@ fun DareProofCard(
                                         mp.isLooping = true
                                         start()
                                     }
+                                    setOnErrorListener { _, _, _ ->
+                                        android.util.Log.e("DareDropVideo", "Playback error for video: ${proof.videoUrl}")
+                                        true
+                                    }
+                                }
+                            },
+                            update = { videoView ->
+                                try {
+                                    videoView.setVideoURI(android.net.Uri.parse(proof.videoUrl))
+                                    videoView.start()
+                                } catch (e: Exception) {
+                                    android.util.Log.e("DareDropVideo", "VideoView update error: ${e.message}")
                                 }
                             },
                             modifier = Modifier.fillMaxSize()

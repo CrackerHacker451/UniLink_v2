@@ -24,7 +24,7 @@ function createGate({ db, auth, appCheck, fetchFn, signRequest, hashSignal, Null
   }, config);
 
   const send = (res, code, body) => res.status(code).json(body);
-  const bad = (res, code, error) => send(res, code, { success: false, error });
+  const bad = (res, code, error) => { console.error('gate_reject', code, error); return send(res, code, { success: false, error }); };
 
   const header = (req, name) => {
     const h = req.headers || {};
@@ -122,12 +122,12 @@ function createGate({ db, auth, appCheck, fetchFn, signRequest, hashSignal, Null
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(Object.assign({}, r, { environment: c.environment })),
       });
-      if (!upstream.ok) return bad(res, 400, 'verification_failed');
+      if (!upstream.ok) { try { console.error('portal_reject', upstream.status, String(await upstream.text()).slice(0, 400)); } catch (_) {} return bad(res, 400, 'verification_failed'); }
       portal = await upstream.json();
     } catch (_) {
       return bad(res, 502, 'verification_unavailable');
     }
-    if (!portal || portal.success !== true || portal.environment !== c.environment) return bad(res, 400, 'verification_failed');
+    if (!portal || portal.success !== true || portal.environment !== c.environment) { try { console.error('portal_reject_body', JSON.stringify(portal).slice(0, 400)); } catch (_) {} return bad(res, 400, 'verification_failed'); }
 
     // One human = one account.
     const nullRef = db.collection('worldNullifiers').doc(c.action + '_' + nullifierDec);

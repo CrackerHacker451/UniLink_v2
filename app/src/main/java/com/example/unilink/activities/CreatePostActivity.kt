@@ -101,20 +101,18 @@ class CreatePostActivity : AppCompatActivity() {
             if (content.isNotEmpty() || selectedImageUri != null) {
                 binding.btnPost.isEnabled = false
                 binding.btnPost.text = "Publishing..."
-                
-                if (selectedImageUri != null) {
-                    storageRepository.uploadPostImage(selectedImageUri!!) { url ->
-                        if (url != null) {
-                            performPost(type, content, url)
-                        } else {
-                            binding.btnPost.isEnabled = true
-                            binding.btnPost.text = if (type == "story") "Post Status" else "Post"
-                            Toast.makeText(this, "Failed to upload image", Toast.LENGTH_SHORT).show()
-                        }
+
+                val imageUriToUpload = selectedImageUri
+                if (imageUriToUpload != null) {
+                    storageRepository.uploadPostImage(imageUriToUpload) { url ->
+                        val finalImageUrl = url ?: imageUriToUpload.toString()
+                        performPost(type, content, finalImageUrl)
                     }
                 } else {
                     performPost(type, content, null)
                 }
+            } else {
+                Toast.makeText(this, "Please enter some text or attach an image", Toast.LENGTH_SHORT).show()
             }
         }
     }

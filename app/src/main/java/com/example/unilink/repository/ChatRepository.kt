@@ -448,24 +448,27 @@ class ChatRepository {
     fun listenForMessages(chatId: String, isProjectSync: Boolean = false, onMessagesUpdate: (List<ChatMessage>) -> Unit): ListenerRegistration {
         val ref = if (isProjectSync) db.collection("hl_teams").document(chatId).collection("messages")
                   else db.collection("chats").document(chatId).collection("messages")
-        
-        return ref.addSnapshotListener { snapshots, e ->
-            if (e != null) {
-                Log.e("ChatRepo", "Error listening for messages", e)
-                return@addSnapshotListener
-            }
-            val messages = snapshots?.mapNotNull { doc ->
-                doc.toObject(ChatMessage::class.java).apply {
-                    if (this.messageId.isEmpty()) {
-                        this.messageId = doc.id
+
+        return ref.orderBy("timestamp", com.google.firebase.firestore.Query.Direction.ASCENDING)
+            .limitToLast(50)
+            .addSnapshotListener { snapshots, e ->
+                if (e != null || snapshots == null) {
+                    Log.e("ChatRepo", "Error listening for messages", e)
+                    return@addSnapshotListener
+                }
+                val messages = snapshots.mapNotNull { doc ->
+                    try {
+                        doc.toObject(ChatMessage::class.java).apply {
+                            if (this.messageId.isEmpty()) {
+                                this.messageId = doc.id
+                            }
+                        }
+                    } catch (_: Exception) {
+                        null
                     }
                 }
-            }?.sortedBy { msg ->
-                msg.timestampDate?.time ?: Long.MAX_VALUE
-            } ?: emptyList()
-
-            onMessagesUpdate(messages)
-        }
+                onMessagesUpdate(messages)
+            }
     }
 
     fun observeChatRoom(chatId: String, onUpdate: (ChatRoom?) -> Unit): ListenerRegistration {

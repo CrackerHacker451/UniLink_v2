@@ -5,8 +5,8 @@ import java.util.Date
 
 data class BackendRpContext(
     val challengeId: String = "",
-    val rpId: String = "rp_newtons_lobby",
-    val action: String = "newton-streak-day7-v1",
+    val rpId: String = "rp_f622b6e137cc091b",
+    val action: String = "unilink-human-gate-v1",
     val nonce: String = "",
     val createdAt: Long = System.currentTimeMillis() / 1000,
     val expiresAt: Long = (System.currentTimeMillis() / 1000) + 600,

@@ -60,23 +60,35 @@ class UniLinkApp : Application(), Application.ActivityLifecycleCallbacks, ImageL
         super.onCreate()
         instance = this
 
-        // App Check: lets Firebase and our server reject scripts, agents calling the API directly,
-        // emulators and tampered copies of the app. Debug builds use the debug provider.
-        val debuggable = (applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0
-        FirebaseAppCheck.getInstance().installAppCheckProviderFactory(
-            if (debuggable) DebugAppCheckProviderFactory.getInstance()
-            else PlayIntegrityAppCheckProviderFactory.getInstance()
-        )
-        
-        // Enable vector support for older devices
-        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
-        
-        // 1. Initialize Firebase first
+        // 1. Initialize Firebase first before any Firebase service calls
         try {
             FirebaseApp.initializeApp(this)
         } catch (e: Exception) {
             android.util.Log.e("UniLinkApp", "Firebase init failed: ${e.message}")
         }
+
+        // 2. Install App Check Provider Factory (Debug for debug builds, Play Integrity for release)
+        try {
+            val debuggable = BuildConfig.DEBUG || (applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0
+            val factory = if (debuggable) DebugAppCheckProviderFactory.getInstance()
+                          else PlayIntegrityAppCheckProviderFactory.getInstance()
+            FirebaseAppCheck.getInstance().installAppCheckProviderFactory(factory)
+
+            if (debuggable) {
+                FirebaseAppCheck.getInstance().getAppCheckToken(false)
+                    .addOnSuccessListener { token ->
+                        android.util.Log.d("UniLinkAppCheckDebug", "App Check Debug Token: ${token.token}")
+                    }
+                    .addOnFailureListener { e ->
+                        android.util.Log.e("UniLinkAppCheckDebug", "App Check Token error: ${e.message}")
+                    }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("UniLinkApp", "App Check init error: ${e.message}")
+        }
+        
+        // Enable vector support for older devices
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
 
         // 2. Enable Firestore Persistent Disk Caching for Instant 0ms Screen Loading
         try {

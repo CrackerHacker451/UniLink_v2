@@ -11,22 +11,19 @@ class PostRepository {
     private val auth = FirebaseAuth.getInstance()
 
     fun createPost(content: String, imageUrl: String? = null, onComplete: (Boolean) -> Unit) {
-        val uid = auth.currentUser?.uid ?: return
+        val currentUser = auth.currentUser ?: return onComplete(false)
+        val uid = currentUser.uid
         val postId = db.collection("posts").document().id
-        
-        db.collection("users").document(uid).get().addOnSuccessListener { doc ->
-            val name = doc.getString("name") ?: "User"
-            val major = doc.getString("branch") ?: ""
-            val avatar = doc.getString("profileImageUrl")
-            
+
+        fun savePostToFirestore(name: String, major: String, avatar: String?) {
             val postData = hashMapOf(
                 "postId" to postId,
                 "authorId" to uid,
                 "authorName" to name,
-                "authorAvatarUrl" to avatar,
+                "authorAvatarUrl" to (avatar ?: ""),
                 "authorMajor" to major,
                 "content" to content,
-                "imageUrl" to imageUrl,
+                "imageUrl" to (imageUrl ?: ""),
                 "timestamp" to com.google.firebase.firestore.FieldValue.serverTimestamp(),
                 "likes" to 0,
                 "commentCount" to 0,
@@ -38,7 +35,22 @@ class PostRepository {
                 .addOnCompleteListener { task ->
                     onComplete(task.isSuccessful)
                 }
+                .addOnFailureListener {
+                    onComplete(false)
+                }
         }
+
+        db.collection("users").document(uid).get()
+            .addOnSuccessListener { doc ->
+                val name = doc.getString("name") ?: currentUser.displayName ?: "Verified Student"
+                val major = doc.getString("branch") ?: "Campus"
+                val avatar = doc.getString("profileImageUrl") ?: currentUser.photoUrl?.toString()
+                savePostToFirestore(name, major, avatar)
+            }
+            .addOnFailureListener {
+                val fallbackName = currentUser.displayName ?: "Verified Student"
+                savePostToFirestore(fallbackName, "Campus", currentUser.photoUrl?.toString())
+            }
     }
 
     fun deletePost(postId: String, onComplete: (Boolean) -> Unit) {
@@ -47,15 +59,29 @@ class PostRepository {
     }
 
     fun getFeed(onResult: (List<Post>) -> Unit): com.google.firebase.firestore.ListenerRegistration {
+        db.collection("posts")
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .limit(25)
+            .get(com.google.firebase.firestore.Source.CACHE)
+            .addOnSuccessListener { cacheSnap ->
+                if (cacheSnap != null && !cacheSnap.isEmpty) {
+                    val cachedPosts = cacheSnap.mapNotNull { doc ->
+                        try { doc.toObject(Post::class.java) } catch (_: Exception) { null }
+                    }
+                    if (cachedPosts.isNotEmpty()) onResult(cachedPosts)
+                }
+            }
+
         return db.collection("posts")
             .orderBy("timestamp", Query.Direction.DESCENDING)
-            .limit(50)
+            .limit(25)
             .addSnapshotListener { snapshot, e ->
-                if (e != null) {
-                    onResult(emptyList())
+                if (e != null || snapshot == null) {
                     return@addSnapshotListener
                 }
-                val posts = snapshot?.mapNotNull { it.toObject(Post::class.java) } ?: emptyList()
+                val posts = snapshot.mapNotNull { doc ->
+                    try { doc.toObject(Post::class.java) } catch (_: Exception) { null }
+                }
                 onResult(posts)
             }
     }
