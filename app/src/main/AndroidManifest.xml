@@ -133,11 +133,11 @@
 
         <activity
             android:name=".activities.HackathonsHubActivity"
-            android:exported="false" />
+            android:exported="true" />
 
         <activity
             android:name=".activities.TeamSquadsHubActivity"
-            android:exported="false" />
+            android:exported="true" />
 
     </application>
 
