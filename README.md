@@ -7,7 +7,21 @@
 [![World ID 4.0](https://img.shields.io/badge/World_ID_4.0-IDKit_Liveness_Verified-10B981?style=for-the-badge)](https://worldcoin.org)
 [![License](https://img.shields.io/badge/License-MIT-F59E0B?style=for-the-badge)](LICENSE)
 
-**Newton's Lobby** (`com.example.unilink`) is an unrestricted, AI-native, privacy-preserving Campus Operating System built for modern university students. Powered by **World ID 4.0** & **World ID Agent Pass** (`https://auth.world.org/`), **Arkiv Network DB-Chain** (`@arkiv-network/sdk`), **0G Private Computer** (verifiable zero-knowledge AI computer vision & inference), **Swarm Decentralized Storage**, and **WebRTC Full HD 1080p SpeedLink**, Newton's Lobby unifies academic collaboration, campus networking, barter trading, and real-time social connection into a single minimal dark glass interface.
+**Newton's Lobby** (`com.Newtons_Lobby.myapp`) is an unrestricted, AI-native, privacy-preserving Campus Operating System built for modern university students. Powered by **World ID Agent Pass** (`https://auth.world.org/`), **World ID 4.0 Proportional Trust Engine**, **Arkiv Network DB-Chain** (`@arkiv-network/sdk`), **0G Private Computer** (verifiable zero-knowledge AI computer vision & inference), **Swarm Decentralized Storage**, and **WebRTC Full HD 1080p SpeedLink**, Newton's Lobby unifies academic collaboration, campus networking, barter trading, and real-time social connection into a single minimal dark glass interface.
+
+---
+
+## 🌐 World ID Agent Pass & IDKit Track Qualifications ($12,500 Total Prize Pool)
+
+Newton's Lobby integrates **World ID Agent Pass** (`https://auth.world.org/`) and **IDKit Proportional Trust Assurance** with App ID **`app_ce59eafb4c64fb4dff9ac783c593702a`**.
+
+- **Full User Journey**: Initiates human verification at the exact moment a protected action is triggered (Day 7 Streak Claim +150 UniCoins, Hackathon Team Creation Gate, Deploy Autonomous Agent).
+- **Proportional Credential Assurance**: Uses **Orb Proof of Human (ID 1)** for scarce financial rewards, **Selfie Check (ID 11)** for team liveness gates, and **Passport NFC (ID 9303)** for international scholar badges.
+- **Secure Backend Validation**: All ZK proofs and nullifier hashes are validated on secure backend infrastructure (`server/gate.js` / Firestore transaction).
+- **Denied Path Protection**: Cancelling or declining verification immediately blocks protected agent executions and logs the denied state.
+- **World ID Technical Reports**:
+  - **[`worldid/agent_pass.md`](./worldid/agent_pass.md)**: [World ID Agent Pass Technical Report ($7,500 Total Tracks)](./worldid/agent_pass.md)
+  - **[`worldid/idkit_trust.md`](./worldid/idkit_trust.md)**: [Best Use of IDKit & Proportional Trust Report ($5,000 Total Tracks)](./worldid/idkit_trust.md)
 
 ---
 

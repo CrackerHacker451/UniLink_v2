@@ -74,7 +74,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         requestNotificationPermission()
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
