@@ -15,19 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "326237133092-n1k38a19230912k390a182903.apps.googleusercontent.com",
+          "client_id": "326237133092-pgvob7i0bd04tf67vdjuhbmgltp6qkhd.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.Newtons_Lobby.myapp",
             "certificate_hash": "39a3a59652b62697de5ecc687fbf013d3c47fac3"
-          }
-        },
-        {
-          "client_id": "326237133092-m283910283018230129381023.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.Newtons_Lobby.myapp",
-            "certificate_hash": "301ce2f6ca8c7c624a60f4b01f70757586004f04"
           }
         },
         {

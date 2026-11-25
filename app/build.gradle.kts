@@ -6,38 +6,16 @@ plugins {
 
 android {
     namespace = "com.example.unilink"
-    compileSdk = 36
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.Newtons_Lobby.myapp"
         minSdk = 24
-        targetSdk = 36
-        versionCode = 34
-        versionName = "4.3"
+        targetSdk = 35
+        versionCode = 2
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    // Keep signing credentials and keystores outside version control.
-    val releaseSigning = listOf(
-        "UNILINK_KEYSTORE_PATH",
-        "UNILINK_STORE_PASSWORD",
-        "UNILINK_KEY_ALIAS",
-        "UNILINK_KEY_PASSWORD"
-    ).associateWith { providers.environmentVariable(it).orNull }
-    val hasReleaseSigning = releaseSigning.values.all { !it.isNullOrBlank() }
-    require(hasReleaseSigning || releaseSigning.values.all { it.isNullOrBlank() }) {
-        "Provide all four UNILINK signing environment variables, or none."
-    }
-    signingConfigs {
-        if (hasReleaseSigning) {
-            create("release") {
-                storeFile = rootProject.file(releaseSigning.getValue("UNILINK_KEYSTORE_PATH")!!)
-                storePassword = releaseSigning.getValue("UNILINK_STORE_PASSWORD")
-                keyAlias = releaseSigning.getValue("UNILINK_KEY_ALIAS")
-                keyPassword = releaseSigning.getValue("UNILINK_KEY_PASSWORD")
-            }
-        }
     }
 
     buildTypes {
@@ -51,10 +29,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            if (hasReleaseSigning) signingConfig = signingConfigs.getByName("release")
-            ndk {
-                debugSymbolLevel = "FULL"
-            }
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     packaging {
@@ -88,7 +63,6 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
-    implementation("com.google.android.gms:play-services-auth:21.2.0")
     implementation(libs.androidx.viewpager2)
     implementation(libs.googleid)
     implementation(libs.material)
