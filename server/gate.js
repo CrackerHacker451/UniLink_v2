@@ -20,6 +20,7 @@ function createGate({ db, auth, appCheck, fetchFn, signRequest, hashSignal, Null
     requireAppCheck: true, // only the genuine, untampered app may start a verification
     appCheckAppId: null,
     verifyBase: 'https://developer.world.org/api/v4/verify/',
+    verificationTimeoutMs: 8000,
     now: () => Date.now(),
   }, config);
 
@@ -45,7 +46,7 @@ function createGate({ db, auth, appCheck, fetchFn, signRequest, hashSignal, Null
 
   async function uidFromBearer(req) {
     const h = (req.headers && (req.headers.authorization || req.headers.Authorization)) || '';
-    const m = /^Bearer (.+)$/.exec(h);
+    const m = typeof h === 'string' && /^Bearer ([^\s]+)$/.exec(h);
     if (!m) return null;
     try { return (await auth.verifyIdToken(m[1])).uid; } catch (_) { return null; }
   }
@@ -56,7 +57,7 @@ function createGate({ db, auth, appCheck, fetchFn, signRequest, hashSignal, Null
     const snap = await ref.get();
     if (!snap.exists) return null;
     const p = snap.data();
-    if (p.used === true || c.now() > p.expiresAtMs) return null;
+    if (p.used === true || !Number.isFinite(p.expiresAtMs) || c.now() >= p.expiresAtMs) return null;
     return { ref, data: p };
   }
 
@@ -83,7 +84,19 @@ function createGate({ db, auth, appCheck, fetchFn, signRequest, hashSignal, Null
     const pairing = await loadPairing(req.body && req.body.pairingId);
     if (!pairing) return bad(res, 400, 'invalid_or_expired_session');
     const { sig, nonce, createdAt, expiresAt } = signRequest({ signingKeyHex: c.signingKeyHex, action: c.action });
-    await pairing.ref.update({ nonce, rpExpiresAt: expiresAt });
+    try {
+      await db.runTransaction(async (tx) => {
+        const snap = await tx.get(pairing.ref);
+        const p = snap.exists && snap.data();
+        if (!p || p.used === true || !Number.isFinite(p.expiresAtMs) || c.now() >= p.expiresAtMs) {
+          throw new Error('invalid_or_expired_session');
+        }
+        tx.update(pairing.ref, { nonce, rpExpiresAt: expiresAt });
+      });
+    } catch (e) {
+      if (e.message === 'invalid_or_expired_session') return bad(res, 400, 'invalid_or_expired_session');
+      return bad(res, 503, 'verification_unavailable');
+    }
     return send(res, 200, {
       success: true,
       appId: c.appId, rpId: c.rpId, action: c.action, environment: c.environment,
@@ -121,24 +134,27 @@ function createGate({ db, auth, appCheck, fetchFn, signRequest, hashSignal, Null
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(Object.assign({}, r, { environment: c.environment })),
+        signal: AbortSignal.timeout(c.verificationTimeoutMs),
       });
-      if (!upstream.ok) { try { console.error('portal_reject', upstream.status, String(await upstream.text()).slice(0, 400)); } catch (_) {} return bad(res, 400, 'verification_failed'); }
+      if (!upstream.ok) { console.error('portal_reject', upstream.status); return bad(res, 400, 'verification_failed'); }
       portal = await upstream.json();
     } catch (_) {
       return bad(res, 502, 'verification_unavailable');
     }
-    if (!portal || portal.success !== true || portal.environment !== c.environment) { try { console.error('portal_reject_body', JSON.stringify(portal).slice(0, 400)); } catch (_) {} return bad(res, 400, 'verification_failed'); }
+    if (!portal || portal.success !== true || portal.environment !== c.environment) return bad(res, 400, 'verification_failed');
 
     // One human = one account.
     const nullRef = db.collection('worldNullifiers').doc(c.action + '_' + nullifierDec);
     const userRef = db.collection('users').doc(uid);
     const humanRef = db.collection('worldHumanByUid').doc(uid);
-    let conflict = false;
     try {
       await db.runTransaction(async (tx) => {
         const [nSnap, pSnap, uSnap] = await Promise.all([tx.get(nullRef), tx.get(pairing.ref), tx.get(userRef)]);
-        if (!pSnap.exists || pSnap.data().used === true) throw new Error('session_used');
-        if (nSnap.exists && nSnap.data().uid !== uid) { conflict = true; throw new Error('duplicate_human'); }
+        const current = pSnap.exists && pSnap.data();
+        if (!current || current.used === true) throw new Error('session_used');
+        if (!Number.isFinite(current.expiresAtMs) || c.now() >= current.expiresAtMs) throw new Error('invalid_or_expired_session');
+        if (current.uid !== uid || current.nonce !== r.nonce) throw new Error('challenge_mismatch');
+        if (nSnap.exists && nSnap.data().uid !== uid) throw new Error('duplicate_human');
         tx.set(nullRef, { uid, action: c.action, identifier: resp.identifier, verifiedAt: serverTimestamp() });
         tx.set(humanRef, { uid, identifier: resp.identifier, verifiedAt: serverTimestamp() });
         tx.update(pairing.ref, { used: true });
@@ -147,8 +163,9 @@ function createGate({ db, auth, appCheck, fetchFn, signRequest, hashSignal, Null
         }
       });
     } catch (e) {
-      if (conflict) return bad(res, 409, 'human_already_linked');
-      return bad(res, 400, 'session_used');
+      if (e.message === 'duplicate_human') return bad(res, 409, 'human_already_linked');
+      if (['session_used', 'invalid_or_expired_session', 'challenge_mismatch'].includes(e.message)) return bad(res, 400, e.message);
+      return bad(res, 503, 'verification_unavailable');
     }
 
     try {

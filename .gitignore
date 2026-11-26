@@ -16,3 +16,10 @@ local.properties
 
 # Local Netlify folder
 .netlify
+
+# Private Android signing material and local credentials
+*.keystore
+*.jks
+.env
+.env.*
+!.env.example
