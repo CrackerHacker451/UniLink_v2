@@ -28,9 +28,7 @@ class MainActivity : AppCompatActivity() {
     private val userRepository = UserRepository()
     private var activeFragment: Fragment? = null
     private var appliedThemeName: String = ""
-    private var notificationListener: com.google.firebase.firestore.ListenerRegistration? = null
     private var unreadChatListener: com.google.firebase.firestore.ListenerRegistration? = null
-    private val shownNotificationIds = mutableSetOf<String>()
 
     private val locationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions(),
@@ -119,15 +117,24 @@ class MainActivity : AppCompatActivity() {
         com.example.unilink.services.FcmService.subscribeToGlobalUpdates()
         refreshFcmTokenOnLaunch()
         checkForAppUpdates()
+        openNotificationInbox(intent)
     }
 
     private fun refreshFcmTokenOnLaunch() {
-        val uid = auth.currentUser?.uid ?: return
-        com.google.firebase.messaging.FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
-            if (!token.isNullOrBlank()) {
-                com.google.firebase.firestore.FirebaseFirestore.getInstance().collection("users").document(uid).update("fcmToken", token)
-            }
+        com.example.unilink.services.FcmService.refreshToken()
+    }
+
+    private fun openNotificationInbox(intent: Intent) {
+        if (intent.getBooleanExtra("openNotifications", false)) {
+            intent.removeExtra("openNotifications")
+            startActivity(Intent(this, NotificationsActivity::class.java))
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (auth.currentUser != null) openNotificationInbox(intent)
     }
 
     private fun checkAndRequestPermissions() {
@@ -142,11 +149,6 @@ class MainActivity : AppCompatActivity() {
             fetchAndSaveUserLocation()
         }
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 102)
-            }
-        }
     }
 
     private fun fetchAndSaveUserLocation() {
@@ -184,30 +186,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun observeNotifications() {
-        notificationListener?.remove()
-        notificationListener = com.example.unilink.repository.NotificationRepository().observeNotifications { list ->
-            list.forEach { notif ->
-                if (!notif.isRead && !shownNotificationIds.contains(notif.notificationId)) {
-                    shownNotificationIds.add(notif.notificationId)
-                    if (notif.type == "video_call") {
-                        com.example.unilink.utils.NotificationHelper.showIncomingCallNotification(
-                            context = this,
-                            callerName = notif.senderName ?: "Campus Peer",
-                            channelId = notif.targetId ?: "call_room",
-                            callerUid = notif.senderId ?: ""
-                        )
-                    } else {
-                        com.example.unilink.utils.NotificationHelper.showNotification(
-                            context = this,
-                            title = notif.title,
-                            message = notif.message,
-                            targetId = notif.targetId
-                        )
-                    }
-                }
-            }
-        }
-
         unreadChatListener?.remove()
         unreadChatListener = com.example.unilink.repository.ChatRepository().observeTotalUnreadChatCount { unreadChatCount ->
             val chatBadge = binding.bottomNavigation.getOrCreateBadge(R.id.nav_messages)
@@ -420,7 +398,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        notificationListener?.remove()
         unreadChatListener?.remove()
         updateOnlineStatus(online = false)
     }

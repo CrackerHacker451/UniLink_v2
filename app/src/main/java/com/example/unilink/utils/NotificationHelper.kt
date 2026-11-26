@@ -54,7 +54,7 @@ object NotificationHelper {
         }
     }
 
-    fun showNotification(context: Context, title: String, message: String, targetId: String? = null) {
+    fun showNotification(context: Context, title: String, message: String, targetId: String? = null, notificationId: String? = null) {
         init(context)
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -65,10 +65,11 @@ object NotificationHelper {
         }
 
         val intent = android.content.Intent(context, com.example.unilink.activities.SplashActivity::class.java).apply {
-            flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+            flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra("openNotifications", true)
             targetId?.let { putExtra("chatId", it) }
         }
-        val notifId = (System.currentTimeMillis() % 10000).toInt()
+        val notifId = notificationId?.hashCode() ?: (System.currentTimeMillis() % Int.MAX_VALUE).toInt()
         val pendingIntent = android.app.PendingIntent.getActivity(
             context,
             notifId,
@@ -83,13 +84,15 @@ object NotificationHelper {
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_MAX)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
             .setCategory(NotificationCompat.CATEGORY_MESSAGE)
             .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setSound(soundUri)
             .setVibrate(longArrayOf(0, 500, 200, 500))
             .setLights(android.graphics.Color.CYAN, 3000, 3000)
             .setAutoCancel(true)
+            .setOnlyAlertOnce(true)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(message))
             .setContentIntent(pendingIntent)
 
         notificationManager.notify(notifId, builder.build())
@@ -126,12 +129,13 @@ object NotificationHelper {
             .setContentTitle("📞 Incoming Video Call")
             .setContentText("$callerName is calling you...")
             .setPriority(NotificationCompat.PRIORITY_MAX)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
             .setCategory(NotificationCompat.CATEGORY_CALL)
             .setSound(ringtoneUri)
             .setVibrate(longArrayOf(0, 1000, 500, 1000, 500, 1000))
             .setLights(android.graphics.Color.GREEN, 3000, 3000)
             .setAutoCancel(true)
+            .setTimeoutAfter(60_000L)
             .setFullScreenIntent(answerPendingIntent, true)
             .addAction(android.R.drawable.ic_menu_call, "Answer 📞", answerPendingIntent)
 

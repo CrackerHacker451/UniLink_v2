@@ -3,23 +3,56 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_home_glass"
+    android:background="?attr/appBackgroundColor"
     android:orientation="vertical">
-
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         app:navigationIcon="?attr/homeAsUpIndicator"
         app:navigationIconTint="?attr/textPrimaryColor"
-        app:title="Activity Notifications"
+        app:title="Notifications"
         app:titleTextColor="?attr/textPrimaryColor" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvNotifications"
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:padding="16dp" />
-
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="8dp"
+        android:text="Messages, campus activity and updates"
+        android:textColor="?attr/textSecondaryColor"
+        android:textSize="14sp" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnNotificationSettings"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="10dp"
+        android:text="Manage notification settings"
+        android:textAllCaps="false"
+        android:textColor="?attr/textPrimaryColor"
+        app:strokeColor="?attr/borderStrokeColor" />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvNotifications"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:padding="16dp" />
+        <TextView
+            android:id="@+id/emptyNotifications"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:padding="32dp"
+            android:text="No activity to show yet.\nNew notifications will appear here."
+            android:textColor="?attr/textSecondaryColor"
+            android:textSize="16sp"
+            android:visibility="gone" />
+    </FrameLayout>
 </LinearLayout>

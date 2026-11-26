@@ -105,6 +105,7 @@ class SplashActivity : AppCompatActivity() {
         val nextIntent = Intent(this, MainActivity::class.java)
         val chatId = intent.getStringExtra("chatId")
         chatId?.let { nextIntent.putExtra("chatId", it) }
+        nextIntent.putExtra("openNotifications", intent.getBooleanExtra("openNotifications", false))
         startActivity(nextIntent)
         finish()
     }

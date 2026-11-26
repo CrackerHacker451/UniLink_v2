@@ -74,10 +74,21 @@ class NotificationsActivity : AppCompatActivity() {
             }
         }
         binding.rvNotifications.adapter = adapter
+        binding.btnNotificationSettings.setOnClickListener {
+            val settings = if (android.os.Build.VERSION.SDK_INT >= 26) {
+                Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                    putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, packageName)
+                }
+            } else {
+                Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName"))
+            }
+            startActivity(settings)
+        }
         
         notificationListener = notificationRepository.observeNotifications { notifications ->
             if (isFinishing || isDestroyed) return@observeNotifications
             adapter.submitList(notifications)
+            binding.emptyNotifications.visibility = if (notifications.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
             if (notifications.any { !it.isRead }) {
                 notificationRepository.markAllAsRead()
             }
