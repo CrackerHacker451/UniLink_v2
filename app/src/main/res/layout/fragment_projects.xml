@@ -39,11 +39,49 @@
             android:textAllCaps="true"
             android:letterSpacing="0.1" />
 
-        <!-- Clean Empty Space Container -->
+        <!-- Top Handlebar Quick Action Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnHackathons"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:text="🏆 Hackathons"
+                android:textAllCaps="false"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                app:backgroundTint="?attr/accentColor"
+                app:cornerRadius="16dp"
+                android:textColor="@color/white" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnTeamFormation"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="👥 Team Formation"
+                android:textAllCaps="false"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                app:strokeColor="?attr/borderStrokeColor"
+                app:strokeWidth="1.2dp"
+                android:textColor="?attr/textPrimaryColor"
+                app:cornerRadius="16dp" />
+        </LinearLayout>
+
+        <!-- Clean Container -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="24dp">
+            android:layout_marginTop="16dp">
 
             <LinearLayout
                 android:id="@+id/llEmptyContainer"
@@ -64,7 +102,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:text="Project Hub is Empty"
+                    android:text="Select an Option Above"
                     android:textColor="?attr/textPrimaryColor"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -73,7 +111,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="No active projects or teams listing."
+                    android:text="Explore upcoming hackathons or launch a team."
                     android:textColor="?attr/textSecondaryColor"
                     android:textSize="13sp" />
             </LinearLayout>
