@@ -39,303 +39,45 @@
             android:textAllCaps="true"
             android:letterSpacing="0.1" />
 
-        <!-- Launchpad Quick Action Row -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="24dp"
-            android:layout_marginTop="16dp"
-            android:orientation="horizontal">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnLaunchTeam"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:layout_marginEnd="8dp"
-                android:text="🏆 Hackathons"
-                android:textAllCaps="false"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                app:backgroundTint="?attr/accentColor"
-                app:cornerRadius="16dp"
-                android:textColor="@color/white" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnMyTeams"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:text="👥 Join Teams"
-                android:textAllCaps="false"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                app:strokeColor="?attr/borderStrokeColor"
-                app:strokeWidth="1.2dp"
-                android:textColor="?attr/textPrimaryColor"
-                app:cornerRadius="16dp" />
-        </LinearLayout>
-
-        <!-- Live Hackathons & Events Banner -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardEventsBanner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="24dp"
-            android:layout_marginTop="14dp"
-            style="@style/GlassCard"
-            app:cardCornerRadius="20dp"
-            app:strokeColor="?attr/accentColor"
-            app:strokeWidth="1.2dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="🏆 UPCOMING HACKATHONS &amp; EVENTS"
-                        android:textColor="?attr/accentColor"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.08" />
-
-                    <TextView
-                        android:id="@+id/tvEventBadge"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="LIVE REGISTRATION"
-                        android:textColor="#10B981"
-                        android:textSize="9sp"
-                        android:textStyle="bold"
-                        android:paddingHorizontal="8dp"
-                        android:paddingVertical="3dp"
-                        android:background="@drawable/bg_tag" />
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/tvEventTitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:text="🚀 ETHGlobal Mumbai Hackathon 2026 ($100K+ Prizes)"
-                    android:textColor="?attr/textPrimaryColor"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvEventDesc"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="Build Web3, World ID &amp; AI apps! Team formation open in campus squads."
-                    android:textColor="?attr/textSecondaryColor"
-                    android:textSize="11sp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnRegisterEvent"
-                        android:layout_width="wrap_content"
-                        android:layout_height="36dp"
-                        android:text="RSVP &amp; Build Squad ⚡"
-                        android:textAllCaps="false"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
-                        app:backgroundTint="?attr/accentColor"
-                        app:cornerRadius="10dp"
-                        android:textColor="@color/white"
-                        android:paddingHorizontal="12dp" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnViewAllEvents"
-                        android:layout_width="wrap_content"
-                        android:layout_height="36dp"
-                        android:layout_marginStart="8dp"
-                        android:text="All Events 📄"
-                        android:textAllCaps="false"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                        app:strokeColor="?attr/borderStrokeColor"
-                        app:strokeWidth="1dp"
-                        android:textColor="?attr/textPrimaryColor"
-                        app:cornerRadius="10dp"
-                        android:paddingHorizontal="10dp" />
-                </LinearLayout>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Glassy Search Bar -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginHorizontal="24dp"
-            android:layout_marginTop="14dp"
-            style="@style/GlassCard"
-            app:cardCornerRadius="26dp">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:paddingHorizontal="20dp">
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@android:drawable/ic_menu_search"
-                    app:tint="?attr/accentColor"
-                    android:contentDescription="@null" />
-                <EditText
-                    android:id="@+id/etSearchProjects"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@null"
-                    android:hint="@string/search_stacks_hint"
-                    android:paddingStart="12dp"
-                    android:textColor="?attr/textPrimaryColor"
-                    android:textColorHint="?attr/textSecondaryColor"
-                    android:textSize="14sp"
-                    android:inputType="textFilter" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Categories Scroll -->
-        <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:clipToPadding="false"
-            android:paddingHorizontal="24dp"
-            android:scrollbars="none">
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chipGroupCategories"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:singleLine="true"
-                app:selectionRequired="true"
-                app:singleSelection="true">
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipAll"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checked="true"
-                    android:text="@string/all_projects"
-                    app:chipBackgroundColor="@color/glass_bg_low"
-                    app:chipStrokeColor="@color/glass_stroke"
-                    android:textColor="?attr/textPrimaryColor"
-                    app:chipCornerRadius="16dp" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipEvents"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="🏆 Events &amp; Hackathons"
-                    app:chipBackgroundColor="@color/glass_bg_low"
-                    app:chipStrokeColor="@color/glass_stroke"
-                    android:textColor="?attr/textPrimaryColor"
-                    app:chipCornerRadius="16dp" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipAI"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ai_data"
-                    app:chipBackgroundColor="@color/glass_bg_low"
-                    app:chipStrokeColor="@color/glass_stroke"
-                    android:textColor="?attr/textPrimaryColor"
-                    app:chipCornerRadius="16dp" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipDev"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/full_stack"
-                    app:chipBackgroundColor="@color/glass_bg_low"
-                    app:chipStrokeColor="@color/glass_stroke"
-                    android:textColor="?attr/textPrimaryColor"
-                    app:chipCornerRadius="16dp" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipDesign"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/design"
-                    app:chipBackgroundColor="@color/glass_bg_low"
-                    app:chipStrokeColor="@color/glass_stroke"
-                    android:textColor="?attr/textPrimaryColor"
-                    app:chipCornerRadius="16dp" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipResearch"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/research"
-                    app:chipBackgroundColor="@color/glass_bg_low"
-                    app:chipStrokeColor="@color/glass_stroke"
-                    android:textColor="?attr/textPrimaryColor"
-                    app:chipCornerRadius="16dp" />
-            </com.google.android.material.chip.ChipGroup>
-        </HorizontalScrollView>
-
+        <!-- Clean Empty Space Container -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="12dp">
+            android:layout_marginTop="24dp">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvProjects"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clipToPadding="false"
-                android:paddingHorizontal="12dp"
-                android:paddingBottom="160dp" />
-
-            <!-- Project Skeleton -->
             <LinearLayout
-                android:id="@+id/llSkeletonContainer"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:paddingHorizontal="24dp"
-                android:visibility="gone">
-                <include layout="@layout/skeleton_list_item" />
-                <include layout="@layout/skeleton_list_item" />
-                <include layout="@layout/skeleton_list_item" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/tvEmptyState"
+                android:id="@+id/llEmptyContainer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="@string/no_projects_found"
-                android:textColor="?attr/textSecondaryColor"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:visibility="gone" />
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="✨"
+                    android:textSize="48sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Project Hub is Empty"
+                    android:textColor="?attr/textPrimaryColor"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="No active projects or teams listing."
+                    android:textColor="?attr/textSecondaryColor"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
         </FrameLayout>
 
     </LinearLayout>
