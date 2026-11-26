@@ -12,8 +12,8 @@ android {
         applicationId = "com.Newtons_Lobby.myapp"
         minSdk = 24
         targetSdk = 36
-        versionCode = 30
-        versionName = "3.9"
+        versionCode = 31
+        versionName = "4.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
