@@ -154,18 +154,26 @@ class LoginActivity : AppCompatActivity() {
                                 Toast.makeText(this@LoginActivity, "Auth Failed: ${task.exception?.localizedMessage}", Toast.LENGTH_LONG).show()
                             }
                         }
-                } catch (_: Exception) {
+                } catch (e: Exception) {
                     showLoading(show = false)
-                    Toast.makeText(this@LoginActivity, "Credential mismatch", Toast.LENGTH_SHORT).show()
+                    Log.e("LoginActivity", "Credential conversion error: ${e.message}", e)
+                    Toast.makeText(this@LoginActivity, "Credential mismatch: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: GetCredentialException) {
                 showLoading(show = false)
+                Log.e("LoginActivity", "GetCredentialException: ${e.type} - ${e.message}", e)
                 if (e !is androidx.credentials.exceptions.GetCredentialCancellationException) {
-                    Toast.makeText(this@LoginActivity, "System error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    val message = if (e is androidx.credentials.exceptions.NoCredentialException || e.message?.contains("No credential") == true) {
+                        "No Google account found on device. Please add a Google account or use Newton Login."
+                    } else {
+                        "Sign-in error: ${e.message ?: "Unknown error"}"
+                    }
+                    Toast.makeText(this@LoginActivity, message, Toast.LENGTH_LONG).show()
                 }
-            } catch (_: Exception) {
+            } catch (e: Exception) {
                 showLoading(show = false)
-                Toast.makeText(this@LoginActivity, "Failed to connect", Toast.LENGTH_SHORT).show()
+                Log.e("LoginActivity", "Unexpected login error: ${e.message}", e)
+                Toast.makeText(this@LoginActivity, "Failed to connect: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }

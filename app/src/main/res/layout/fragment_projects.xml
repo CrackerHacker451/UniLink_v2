@@ -5,119 +5,301 @@
     android:layout_height="match_parent"
     android:background="?attr/appBackgroundColor">
 
+    <!-- Ambient Aura Background -->
     <com.example.unilink.utils.AuraParticlesView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:alpha="0.4" />
+        android:alpha="0.35" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:clipToPadding="false">
 
-        <TextView
-            android:id="@+id/tvProjectsTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="56dp"
-            android:text="@string/hub_projects"
-            android:textColor="?attr/textPrimaryColor"
-            android:textSize="32sp"
-            android:textStyle="bold"
-            android:letterSpacing="-0.03" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="4dp"
-            android:text="@string/sync_innovators"
-            android:textColor="?attr/accentColor"
-            android:textSize="11sp"
-            android:textStyle="bold"
-            android:textAllCaps="true"
-            android:letterSpacing="0.1" />
-
-        <!-- Top Handlebar Quick Action Buttons -->
+        <!-- Top Header & Hero Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="24dp"
-            android:layout_marginTop="16dp"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="24dp">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnHackathons"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:layout_marginEnd="8dp"
-                android:text="🏆 Hackathons"
-                android:textAllCaps="false"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                app:backgroundTint="?attr/accentColor"
-                app:cornerRadius="16dp"
-                android:textColor="@color/white" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnTeamFormation"
-                android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvProjectsTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Campus Projects"
+                        android:textColor="?attr/textPrimaryColor"
+                        android:textSize="28sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="-0.03" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="BUILD • COLLABORATE • SHIP"
+                        android:textColor="?attr/accentColor"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.12" />
+                </LinearLayout>
+
+                <!-- Quick Action Header Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnLaunchTeam"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:text="+ Launch"
+                    android:textAllCaps="false"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="?attr/accentColor"
+                    app:cornerRadius="20dp"
+                    android:textColor="@color/white"
+                    app:icon="@android:drawable/ic_input_add"
+                    app:iconSize="14dp"
+                    app:iconTint="@color/white"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp" />
+            </RelativeLayout>
+
+            <!-- Stats / Filter Quick Bar -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="42dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    style="@style/GlassCard"
+                    app:cardCornerRadius="14dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="?attr/borderStrokeColor">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="12dp">
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@android:drawable/ic_menu_my_calendar"
+                            app:tint="?attr/accentColor" />
+                        <TextView
+                            android:id="@+id/tvActiveProjectsCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="Explore Hub"
+                            android:textColor="?attr/textPrimaryColor"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnMyTeams"
+                    android:layout_width="0dp"
+                    android:layout_height="42dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="👥 My Teams"
+                    android:textAllCaps="false"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    app:strokeColor="?attr/borderStrokeColor"
+                    app:strokeWidth="1dp"
+                    android:textColor="?attr/textPrimaryColor"
+                    app:cornerRadius="14dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp" />
+            </LinearLayout>
+
+            <!-- Search Bar -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:layout_weight="1"
-                android:text="👥 Team Formation"
-                android:textAllCaps="false"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                app:strokeColor="?attr/borderStrokeColor"
-                app:strokeWidth="1.2dp"
-                android:textColor="?attr/textPrimaryColor"
-                app:cornerRadius="16dp" />
+                android:layout_marginTop="12dp"
+                style="@style/GlassCard"
+                app:cardCornerRadius="24dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="?attr/borderStrokeColor">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="16dp">
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:src="@android:drawable/ic_menu_search"
+                        app:tint="?attr/accentColor" />
+                    <EditText
+                        android:id="@+id/etSearchProjects"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@null"
+                        android:hint="Search stacks, titles, AI, Kotlin..."
+                        android:paddingStart="12dp"
+                        android:textColor="?attr/textPrimaryColor"
+                        android:textColorHint="?attr/textSecondaryColor"
+                        android:textSize="13sp"
+                        android:inputType="textFilter" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Category Chips -->
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:clipToPadding="false"
+                android:scrollbars="none">
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipGroupCategories"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:singleLine="true"
+                    app:selectionRequired="true"
+                    app:singleSelection="true"
+                    app:chipSpacingHorizontal="8dp">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipAll"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:text="✨ All Stacks"
+                        app:chipBackgroundColor="@color/glass_bg_low"
+                        app:chipStrokeColor="@color/glass_stroke"
+                        android:textColor="?attr/textPrimaryColor"
+                        app:chipCornerRadius="16dp" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipAI"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🤖 AI &amp; ML"
+                        app:chipBackgroundColor="@color/glass_bg_low"
+                        app:chipStrokeColor="@color/glass_stroke"
+                        android:textColor="?attr/textPrimaryColor"
+                        app:chipCornerRadius="16dp" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipDev"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="⚡ Full-Stack"
+                        app:chipBackgroundColor="@color/glass_bg_low"
+                        app:chipStrokeColor="@color/glass_stroke"
+                        android:textColor="?attr/textPrimaryColor"
+                        app:chipCornerRadius="16dp" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipDesign"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🎨 UI/UX Design"
+                        app:chipBackgroundColor="@color/glass_bg_low"
+                        app:chipStrokeColor="@color/glass_stroke"
+                        android:textColor="?attr/textPrimaryColor"
+                        app:chipCornerRadius="16dp" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipResearch"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🔬 Research"
+                        app:chipBackgroundColor="@color/glass_bg_low"
+                        app:chipStrokeColor="@color/glass_stroke"
+                        android:textColor="?attr/textPrimaryColor"
+                        app:chipCornerRadius="16dp" />
+                </com.google.android.material.chip.ChipGroup>
+            </HorizontalScrollView>
         </LinearLayout>
 
-        <!-- Clean Container -->
+        <!-- Projects Content Area -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="16dp">
+            android:layout_marginTop="8dp">
 
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvProjects"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingHorizontal="16dp"
+                android:paddingBottom="140dp" />
+
+            <!-- Skeleton Loader -->
             <LinearLayout
-                android:id="@+id/llEmptyContainer"
+                android:id="@+id/llSkeletonContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp"
+                android:visibility="gone">
+                <include layout="@layout/skeleton_list_item" />
+                <include layout="@layout/skeleton_list_item" />
+                <include layout="@layout/skeleton_list_item" />
+            </LinearLayout>
+
+            <!-- Empty State -->
+            <LinearLayout
+                android:id="@+id/tvEmptyState"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:padding="24dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="✨"
-                    android:textSize="48sp" />
-
+                android:visibility="gone">
+                <ImageView
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:src="@android:drawable/ic_menu_agenda"
+                    app:tint="?attr/textSecondaryColor"
+                    android:alpha="0.5" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:text="Select an Option Above"
-                    android:textColor="?attr/textPrimaryColor"
-                    android:textSize="18sp"
+                    android:text="No projects found in this stack"
+                    android:textColor="?attr/textSecondaryColor"
+                    android:textSize="15sp"
                     android:textStyle="bold" />
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="Explore upcoming hackathons or launch a team."
-                    android:textColor="?attr/textSecondaryColor"
+                    android:text="Be the first to launch a team!"
+                    android:textColor="?attr/accentColor"
                     android:textSize="13sp" />
             </LinearLayout>
-
         </FrameLayout>
-
     </LinearLayout>
-
 </FrameLayout>

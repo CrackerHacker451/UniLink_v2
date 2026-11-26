@@ -26,9 +26,10 @@
     <string name="campus_live_plus">Campus Live+</string>
     <string name="mark_all_as_read">Mark all as read</string>
 
-    <!-- AdMob IDs (Sample IDs) -->
+    <!-- AdMob IDs & Auth IDs -->
     <string name="admob_app_id">ca-app-pub-3940256099942544~3347511713</string>
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="default_web_client_id">326237133092-g8lqf9d2dbv4epoo9ofma5ubp04dqm33.apps.googleusercontent.com</string>
     <string name="notifications">Notifications</string>
     <string name="leaderboard">Leaderboard</string>
     <string name="search_campus_hint">Search campus...</string>

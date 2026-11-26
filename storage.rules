@@ -46,7 +46,8 @@ service firebase.storage {
       allow read: if isAuthenticated();
       allow write: if isAuthenticated() && (isPdf() || isImage()) && isUnderSize(50);
     }
-
+ayush845434@gmail.com
+1
     // Chat Attachments (25MB Media Limit)
     match /chat_media/{chatId}/{allPaths=**} {
       allow read: if isAuthenticated();

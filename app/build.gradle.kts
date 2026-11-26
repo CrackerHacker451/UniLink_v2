@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.google.services)
+    id("com.google.firebase.crashlytics")
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
@@ -91,6 +92,7 @@ dependencies {
     implementation(libs.firebase.messaging)
     implementation(libs.firebase.storage)
     implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.installations)
     implementation(libs.firebase.appcheck.playintegrity)
     implementation(libs.firebase.appcheck.debug)

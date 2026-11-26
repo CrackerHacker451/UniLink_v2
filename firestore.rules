@@ -44,10 +44,13 @@ service cloud.firestore {
     }
 
     // HUMAN GATE: only users whose token carries the `humanVerified` custom claim.
-    // That claim is set exclusively by the server (functions/gate.js) after World ID itself
-    // confirmed a proof. No client can write it, so this one rule gates the whole app.
-    function isAuthenticated() {
+    function isHumanVerified() {
       return request.auth != null && request.auth.token.get('humanVerified', false) == true;
+    }
+
+    // Core authentication: any signed in user can access core app features (Login, Chat, Projects, Profile).
+    function isAuthenticated() {
+      return request.auth != null;
     }
 
     // Fields only the server may write (World ID results).

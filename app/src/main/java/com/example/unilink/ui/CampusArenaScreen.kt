@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -82,8 +81,8 @@ val AppSlateBg = Color(0xFF0F172A)
 val AppCyanAccent = Color(0xFF38BDF8)
 val AppPinkAccent = Color(0xFFEC4899)
 val AppGoldAccent = Color(0xFFF59E0B)
-val AppGlassCardBg = Color(0x261E293B)
-val AppGlassBorder = Color(0x3338BDF8)
+val AppGlassCardBg = Color(0x331E293B)
+val AppGlassBorder = Color(0x4D38BDF8)
 
 // Compatibility Aliases
 val AuraVioletDark = AppSlateDark
@@ -140,14 +139,15 @@ fun CampusArenaScreen(
                         Text(
                             text = "Campus Arena ⚡",
                             color = Color.White,
-                            fontSize = 20.sp,
+                            fontSize = 22.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "Campus Hub • Broadcasts, Dares & Swaps",
+                            text = "LIVE BROADCASTS • DARES & SWAPS",
                             color = AppCyanAccent,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.SemiBold
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp
                         )
                     }
                 },
@@ -167,7 +167,7 @@ fun CampusArenaScreen(
                         border = androidx.compose.foundation.BorderStroke(1.dp, AppCyanAccent)
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Box(
@@ -196,9 +196,9 @@ fun CampusArenaScreen(
                     .fillMaxSize()
                     .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(bottom = 90.dp, top = 8.dp)
+                contentPadding = PaddingValues(bottom = 120.dp, top = 8.dp)
             ) {
-                // Arena Quick Shortcuts
+                // Arena Quick Shortcuts Grid
                 item {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -210,12 +210,12 @@ fun CampusArenaScreen(
                                 .clip(RoundedCornerShape(20.dp))
                                 .clickable { onOpenRandomMatch() },
                             color = Color(0x33EC4899),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, AppPinkAccent)
+                            border = androidx.compose.foundation.BorderStroke(1.2.dp, AppPinkAccent)
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Text("⚡ SpeedLink", color = AppPinkAccent, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                                 Spacer(modifier = Modifier.height(4.dp))
-                                Text("1080p Peer Connect", color = Color.White.copy(0.8f), fontSize = 11.sp)
+                                Text("Instant 1080p Peer", color = Color.White.copy(0.8f), fontSize = 11.sp)
                             }
                         }
 
@@ -225,7 +225,7 @@ fun CampusArenaScreen(
                                 .clip(RoundedCornerShape(20.dp))
                                 .clickable { onOpenCampusRadar() },
                             color = Color(0x3338BDF8),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, AppCyanAccent)
+                            border = androidx.compose.foundation.BorderStroke(1.2.dp, AppCyanAccent)
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Text("📡 Campus Radar", color = AppCyanAccent, fontSize = 15.sp, fontWeight = FontWeight.Bold)
@@ -352,7 +352,7 @@ fun CampusArenaScreen(
                                 .clip(RoundedCornerShape(12.dp))
                                 .clickable { selectedOption = idx },
                             color = if (isSelected) AppGoldAccent else Color(0x33FFFFFF),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, if (isSelected) AppGoldAccent else Color(0x33FFFFFF))
+                            border = androidx.compose.foundation.BorderStroke(1.2.dp, if (isSelected) AppGoldAccent else Color(0x33FFFFFF))
                         ) {
                             Row(
                                 modifier = Modifier.padding(12.dp),
@@ -419,7 +419,7 @@ fun Zone1MidnightMicCard(
     val infiniteTransition = rememberInfiniteTransition(label = "Pulse")
     val pulseScale by infiniteTransition.animateFloat(
         initialValue = 1.0f,
-        targetValue = 1.05f,
+        targetValue = 1.04f,
         animationSpec = infiniteRepeatable(
             animation = tween(1000, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
@@ -431,7 +431,7 @@ fun Zone1MidnightMicCard(
         modifier = Modifier
             .fillMaxWidth()
             .border(
-                1.dp,
+                1.2.dp,
                 if (isUnlocked) AppPinkAccent else AppGlassBorder,
                 RoundedCornerShape(20.dp)
             )
@@ -439,7 +439,7 @@ fun Zone1MidnightMicCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(18.dp),
+                .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
@@ -456,7 +456,7 @@ fun Zone1MidnightMicCard(
                         color = Color.White,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
                     )
                 }
 
@@ -469,7 +469,7 @@ fun Zone1MidnightMicCard(
                         }
                     ) {
                         Text(
-                            text = if (forceDemoUnlocked) "LIVE DEMO" else "DEMO UNLOCK",
+                            text = if (forceDemoUnlocked) "LIVE" else "DEMO UNLOCK",
                             color = if (forceDemoUnlocked) Color(0xFF10B981) else Color.White.copy(0.7f),
                             fontSize = 9.sp,
                             fontWeight = FontWeight.Bold,
@@ -498,20 +498,20 @@ fun Zone1MidnightMicCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
             if (!isUnlocked) {
                 Icon(
                     imageVector = Icons.Default.Lock,
                     contentDescription = "Locked",
                     tint = AppCyanAccent,
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(36.dp)
                 )
 
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "The Main Mic unlocks in",
+                    text = "The Main Audio Mic unlocks in",
                     color = Color.White.copy(alpha = 0.7f),
                     fontSize = 12.sp
                 )
@@ -519,12 +519,12 @@ fun Zone1MidnightMicCard(
                 Text(
                     text = timerString,
                     color = Color.White,
-                    fontSize = 28.sp,
+                    fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 1.5.sp
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
                 Button(
                     onClick = {
@@ -532,19 +532,19 @@ fun Zone1MidnightMicCard(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0x3338BDF8)),
                     shape = RoundedCornerShape(16.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, AppCyanAccent)
+                    border = androidx.compose.foundation.BorderStroke(1.2.dp, AppCyanAccent)
                 ) {
                     Text("Unlock Live Stage Demo", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
             } else {
                 AudioEqualizerAnimation()
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 Text(
                     text = "MIDNIGHT BROADCAST IS LIVE 🎙️",
                     color = Color(0xFF10B981),
-                    fontSize = 15.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
 
@@ -554,16 +554,17 @@ fun Zone1MidnightMicCard(
                     fontSize = 11.sp
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
                 Button(
                     onClick = onOpenAudioRoom,
                     modifier = Modifier.scale(pulseScale),
                     colors = ButtonDefaults.buttonColors(containerColor = AppPinkAccent),
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(16.dp),
+                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp)
                 ) {
-                    Icon(Icons.Default.VolumeUp, contentDescription = null, tint = Color.White)
-                    Spacer(modifier = Modifier.width(6.dp))
+                    Icon(Icons.Default.VolumeUp, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text("Join Live Audio Stage", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                 }
             }
@@ -587,9 +588,9 @@ private fun calculateMillisToMidnight(): Long {
 fun AudioEqualizerAnimation() {
     val infiniteTransition = rememberInfiniteTransition(label = "Eq")
     Row(
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(5.dp),
         verticalAlignment = Alignment.Bottom,
-        modifier = Modifier.height(32.dp)
+        modifier = Modifier.height(36.dp)
     ) {
         repeat(7) { index ->
             val heightFraction by infiniteTransition.animateFloat(
@@ -603,9 +604,9 @@ fun AudioEqualizerAnimation() {
             )
             Box(
                 modifier = Modifier
-                    .width(5.dp)
+                    .width(6.dp)
                     .fillMaxHeight(heightFraction)
-                    .clip(RoundedCornerShape(2.5.dp))
+                    .clip(RoundedCornerShape(3.dp))
                     .background(
                         Brush.verticalGradient(listOf(AppPinkAccent, AppCyanAccent))
                     )
@@ -625,7 +626,7 @@ fun Zone2DareDropCard(
             .fillMaxWidth()
             .clickable { onOpenDareDrop() }
             .border(
-                1.dp,
+                1.2.dp,
                 if (dareCompleted) Color(0xFF10B981) else AppGlassBorder,
                 RoundedCornerShape(20.dp)
             )
@@ -633,8 +634,8 @@ fun Zone2DareDropCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -644,25 +645,37 @@ fun Zone2DareDropCard(
                 Text(
                     text = "🎯 DareDrop Arena",
                     color = Color.White,
-                    fontSize = 15.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
-                Text(
-                    text = if (dareCompleted) "DONE ✅" else "TODAY's DROP",
-                    color = if (dareCompleted) Color(0xFF10B981) else AppPinkAccent,
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = if (dareCompleted) Color(0x3310B981) else Color(0x33EC4899)
+                ) {
+                    Text(
+                        text = if (dareCompleted) "DONE ✅" else "TODAY's DROP",
+                        color = if (dareCompleted) Color(0xFF10B981) else AppPinkAccent,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
             }
 
-            Column {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0x1AFFFFFF))
+                    .padding(12.dp)
+            ) {
                 Text(
                     text = "Today's Campus Challenge:",
                     color = AppPinkAccent,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold
                 )
-                Spacer(modifier = Modifier.height(2.dp))
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "\"Take a high-five selfie with a campus professor or library cat! 📸\"",
                     color = Color.White,
@@ -693,8 +706,8 @@ fun Zone2DareDropCard(
                 progress = { (completedCount.toFloat() / 200f).coerceIn(0f, 1f) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(5.dp)
-                    .clip(RoundedCornerShape(2.5.dp)),
+                    .height(6.dp)
+                    .clip(RoundedCornerShape(3.dp)),
                 color = if (dareCompleted) Color(0xFF10B981) else AppPinkAccent,
                 trackColor = Color(0x33FFFFFF)
             )
@@ -702,9 +715,9 @@ fun Zone2DareDropCard(
             Button(
                 onClick = onOpenDareDrop,
                 colors = ButtonDefaults.buttonColors(containerColor = if (dareCompleted) Color(0xFF10B981) else AppPinkAccent),
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(14.dp),
                 modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(vertical = 8.dp)
+                contentPadding = PaddingValues(vertical = 10.dp)
             ) {
                 Icon(if (dareCompleted) Icons.Default.CheckCircle else Icons.Default.CameraAlt, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(6.dp))
@@ -724,7 +737,7 @@ fun Zone3BarterBlockCard(
 
     LaunchedEffect(trades.size) {
         while (true) {
-            delay(2800L)
+            delay(3000L)
             if (trades.isNotEmpty()) {
                 currentTradeIndex = (currentTradeIndex + 1) % trades.size
             }
@@ -739,8 +752,8 @@ fun Zone3BarterBlockCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -748,26 +761,26 @@ fun Zone3BarterBlockCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.SwapHoriz, contentDescription = null, tint = AppCyanAccent, modifier = Modifier.size(18.dp))
+                    Icon(Icons.Default.SwapHoriz, contentDescription = null, tint = AppCyanAccent, modifier = Modifier.size(20.dp))
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "🔄 Barter Block (Cashless Market)",
+                        text = "🔄 Barter Block Market",
                         color = Color.White,
-                        fontSize = 15.sp,
+                        fontSize = 16.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
 
                 Surface(
-                    shape = RoundedCornerShape(6.dp),
+                    shape = RoundedCornerShape(8.dp),
                     color = Color(0x3310B981)
                 ) {
                     Text(
                         text = "LIVE (${trades.size})",
                         color = Color(0xFF10B981),
-                        fontSize = 9.sp,
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                     )
                 }
             }
@@ -777,19 +790,19 @@ fun Zone3BarterBlockCard(
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
                     .background(Color(0x1A000000))
-                    .padding(10.dp)
+                    .padding(12.dp)
             ) {
                 Text(
                     text = "Live Peer Trade Offer:",
                     color = AppCyanAccent,
-                    fontSize = 10.sp,
+                    fontSize = 11.sp,
                     fontWeight = FontWeight.Bold
                 )
-                Spacer(modifier = Modifier.height(2.dp))
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = if (trades.isNotEmpty()) trades[currentTradeIndex % trades.size] else "No active trades",
                     color = Color.White,
-                    fontSize = 12.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
@@ -799,14 +812,14 @@ fun Zone3BarterBlockCard(
             Button(
                 onClick = onPostTrade,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0x3338BDF8)),
-                shape = RoundedCornerShape(12.dp),
-                border = androidx.compose.foundation.BorderStroke(1.dp, AppCyanAccent),
+                shape = RoundedCornerShape(14.dp),
+                border = androidx.compose.foundation.BorderStroke(1.2.dp, AppCyanAccent),
                 modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(vertical = 8.dp)
+                contentPadding = PaddingValues(vertical = 10.dp)
             ) {
                 Icon(Icons.Default.Add, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("Post Barter Trade", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text("Post Barter Trade", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -822,8 +835,8 @@ fun Zone4RoastAndToastCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -834,10 +847,10 @@ fun Zone4RoastAndToastCard(
                     Text(
                         text = "🔥 Roast & Toast Polls",
                         color = Color.White,
-                        fontSize = 15.sp,
+                        fontSize = 16.sp,
                         fontWeight = FontWeight.Bold
                     )
-                    Spacer(modifier = Modifier.width(6.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
                     Surface(
                         shape = CircleShape,
                         color = AppPinkAccent
@@ -845,9 +858,9 @@ fun Zone4RoastAndToastCard(
                         Text(
                             text = "2 Picked You!",
                             color = Color.White,
-                            fontSize = 9.sp,
+                            fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                         )
                     }
                 }
@@ -856,20 +869,20 @@ fun Zone4RoastAndToastCard(
             Text(
                 text = "Who is most likely to build a startup before graduation? 🚀",
                 color = Color.White.copy(alpha = 0.9f),
-                fontSize = 12.sp,
+                fontSize = 13.sp,
                 fontWeight = FontWeight.Medium
             )
 
             Button(
                 onClick = onPlayPoll,
                 colors = ButtonDefaults.buttonColors(containerColor = AppGoldAccent),
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(14.dp),
                 modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(vertical = 8.dp)
+                contentPadding = PaddingValues(vertical = 10.dp)
             ) {
                 Icon(Icons.Default.PlayArrow, contentDescription = null, tint = Color.Black, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("Play Live Poll", color = Color.Black, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text("Play Live Poll", color = Color.Black, fontSize = 13.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -878,15 +891,15 @@ fun Zone4RoastAndToastCard(
 @Composable
 fun AuraGlassCard(
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
+    content: @Composable (() -> Unit)
 ) {
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(20.dp),
         color = AppGlassCardBg,
         tonalElevation = 0.dp,
-        shadowElevation = 2.dp,
-        border = androidx.compose.foundation.BorderStroke(1.dp, AppGlassBorder)
+        shadowElevation = 4.dp,
+        border = androidx.compose.foundation.BorderStroke(1.2.dp, AppGlassBorder)
     ) {
         content()
     }
