@@ -108,6 +108,11 @@ class MainActivity : AppCompatActivity() {
 
         setupNavigation(savedInstanceState)
         setupClickListeners()
+
+        // Background AI Hackathon Research Agent
+        lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            com.example.unilink.agents.HackathonResearcherAgent.startResearchInBackground(this@MainActivity)
+        }
         updateOnlineStatus(online = true)
         observeNotifications()
         checkAndRequestPermissions()
