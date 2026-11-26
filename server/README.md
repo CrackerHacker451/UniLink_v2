@@ -40,3 +40,6 @@ Check it works: `curl -s -X POST https://your-site.netlify.app/api/startVerifica
 `{"success":false,"error":"unauthenticated"}`.
 
 Tests: `cd server && npm install && npm test`.
+
+## Push delivery without Cloud Functions
+See [../NETLIFY_PUSH.md](../NETLIFY_PUSH.md). The push route uses a separate configuration from World ID and does not require World ID credentials to initialize.

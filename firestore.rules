@@ -176,11 +176,18 @@ service cloud.firestore {
 
       // Notifications Sub-collection
       match /notifications/{notificationId} {
-        allow read, update, delete: if isOwner(userId) || isAdmin();
-        allow create: if isAuthenticated() && request.resource.data.senderId == request.auth.uid && request.resource.data.notificationId == notificationId && request.resource.data.isRead == false;
+        allow read, delete: if isOwner(userId) || isAdmin();
+        allow update: if (isOwner(userId) || isAdmin()) &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead']) &&
+          request.resource.data.isRead is bool;
+        allow create: if isAuthenticated() && request.resource.data.senderId == request.auth.uid &&
+          request.resource.data.notificationId == notificationId && request.resource.data.isRead == false &&
+          request.resource.data.timestamp == request.time &&
+          !request.resource.data.keys().hasAny(['pushAttemptedAt']);
       }
     }
 
+    // Push rate counters and delivery reservations are server-only (default deny).
     // Device tokens are private, not public profile fields.
     match /pushRegistrations/{userId} {
       allow read, delete: if isOwner(userId);

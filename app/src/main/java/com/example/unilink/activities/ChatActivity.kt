@@ -144,15 +144,7 @@ class ChatActivity : AppCompatActivity() {
             }
             startActivity(intent)
 
-            if (rid.isNotEmpty()) {
-                com.example.unilink.repository.NotificationRepository().sendNotification(
-                    rid,
-                    "video_call",
-                    "Incoming Video Call 🎥",
-                    "$currentUsername is calling you for a video call!",
-                    cid
-                )
-            }
+
         }
 
         binding.btnViewProfile.setOnClickListener {

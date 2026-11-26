@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Set to your deployed Netlify HTTPS origin, without /api or trailing slash. -->
+    <string name="push_backend_base_url" translatable="false"></string>
+</resources>
