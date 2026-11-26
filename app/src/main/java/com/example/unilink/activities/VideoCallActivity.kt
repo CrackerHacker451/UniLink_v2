@@ -65,6 +65,7 @@ class VideoCallActivity : AppCompatActivity() {
                         "description" to sdp.description
                     ),
                     "callerId" to auth.currentUser?.uid,
+                    "calleeId" to partnerId,
                     "status" to "active"
                 )
             } else {
@@ -77,10 +78,8 @@ class VideoCallActivity : AppCompatActivity() {
                     "status" to "active"
                 )
             }
-            if (channelId.isNotEmpty()) {
-                db.collection("calls").document(channelId).set(data, SetOptions.merge())
-            }
-
+            if (channelId.isEmpty()) return
+            db.collection("calls").document(channelId).set(data, SetOptions.merge()).addOnSuccessListener {
             if (isOffer && partnerId.isNotEmpty()) {
                 val myUid = auth.currentUser?.uid ?: ""
                 if (myUid.isNotEmpty()) {
@@ -99,6 +98,7 @@ class VideoCallActivity : AppCompatActivity() {
                     }
                 }
             }
+            }.addOnFailureListener { Log.w("VideoCall", "Call signaling write failed") }
         }
 
         override fun onSetSuccess() {

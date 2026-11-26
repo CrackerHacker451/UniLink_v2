@@ -29,7 +29,12 @@ class NotificationRepository {
                 "timestamp" to FieldValue.serverTimestamp()
             )
 
-            db.collection("users").document(receiverUid).collection("notifications").document(notificationId).set(notification)
+            db.collection("users").document(receiverUid).collection("notifications").document(notificationId)
+                .set(notification)
+                .addOnSuccessListener {
+                    com.example.unilink.services.NetlifyPushClient.request(receiverUid, notificationId, currentUid)
+                }
+                .addOnFailureListener { android.util.Log.w("NotificationRepository", "Inbox write failed") }
 
             if (type == "video_call") {
                 db.collection("users").document(receiverUid).update(
@@ -62,6 +67,7 @@ class NotificationRepository {
 
         db.collection("users").get().addOnSuccessListener { snapshot ->
             val batch = db.batch()
+            val pushRefs = mutableListOf<Pair<String, String>>()
             snapshot.documents.forEach { doc ->
                 val receiverUid = doc.id
                 val notificationRef = db.collection("users").document(receiverUid).collection("notifications").document()
@@ -77,9 +83,13 @@ class NotificationRepository {
                     "timestamp" to FieldValue.serverTimestamp()
                 )
                 batch.set(notificationRef, notification)
+                if (receiverUid != currentUid) pushRefs.add(receiverUid to notificationRef.id)
             }
             batch.commit().addOnCompleteListener { task ->
                 onComplete(task.isSuccessful)
+                if (task.isSuccessful) pushRefs.forEach { (uid, id) ->
+                    com.example.unilink.services.NetlifyPushClient.request(uid, id, currentUid)
+                }
             }
         }.addOnFailureListener {
             onComplete(false)
