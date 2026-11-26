@@ -1,10 +1,13 @@
 package com.example.unilink.fragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.example.unilink.activities.HackathonsHubActivity
+import com.example.unilink.activities.TeamSquadsHubActivity
 import com.example.unilink.databinding.FragmentProjectsBinding
 
 class ProjectsFragment : Fragment() {
@@ -28,6 +31,16 @@ class ProjectsFragment : Fragment() {
                 binding.tvProjectsTitle.layoutParams = params
             }
             insets
+        }
+
+        binding.btnHackathons.setOnClickListener {
+            val intent = Intent(context, HackathonsHubActivity::class.java)
+            startActivity(intent)
+        }
+
+        binding.btnTeamFormation.setOnClickListener {
+            val intent = Intent(context, TeamSquadsHubActivity::class.java)
+            startActivity(intent)
         }
     }
 
