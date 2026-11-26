@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
+    android:layout_marginBottom="12dp"
     app:cardBackgroundColor="?attr/cardBackgroundColor"
     app:cardCornerRadius="16dp"
     app:cardElevation="0dp"
@@ -48,7 +48,7 @@
                 android:layout_height="wrap_content"
                 android:text="New Vouch!"
                 android:textColor="?attr/textPrimaryColor"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -58,7 +58,7 @@
                 android:layout_marginTop="2dp"
                 android:text="Aryan vouched for your skill."
                 android:textColor="?attr/textSecondaryColor"
-                android:textSize="13sp" />
+                android:textSize="14sp" />
         </LinearLayout>
 
         <TextView
@@ -67,7 +67,7 @@
             android:layout_height="wrap_content"
             android:text="2m ago"
             android:textColor="?attr/textSecondaryColor"
-            android:textSize="10sp" />
+            android:textSize="12sp" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

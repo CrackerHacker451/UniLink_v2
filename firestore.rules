@@ -168,14 +168,23 @@ service cloud.firestore {
       allow update: if isAuthenticated() &&
                        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
                          'linked', 'linkers', 'linkCount', 'vouchCount', 'skillVouches',
-                         'profileViews', 'latitude', 'longitude', 'city', 'state', 'status', 'isLookingForRandomMatch', 'fcmToken', 'lastSeenTimestamp'
+                         'profileViews', 'latitude', 'longitude', 'city', 'state', 'status', 'isLookingForRandomMatch', 'lastSeenTimestamp'
                        ]);
 
       // Notifications Sub-collection
       match /notifications/{notificationId} {
         allow read, update, delete: if isOwner(userId) || isAdmin();
-        allow create: if isAuthenticated();
+        allow create: if isAuthenticated() && request.resource.data.senderId == request.auth.uid && request.resource.data.notificationId == notificationId && request.resource.data.isRead == false;
       }
+    }
+
+    // Device tokens are private, not public profile fields.
+    match /pushRegistrations/{userId} {
+      allow read, delete: if isOwner(userId);
+      allow create, update: if isOwner(userId) &&
+        request.resource.data.keys().hasOnly(['token', 'updatedAt']) &&
+        request.resource.data.token is string && request.resource.data.token.size() > 0 &&
+        request.resource.data.token.size() <= 4096 && request.resource.data.updatedAt == request.time;
     }
 
     // Web / Newton's Lobby User Sync Collections

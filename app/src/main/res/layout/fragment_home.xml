@@ -15,7 +15,7 @@
             android:id="@+id/auraParticles"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:alpha="0.2" />
+            android:alpha="0.06" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -31,7 +31,20 @@
                 android:paddingTop="14dp"
                 android:paddingBottom="12dp">
 
-                <!-- Top Left: Multi-Sparkles Button & UniCoins Badge Side-by-Side -->
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:text="UniLink"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/textPrimaryColor"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/llHeaderRight"
+                    app:layout_constraintTop_toTopOf="@id/llHeaderRight"
+                    app:layout_constraintBottom_toBottomOf="@id/llHeaderRight" />
                 <LinearLayout
                     android:id="@+id/llHeaderLeft"
                     android:layout_width="wrap_content"
@@ -39,14 +52,18 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/llHeaderRight"
+                    android:layout_marginTop="12dp"
                     app:layout_constraintBottom_toBottomOf="parent">
 
                     <!-- Sparkles Highlights Button -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/btnSparklesHighlights"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:contentDescription="Highlights"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
                         android:layout_marginEnd="6dp"
                         app:cardBackgroundColor="?attr/cardBackgroundColor"
                         app:cardCornerRadius="20dp"
@@ -65,8 +82,11 @@
                     <!-- Leaderboard Trophy Button -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/btnLeaderboardHeader"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:contentDescription="Leaderboard"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
                         android:layout_marginEnd="6dp"
                         app:cardBackgroundColor="?attr/cardBackgroundColor"
                         app:cardCornerRadius="20dp"
@@ -85,8 +105,11 @@
                     <!-- UniCoins Badge Pill (100,175) -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/cardHeaderStats"
+                        android:contentDescription="UniCoins balance"
+                        android:clickable="true"
+                        android:focusable="true"
                         android:layout_width="wrap_content"
-                        android:layout_height="40dp"
+                        android:layout_height="48dp"
                         app:cardBackgroundColor="?attr/cardBackgroundColor"
                         app:cardCornerRadius="20dp"
                         app:cardElevation="0dp"
@@ -110,7 +133,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="6dp"
-                                android:text="100,175"
+                                android:text="—"
                                 android:textColor="?attr/textPrimaryColor"
                                 android:textSize="13sp"
                                 android:textStyle="bold"
@@ -128,14 +151,16 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent">
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <!-- Eye Comfort Sun Button -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/btnEyeComfort"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:contentDescription="Eye comfort"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
                         android:layout_marginEnd="6dp"
                         app:cardBackgroundColor="?attr/cardBackgroundColor"
                         app:cardCornerRadius="14dp"
@@ -154,8 +179,11 @@
                     <!-- Notifications Bell Button -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/btnNotifications"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:contentDescription="Notifications"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
                         android:layout_marginEnd="6dp"
                         app:cardBackgroundColor="?attr/cardBackgroundColor"
                         app:cardCornerRadius="14dp"
@@ -174,20 +202,27 @@
                                 android:contentDescription="Notifications" />
                             <TextView
                                 android:id="@+id/tvNotificationCount"
-                                android:layout_width="10dp"
-                                android:layout_height="10dp"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:gravity="center"
+                                android:textColor="@android:color/white"
+                                android:textSize="10sp"
+                                android:textStyle="bold"
                                 android:layout_gravity="top|end"
                                 android:layout_margin="6dp"
-                                android:background="@drawable/bg_online_glow"
-                                android:visibility="visible" />
+                                android:background="@drawable/bg_unread_badge"
+                                android:visibility="gone" />
                         </FrameLayout>
                     </com.google.android.material.card.MaterialCardView>
 
                     <!-- Menu Drawer Button (≡) -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/btnMenuDrawer"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:contentDescription="Menu"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
                         app:cardBackgroundColor="?attr/cardBackgroundColor"
                         app:cardCornerRadius="14dp"
                         app:cardElevation="0dp"
@@ -213,7 +248,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
-                android:paddingBottom="100dp" />
+                android:paddingBottom="140dp" />
 
         </LinearLayout>
 
