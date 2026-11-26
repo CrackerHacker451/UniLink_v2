@@ -18,12 +18,25 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // Keep signing credentials and keystores outside version control.
+    val releaseSigning = listOf(
+        "UNILINK_KEYSTORE_PATH",
+        "UNILINK_STORE_PASSWORD",
+        "UNILINK_KEY_ALIAS",
+        "UNILINK_KEY_PASSWORD"
+    ).associateWith { providers.environmentVariable(it).orNull }
+    val hasReleaseSigning = releaseSigning.values.all { !it.isNullOrBlank() }
+    require(hasReleaseSigning || releaseSigning.values.all { it.isNullOrBlank() }) {
+        "Provide all four UNILINK signing environment variables, or none."
+    }
     signingConfigs {
-        create("release") {
-            storeFile = file("release.keystore")
-            storePassword = "unilink123"
-            keyAlias = "unilink_release"
-            keyPassword = "unilink123"
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile = rootProject.file(releaseSigning.getValue("UNILINK_KEYSTORE_PATH")!!)
+                storePassword = releaseSigning.getValue("UNILINK_STORE_PASSWORD")
+                keyAlias = releaseSigning.getValue("UNILINK_KEY_ALIAS")
+                keyPassword = releaseSigning.getValue("UNILINK_KEY_PASSWORD")
+            }
         }
     }
 
@@ -38,7 +51,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("release")
+            if (hasReleaseSigning) signingConfig = signingConfigs.getByName("release")
             ndk {
                 debugSymbolLevel = "FULL"
             }

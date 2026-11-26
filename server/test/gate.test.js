@@ -213,3 +213,42 @@ test('FAIL CLOSED: App Check required but not configured -> rejected', async () 
   const r = await startWith(s, { authorization: 'Bearer tokenA', 'x-firebase-appcheck': 'good-token' });
   assert.equal(r.code, 401);
 });
+
+
+test('expiry during upstream verification prevents granting the claim', async () => {
+  const s = setup();
+  const { pairingId, rp } = await begin(s);
+  s.setPortal(async () => {
+    s.tick(10 * 60 * 1000);
+    return { ok: true, json: async () => ({ success: true, environment: 'production' }) };
+  });
+  const r = await verify(s, pairingId, proof(rp, 'userA'));
+  assert.equal(r.code, 400);
+  assert.equal(r.body.error, 'invalid_or_expired_session');
+  assert.equal(s.auth.claims.userA, undefined);
+});
+
+test('a challenge changed during upstream verification cannot grant a claim', async () => {
+  const s = setup();
+  const { pairingId, rp } = await begin(s);
+  s.setPortal(async () => {
+    await s.db.collection('worldPairings').doc(pairingId).update({ nonce: 'new-challenge' });
+    return { ok: true, json: async () => ({ success: true, environment: 'production' }) };
+  });
+  const r = await verify(s, pairingId, proof(rp, 'userA'));
+  assert.equal(r.code, 400);
+  assert.equal(r.body.error, 'challenge_mismatch');
+  assert.equal(s.auth.claims.userA, undefined);
+});
+
+test('upstream verification has a bounded timeout signal', async () => {
+  const s = setup();
+  const { pairingId, rp } = await begin(s);
+  s.setPortal(async (_url, options) => {
+    assert.ok(options.signal instanceof AbortSignal);
+    throw new Error('upstream timeout');
+  });
+  const r = await verify(s, pairingId, proof(rp, 'userA'));
+  assert.equal(r.code, 502);
+  assert.equal(s.auth.claims.userA, undefined);
+});
