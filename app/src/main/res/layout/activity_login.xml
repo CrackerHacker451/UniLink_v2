@@ -134,6 +134,25 @@
                 app:strokeColor="#33FFFFFF"
                 app:strokeWidth="1dp" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnGuestLogin"
+                style="@style/PrimaryButton"
+                android:layout_height="56dp"
+                android:layout_marginTop="12dp"
+                android:stateListAnimator="@animator/btn_press_scale"
+                android:text="@string/instant_guest_access"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                app:backgroundTint="#0F172A"
+                app:cornerRadius="18dp"
+                app:elevation="2dp"
+                app:icon="@android:drawable/ic_menu_compass"
+                app:iconGravity="textStart"
+                app:iconPadding="12dp"
+                app:iconSize="20dp"
+                app:strokeColor="#2222D3EE"
+                app:strokeWidth="1dp" />
+
             <TextView
                 android:id="@+id/tvAltLogin"
                 android:layout_width="wrap_content"

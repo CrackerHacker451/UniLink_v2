@@ -18,7 +18,6 @@ import com.example.unilink.utils.HapticUtils
 import com.example.unilink.utils.LocationHelper
 import com.example.unilink.utils.ThemeUtils
 import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
@@ -76,6 +75,29 @@ class LoginActivity : AppCompatActivity() {
             HapticUtils.playSelection(it)
             showNewtonLoginDialog()
         }
+
+        binding.btnGuestLogin.setOnClickListener {
+            HapticUtils.playSelection(it)
+            signInAnonymouslyGuest()
+        }
+    }
+
+    private fun signInAnonymouslyGuest() {
+        showLoading(show = true, status = "Entering Newton's Lobby as Campus Guest...")
+        auth.signInAnonymously()
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val user = auth.currentUser
+                    val profileUpdates = com.google.firebase.auth.UserProfileChangeRequest.Builder()
+                        .setDisplayName("Campus Guest")
+                        .build()
+                    user?.updateProfile(profileUpdates)
+                    handleUserSync()
+                } else {
+                    showLoading(show = false)
+                    Toast.makeText(this, "Guest Access Error: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                }
+            }
     }
 
     private fun showNewtonLoginDialog() {
@@ -101,7 +123,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun signInWithEmailOrName(emailOrUser: String, displayName: String, password: String) {
         val email = if (emailOrUser.contains("@")) emailOrUser.trim().lowercase() else "${emailOrUser.trim().lowercase().replace(" ", "")}@nl-lobby.app"
-        val safePassword = if (password.length < 6) "${password}123456" else password
+        val safePassword = if (password.isEmpty()) "Newton2026!" else if (password.length < 6) "${password}123456" else password
         showLoading(show = true, status = "Connecting to Newton's Lobby...")
 
         auth.signInWithEmailAndPassword(email, safePassword)
@@ -127,8 +149,21 @@ class LoginActivity : AppCompatActivity() {
                                 user?.updateProfile(profileUpdates)
                                 handleUserSync()
                             } else {
-                                showLoading(show = false)
-                                Toast.makeText(this, "Login Error: ${createParamTask.exception?.message}", Toast.LENGTH_LONG).show()
+                                Log.w("LoginActivity", "Email auth failed (${createParamTask.exception?.message}), falling back to instant guest auth...")
+                                auth.signInAnonymously()
+                                    .addOnCompleteListener { anonTask ->
+                                        if (anonTask.isSuccessful) {
+                                            val user = auth.currentUser
+                                            val profileUpdates = com.google.firebase.auth.UserProfileChangeRequest.Builder()
+                                                .setDisplayName(displayName.ifEmpty { "Student Member" })
+                                                .build()
+                                            user?.updateProfile(profileUpdates)
+                                            handleUserSync()
+                                        } else {
+                                            showLoading(show = false)
+                                            Toast.makeText(this@LoginActivity, "Login Error: ${createParamTask.exception?.message}", Toast.LENGTH_LONG).show()
+                                        }
+                                    }
                             }
                         }
                 }

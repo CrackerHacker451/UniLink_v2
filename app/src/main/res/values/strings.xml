@@ -25,6 +25,7 @@
     <string name="no_rankings_found">No rankings found</string>
     <string name="campus_live_plus">Campus Live+</string>
     <string name="mark_all_as_read">Mark all as read</string>
+    <string name="instant_guest_access">⚡ Instant Guest Access</string>
 
     <!-- AdMob IDs (Sample IDs) -->
     <string name="admob_app_id">ca-app-pub-3940256099942544~3347511713</string>
