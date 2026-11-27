@@ -6,7 +6,6 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import coil.load
 import coil.transform.CircleCropTransformation
 import com.example.unilink.R
 import com.example.unilink.databinding.ActivityProfileSetupBinding

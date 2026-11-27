@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.unilink.R
 import com.example.unilink.databinding.ItemProjectBinding
 import com.example.unilink.models.Project
 import com.google.firebase.auth.FirebaseAuth
@@ -43,7 +42,7 @@ class ProjectAdapter(
         // Show Skills
         val skills = project.skillsRequired
         if (!skills.isNullOrEmpty()) {
-            holder.binding.tvProjectSkills.visibility = android.view.View.VISIBLE
+            holder.binding.tvProjectSkills.visibility = View.VISIBLE
             holder.binding.tvProjectSkills.text = "Skills: ${skills.joinToString(", ")}"
         } else {
             holder.binding.tvProjectSkills.visibility = android.view.View.GONE

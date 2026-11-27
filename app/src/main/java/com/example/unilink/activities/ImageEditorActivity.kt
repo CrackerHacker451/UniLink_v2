@@ -1,12 +1,10 @@
 package com.example.unilink.activities
 
-import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
-import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.unilink.R
@@ -111,7 +109,7 @@ class ImageEditorActivity : AppCompatActivity() {
         for (i in 0 until binding.llFilterChipsContainer.childCount) {
             val chip = binding.llFilterChipsContainer.getChildAt(i) as? Chip
             if (chip != null) {
-                val filter = FilterType.values().getOrNull(i)
+                val filter = FilterType.entries.getOrNull(i)
                 chip.isChecked = (filter == currentFilter)
             }
         }
@@ -203,7 +201,7 @@ class ImageEditorActivity : AppCompatActivity() {
                 putExtra("editedImageUri", tempUri.toString())
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
-            setResult(Activity.RESULT_OK, resultIntent)
+            setResult(RESULT_OK, resultIntent)
             Toast.makeText(this, "Photo enhanced & saved! ✨", Toast.LENGTH_SHORT).show()
             finish()
         } else {

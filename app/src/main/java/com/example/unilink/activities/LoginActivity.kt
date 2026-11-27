@@ -9,8 +9,6 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.credentials.CredentialManager
-import androidx.credentials.GetCredentialRequest
-import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.lifecycleScope
 import com.example.unilink.R
 import com.example.unilink.databinding.ActivityLoginBinding
@@ -150,14 +148,14 @@ class LoginActivity : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == RESULT_OK && result.data != null) {
-            val task = com.google.android.gms.auth.api.signin.GoogleSignIn.getSignedInAccountFromIntent(result.data)
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             try {
                 val account = task.getResult(com.google.android.gms.common.api.ApiException::class.java)
                 val idTokenString: String? = account.idToken
                 val realEmail = account.email ?: "student@university.edu"
                 val realName = account.displayName ?: account.givenName ?: realEmail.substringBefore("@")
 
-                if (idTokenString != null && idTokenString.length > 0) {
+                if (!idTokenString.isNullOrEmpty()) {
                     val firebaseCredential = GoogleAuthProvider.getCredential(idTokenString, null)
                     showLoading(show = true, status = "Authenticating $realName...")
                     auth.signInWithCredential(firebaseCredential)
@@ -187,7 +185,7 @@ class LoginActivity : AppCompatActivity() {
             .requestIdToken(webClientId)
             .requestEmail()
             .build()
-        val googleSignInClient = com.google.android.gms.auth.api.signin.GoogleSignIn.getClient(this, gso)
+        val googleSignInClient = GoogleSignIn.getClient(this, gso)
         googleSignInClient.signOut().addOnCompleteListener {
             legacyGoogleSignInLauncher.launch(googleSignInClient.signInIntent)
         }

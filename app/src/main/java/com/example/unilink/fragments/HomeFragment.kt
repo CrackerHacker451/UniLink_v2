@@ -1,6 +1,5 @@
 package com.example.unilink.fragments
 
-import android.animation.LayoutTransition
 import android.animation.ValueAnimator
 import android.content.Intent
 import android.graphics.Color

@@ -11,7 +11,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
-import com.example.unilink.R
 import com.example.unilink.databinding.ActivitySplashBinding
 import com.example.unilink.utils.ThemeUtils
 import com.google.firebase.auth.FirebaseAuth

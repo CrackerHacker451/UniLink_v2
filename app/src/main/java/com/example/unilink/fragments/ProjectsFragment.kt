@@ -33,15 +33,23 @@ class ProjectsFragment : Fragment() {
             insets
         }
 
-        binding.btnHackathons.setOnClickListener {
+        val openHackathons = View.OnClickListener {
             val intent = Intent(context, HackathonsHubActivity::class.java)
             startActivity(intent)
         }
 
-        binding.btnTeamFormation.setOnClickListener {
+        val openTeams = View.OnClickListener {
             val intent = Intent(context, TeamSquadsHubActivity::class.java)
             startActivity(intent)
         }
+
+        binding.btnHackathons.setOnClickListener(openHackathons)
+        binding.btnExploreHackathons.setOnClickListener(openHackathons)
+        binding.cardHackathonsFeature.setOnClickListener(openHackathons)
+
+        binding.btnTeamFormation.setOnClickListener(openTeams)
+        binding.btnExploreTeams.setOnClickListener(openTeams)
+        binding.cardTeamsFeature.setOnClickListener(openTeams)
     }
 
     override fun onDestroyView() {

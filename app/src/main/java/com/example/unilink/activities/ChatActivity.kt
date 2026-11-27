@@ -17,7 +17,6 @@ import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import coil.load
-import coil.transform.CircleCropTransformation
 import com.example.unilink.R
 import com.example.unilink.adapters.ChatAdapter
 import com.example.unilink.databinding.ActivityChatBinding
@@ -478,8 +477,8 @@ class ChatActivity : AppCompatActivity() {
                 binding.tvChatReceiverName.text = displayName
                 binding.tvChatReceiverStatus.text = if (user?.isOnline == true) "Online" else "Offline"
                 binding.tvChatReceiverStatus.setTextColor(
-                    if (user?.isOnline == true) android.graphics.Color.parseColor("#22C55E")
-                    else android.graphics.Color.GRAY
+                    if (user?.isOnline == true) Color.parseColor("#22C55E")
+                    else Color.GRAY
                 )
 
                 com.example.unilink.utils.ImageLoaderUtils.loadSmartImage(
@@ -552,7 +551,7 @@ class ChatActivity : AppCompatActivity() {
             .setAdapter(adapter) { _, which ->
                 when (actions[which]) {
                     "Copy" -> {
-                        val clipboard = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                        val clipboard = getSystemService(CLIPBOARD_SERVICE) as android.content.ClipboardManager
                         val decrypted = EncryptionUtils.decrypt(msg.messageText, chatId ?: "")
                         val clip = android.content.ClipData.newPlainText("UniLink Message", decrypted)
                         clipboard.setPrimaryClip(clip)

@@ -77,46 +77,136 @@
                 app:cornerRadius="16dp" />
         </LinearLayout>
 
-        <!-- Clean Container -->
-        <FrameLayout
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="16dp">
+            android:layout_marginTop="16dp"
+            android:paddingHorizontal="24dp">
 
             <LinearLayout
-                android:id="@+id/llEmptyContainer"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="24dp">
+                android:orientation="vertical">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <!-- Feature Card 1: Hackathons Hub -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardHackathonsFeature"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="✨"
-                    android:textSize="48sp" />
+                    style="@style/GlassCard"
+                    app:cardCornerRadius="20dp"
+                    app:strokeColor="?attr/accentColor"
+                    app:strokeWidth="1.2dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="Select an Option Above"
-                    android:textColor="?attr/textPrimaryColor"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="🏆 GLOBAL &amp; CAMPUS HACKATHONS"
+                            android:textColor="?attr/accentColor"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.08" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="🚀 ETHGlobal Mumbai, UniAI &amp; Chainlink Challenges"
+                            android:textColor="?attr/textPrimaryColor"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="Explore upcoming global hackathons, $100K+ prize pools, live AI research feeds, and Web3 event registration."
+                            android:textColor="?attr/textSecondaryColor"
+                            android:textSize="12sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnExploreHackathons"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:layout_marginTop="14dp"
+                            android:text="Explore Hackathons 🚀"
+                            android:textAllCaps="false"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            app:backgroundTint="?attr/accentColor"
+                            app:cornerRadius="12dp"
+                            android:textColor="@color/white" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Feature Card 2: Team Formation Hub -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardTeamsFeature"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="Explore upcoming hackathons or launch a team."
-                    android:textColor="?attr/textSecondaryColor"
-                    android:textSize="13sp" />
+                    android:layout_marginTop="16dp"
+                    style="@style/GlassCard"
+                    app:cardCornerRadius="20dp"
+                    app:strokeColor="?attr/borderStrokeColor"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="👥 CAMPUS TEAM FORMATION"
+                            android:textColor="#10B981"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.08" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="⚡ Join Open Squads or Launch Your Team"
+                            android:textColor="?attr/textPrimaryColor"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="Discover open student project teams looking for Frontend, AI/ML, Blockchain, and UI/UX teammates."
+                            android:textColor="?attr/textSecondaryColor"
+                            android:textSize="12sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnExploreTeams"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:layout_marginTop="14dp"
+                            android:text="Find Teammates 👥"
+                            android:textAllCaps="false"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            app:strokeColor="?attr/accentColor"
+                            app:strokeWidth="1.2dp"
+                            android:textColor="?attr/textPrimaryColor"
+                            app:cornerRadius="12dp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
             </LinearLayout>
-
-        </FrameLayout>
+        </androidx.core.widget.NestedScrollView>
 
     </LinearLayout>
 

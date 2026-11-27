@@ -129,7 +129,7 @@ class ProjectDetailsActivity : AppCompatActivity() {
             setContent { content(dialog) }
         }
         dialog.setContentView(composeView)
-        dialog.findViewById<android.view.View>(com.google.android.material.R.id.container)?.let { container ->
+        dialog.findViewById<View>(com.google.android.material.R.id.container)?.let { container ->
             container.setViewTreeLifecycleOwner(this)
             container.setViewTreeViewModelStoreOwner(this)
             container.setViewTreeSavedStateRegistryOwner(this)

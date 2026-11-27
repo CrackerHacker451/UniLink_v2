@@ -126,14 +126,14 @@ class DoubtBoardActivity : AppCompatActivity() {
 
     private fun showSkeleton(show: Boolean) {
         if (show) {
-            binding.rvDoubts.visibility = android.view.View.GONE
-            binding.llSkeletonContainer.visibility = android.view.View.VISIBLE
+            binding.rvDoubts.visibility = View.GONE
+            binding.llSkeletonContainer.visibility = View.VISIBLE
             val shimmer = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.shimmer_alpha)
             binding.llSkeletonContainer.startAnimation(shimmer)
         } else {
             binding.llSkeletonContainer.clearAnimation()
-            binding.llSkeletonContainer.visibility = android.view.View.GONE
-            binding.rvDoubts.visibility = android.view.View.VISIBLE
+            binding.llSkeletonContainer.visibility = View.GONE
+            binding.rvDoubts.visibility = View.VISIBLE
         }
     }
 

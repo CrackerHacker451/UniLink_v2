@@ -3,9 +3,7 @@ package com.example.unilink.activities
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.EditText
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
@@ -126,7 +124,7 @@ class ProfileActivity : AppCompatActivity() {
         }
         dialog.setContentView(composeView)
 
-        dialog.findViewById<android.view.View>(com.google.android.material.R.id.container)?.let { container ->
+        dialog.findViewById<View>(com.google.android.material.R.id.container)?.let { container ->
             container.setViewTreeLifecycleOwner(this)
             container.setViewTreeViewModelStoreOwner(this)
             container.setViewTreeSavedStateRegistryOwner(this)

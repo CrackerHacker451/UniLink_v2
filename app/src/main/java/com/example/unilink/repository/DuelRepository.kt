@@ -1,7 +1,6 @@
 package com.example.unilink.repository
 
 import com.example.unilink.models.DuelPeer
-import com.example.unilink.models.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration

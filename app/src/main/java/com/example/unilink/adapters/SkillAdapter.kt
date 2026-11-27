@@ -1,6 +1,5 @@
 package com.example.unilink.adapters
 
-import android.content.res.ColorStateList
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View

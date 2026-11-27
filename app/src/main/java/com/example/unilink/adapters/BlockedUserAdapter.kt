@@ -5,7 +5,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.unilink.databinding.ItemLeaderboardBinding
 import com.example.unilink.models.User
-import com.example.unilink.repository.UserRepository
 
 class BlockedUserAdapter(
     private val users: List<User>,

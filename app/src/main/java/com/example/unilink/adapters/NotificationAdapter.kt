@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.unilink.R
 import com.example.unilink.databinding.ItemNotificationBinding
 import com.example.unilink.models.Notification
 import java.text.SimpleDateFormat
